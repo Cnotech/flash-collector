@@ -1,7 +1,8 @@
 <template>
   <a-layout style="height: 100%">
     <a-layout-header class="header">
-      <div class="logo">
+      <img alt="Icon" class="logo" src="favicon.ico"/>
+      <div class="name">
         小游戏收集器
       </div>
     </a-layout-header>
@@ -80,7 +81,7 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
 
 </script>
 <style>
-.logo {
+.name {
   float: left;
   width: 120px;
   height: 48px;
@@ -89,9 +90,22 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
   color: #fff;
   font-size: larger;
 }
+
+.logo {
+  float: left;
+  width: 50px;
+  height: 50px;
+  margin: 8px 0 0 -25px;
+  padding: 0;
+}
+
 .icon {
   height: 19px;
   width: 19px;
   margin-top: -3px;
+}
+
+.header {
+  color: #eeeeee;
 }
 </style>

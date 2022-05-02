@@ -7,7 +7,11 @@
         placeholder="输入小游戏网址"
         size="large"
         @search="parse"
-    />
+    >
+      <template #suffix>
+        <close-circle-outlined v-show="url!==''" style="color: rgba(0,0,0,0.45)" @click="url=''"/>
+      </template>
+    </a-input-search>
     <a-descriptions v-if="displayInfo!=null" bordered title="游戏信息">
       <a-descriptions-item v-for="item of displayInfo" :label="item.title">{{ item.value }}</a-descriptions-item>
     </a-descriptions>
@@ -21,15 +25,15 @@ import {ipcRenderer} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message} from 'ant-design-vue';
+import {CloseCircleOutlined} from '@ant-design/icons-vue';
 
 const route = useRoute()
 let url = ref<string>(""), displayInfo = ref<Array<{ title: string, value: string }> | null>(null),
     loading = ref<boolean>(false)
 let gameInfo: GameInfo | null = null
 
-function parse() {
-  loading.value = true
-  let result = ipcRenderer.sendSync('parse', url.value) as Result<GameInfo, string>
+//监听解析结果返回
+ipcRenderer.on('result', (event, result: Result<GameInfo, string>) => {
   console.log(result)
   if (result.ok) {
     gameInfo = result.val
@@ -46,6 +50,11 @@ function parse() {
     displayInfo.value = null
   }
   loading.value = false
+})
+
+function parse() {
+  loading.value = true
+  ipcRenderer.send('parse', url.value)
 }
 </script>
 
