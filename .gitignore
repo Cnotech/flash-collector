@@ -8,3 +8,4 @@ dist-ssr
 tmp
 **/.tmp
 release
+.idea

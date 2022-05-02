@@ -39,5 +39,9 @@
     "vite",
     "vue3",
     "vue"
-  ]
+  ],
+  "dependencies": {
+    "ant-design-vue": "^3.2.2",
+    "vue-router": "4"
+  }
 }

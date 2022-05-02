@@ -1,55 +1,96 @@
-<script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+<!--  <div class="logo-box">-->
+<!--    <img style="height:140px;" src="./assets/electron.png" >-->
+<!--    <span/>-->
+<!--    <img style="height:140px;" src="./assets/vite.svg" >-->
+<!--    <span/>-->
+<!--    <img style="height:140px;" src="./assets/vue.png" >-->
+<!--  </div>-->
+<!--  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />-->
+<!--  <div class="static-public">-->
+<!--    Place static files into the <code>src/renderer/public</code> folder-->
+<!--    <img style="width:90px;" :src="'./images/node.png'" >-->
+<!--  </div>-->
 
 <template>
-  <div class="logo-box">
-    <img style="height:140px;" src="./assets/electron.png" >
-    <span/>
-    <img style="height:140px;" src="./assets/vite.svg" >
-    <span/>
-    <img style="height:140px;" src="./assets/vue.png" >
-  </div>
-  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
-  <div class="static-public">
-    Place static files into the <code>src/renderer/public</code> folder
-    <img style="width:90px;" :src="'./images/node.png'" >
-  </div>
+  <a-layout style="height: 100%">
+    <a-layout-header class="header">
+      <div class="logo">
+        小游戏收集器
+      </div>
+    </a-layout-header>
+    <a-layout>
+      <a-layout-sider width="200" style="background: #fff">
+        <a-menu
+            v-model:selectedKeys="selectedKeys"
+            v-model:openKeys="openKeys"
+            mode="inline"
+            :style="{ height: '100%', borderRight: 0 }"
+        >
+          <a-menu-item key="home">
+            <home-filled style="height: 20px;width: 20px"/>
+            首页
+          </a-menu-item>
+          <a-sub-menu key="flash">
+            <template #title>
+              <span>
+                <img class="icon" src="./assets/icons/flash.ico"/>
+                Flash
+              </span>
+            </template>
+            <a-menu-item key="game1">Game 1</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="unity">
+            <template #title>
+              <span>
+                <img class="icon" src="./assets/icons/unity3d.ico"/>
+                Unity3D
+              </span>
+            </template>
+            <a-menu-item key="game2">Game 2</a-menu-item>
+          </a-sub-menu>
+          <a-sub-menu key="h5">
+            <template #title>
+              <span>
+                <img class="icon" src="./assets/icons/html5.ico"/>
+                HTML 5
+              </span>
+            </template>
+            <a-menu-item key="game3">Game 3</a-menu-item>
+          </a-sub-menu>
+        </a-menu>
+      </a-layout-sider>
+      <a-layout style="padding: 16px;margin: 16px">
+        <a-layout-content
+            :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
+        >
+          Content
+        </a-layout-content>
+      </a-layout>
+    </a-layout>
+  </a-layout>
 </template>
+<script lang="ts" setup>
+import {ref} from 'vue';
+import {HomeFilled} from '@ant-design/icons-vue';
 
+
+let selectedKeys = ref<string[]>(['home']),
+    openKeys = ref<string[]>(['unity'])
+
+</script>
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.logo {
+  float: left;
+  width: 120px;
+  height: 48px;
+  margin-left: 16px;
+  padding: 0;
+  color: #fff;
+  font-size: larger;
 }
-
-.logo-box {
-  display: flex;
-  width: 100%;
-  justify-content: center;
-}
-
-.logo-box span {
-  width: 74px;
-}
-
-.static-public {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.static-public code {
-  background-color: #eee;
-  padding: 2px 4px;
-  margin: 0 4px;
-  border-radius: 4px;
-  color: #304455;
+.icon {
+  height: 19px;
+  width: 19px;
+  margin-top: -3px;
 }
 </style>
