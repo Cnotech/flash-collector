@@ -71,7 +71,6 @@ const state = ref({
 });
 
 function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
-  console.log(info.keyPath)
   if (info.keyPath[0] == 'home') {
     router.push('/')
   } else {
