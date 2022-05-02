@@ -1,16 +1,3 @@
-<!--  <div class="logo-box">-->
-<!--    <img style="height:140px;" src="./assets/electron.png" >-->
-<!--    <span/>-->
-<!--    <img style="height:140px;" src="./assets/vite.svg" >-->
-<!--    <span/>-->
-<!--    <img style="height:140px;" src="./assets/vue.png" >-->
-<!--  </div>-->
-<!--  <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />-->
-<!--  <div class="static-public">-->
-<!--    Place static files into the <code>src/renderer/public</code> folder-->
-<!--    <img style="width:90px;" :src="'./images/node.png'" >-->
-<!--  </div>-->
-
 <template>
   <a-layout style="height: 100%">
     <a-layout-header class="header">
@@ -21,8 +8,9 @@
     <a-layout>
       <a-layout-sider width="200" style="background: #fff">
         <a-menu
-            v-model:selectedKeys="selectedKeys"
-            v-model:openKeys="openKeys"
+            v-model:openKeys="state.openKeys"
+            v-model:selectedKeys="state.selectedKeys"
+            v-on:click="onChangeMenu"
             mode="inline"
             :style="{ height: '100%', borderRight: 0 }"
         >
@@ -63,7 +51,7 @@
         <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
         >
-          Content
+          <router-view/>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -72,10 +60,24 @@
 <script lang="ts" setup>
 import {ref} from 'vue';
 import {HomeFilled} from '@ant-design/icons-vue';
+import {useRouter} from 'vue-router';
 
+const router = useRouter()
 
-let selectedKeys = ref<string[]>(['home']),
-    openKeys = ref<string[]>(['unity'])
+const state = ref({
+  rootSubmenuKeys: ['home', 'flash', 'unity', 'h5'],
+  openKeys: [],
+  selectedKeys: ['home'],
+});
+
+function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
+  console.log(info.keyPath)
+  if (info.keyPath[0] == 'home') {
+    router.push('/')
+  } else {
+    router.push(`/game?type=${info.keyPath[0]}&id=${info.keyPath[1]}`)
+  }
+}
 
 </script>
 <style>
