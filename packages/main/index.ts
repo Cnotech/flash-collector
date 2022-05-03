@@ -122,3 +122,8 @@ ipcMain.on('download', async (event, payload: GameInfo) => {
     let r = await manager.downloader(payload)
     event.reply('download-reply', r)
 })
+
+//刷新游戏列表
+ipcMain.on('refresh', async (event) => {
+    event.reply('refresh-reply', manager.readList())
+})

@@ -69,6 +69,7 @@ import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
+import {bus} from "../eventbus";
 
 const route = useRoute()
 let url = ref<string>(""),
@@ -82,7 +83,6 @@ let gameInfo: GameInfo | null = null
 
 //初始化
 ipcRenderer.on('init-reply', (event, payload: Array<{ name: string, login: boolean }>) => {
-  console.log(payload)
   cookieStatus.value = payload
 })
 ipcRenderer.send('init')
@@ -157,6 +157,7 @@ ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
   if (payload.ok) {
     message.success(`${payload.val.title} 下载成功`)
     //TODO:显示到最近下载，然后刷新侧边栏
+    bus.emit('refreshSidebar')
   } else {
     message.error(payload.val)
   }

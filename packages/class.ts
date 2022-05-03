@@ -11,7 +11,8 @@ interface GameInfo {
         binUrl: string
     },
     local?: {
-        binFile: string
+        binFile: string,
+        folder: string
     }
 }
 
@@ -27,7 +28,14 @@ interface ParserRegister {
     }
 }
 
+interface List {
+    flash: GameInfo[],
+    unity: GameInfo[],
+    h5: GameInfo[]
+}
+
 export {
     GameInfo,
-    ParserRegister
+    ParserRegister,
+    List
 }

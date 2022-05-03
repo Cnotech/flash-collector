@@ -1,6 +1,6 @@
 import {register} from "./modules/_register";
 import {Err, Ok, Result} from "ts-results";
-import {GameInfo, ParserRegister} from "../class";
+import {GameInfo, List, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import Downloader from 'nodejs-file-downloader';
@@ -91,7 +91,8 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
 
 async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     //创建本地目录
-    const dir = path.join(LOCAL_GAME_LIBRARY, info.type, `${info.title}_${info.fromSite}_${randomStr()}`)
+    const door = `${info.title}_${info.fromSite}_${randomStr()}`
+    const dir = path.join(LOCAL_GAME_LIBRARY, info.type, door)
     shell.mkdir('-p', dir)
 
     //下载源文件
@@ -119,7 +120,8 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
 
     //下载完成
     info.local = {
-        binFile: downloadedFileName
+        binFile: downloadedFileName,
+        folder: door
     }
     ipcMain.emit('download-progress', {
         gameInfo: info,
@@ -132,10 +134,36 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     return new Ok(info)
 }
 
+//对于某种独立分类生成列表
+function geneNaiveList(p: string): GameInfo[] {
+    if (!fs.existsSync(p)) return []
+    let res: GameInfo[] = [], infoFile: string
+    //读取某种目录列表
+    let folders = fs.readdirSync(p)
+    for (let folder of folders) {
+        infoFile = path.join(p, folder, "info.json")
+        if (!fs.existsSync(infoFile)) {
+            console.log("Warning:Can't find info config : " + infoFile)
+            continue
+        }
+        res.push(JSON.parse(fs.readFileSync(infoFile).toString()))
+    }
+    return res
+}
+
+function readList(): List {
+    return {
+        flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
+        unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
+        h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+    }
+}
+
 export default {
     downloader,
     parser,
     init,
     login,
-    logout
+    logout,
+    readList
 }

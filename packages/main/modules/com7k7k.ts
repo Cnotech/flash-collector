@@ -106,12 +106,6 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         return new Err("Error:Request 7k7k api failed, have you logged in?")
     }
     const trueUrl = json.result.url as string, gameType = json.result.gameType
-    let type: "flash" | "unity" | "h5"
-    if (gameType == 6) {
-        type = "flash"
-    } else if (gameType == 1) {
-        type = "unity"
-    } else type = "h5"
 
     //请求真实页面
     let truePage = await axios.get(trueUrl, axiosConfig)
@@ -126,6 +120,14 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         binUrl = trueUrl.replace(last, binUrl)
     }
     console.log("Match bin file " + binUrl)
+
+    //确定游戏类型
+    let type: "flash" | "unity" | "h5"
+    if (binUrl.endsWith("swf")) {
+        type = "flash"
+    } else if (binUrl.endsWith("unity3d")) {
+        type = "unity"
+    } else type = "h5"
 
 
     return new Ok({

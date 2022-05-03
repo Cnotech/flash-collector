@@ -26,7 +26,7 @@
                 Flash
               </span>
             </template>
-            <a-menu-item key="game1">Game 1</a-menu-item>
+            <a-menu-item v-for="f of sidebarList.flash" :key="f.local.folder">{{ f.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="unity">
             <template #title>
@@ -35,7 +35,7 @@
                 Unity3D
               </span>
             </template>
-            <a-menu-item key="game2">Game 2</a-menu-item>
+            <a-menu-item v-for="u of sidebarList.unity" :key="u.local.folder">{{ u.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="h5">
             <template #title>
@@ -44,7 +44,7 @@
                 HTML 5
               </span>
             </template>
-            <a-menu-item key="game3">Game 3</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.h5" :key="i.local.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
         </a-menu>
       </a-layout-sider>
@@ -62,6 +62,9 @@
 import {ref} from 'vue';
 import {HomeFilled} from '@ant-design/icons-vue';
 import {useRouter} from 'vue-router';
+import {bus} from './eventbus'
+import {GameInfo, List} from "../../class";
+import {ipcRenderer} from "electron";
 
 const router = useRouter()
 
@@ -78,6 +81,20 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
     router.push(`/game?type=${info.keyPath[0]}&id=${info.keyPath[1]}`)
   }
 }
+
+//刷新侧边栏游戏列表
+let sidebarList = ref<List>({flash: [], unity: [], h5: []})
+bus.on('refreshSidebar', refreshSidebar)
+ipcRenderer.on('refresh-reply', (e, p: List) => {
+  console.log(p)
+  sidebarList.value = p
+})
+
+function refreshSidebar() {
+  ipcRenderer.send('refresh')
+}
+
+refreshSidebar()
 
 </script>
 <style>
