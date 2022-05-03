@@ -23,7 +23,7 @@
             <template #title>
               <span>
                 <img class="icon" src="./assets/icons/flash.ico"/>
-                Flash
+                Flash（{{ sidebarList.flash.length }}）
               </span>
             </template>
             <a-menu-item v-for="f of sidebarList.flash" :key="f.local.folder">{{ f.title }}</a-menu-item>
@@ -32,7 +32,7 @@
             <template #title>
               <span>
                 <img class="icon" src="./assets/icons/unity3d.ico"/>
-                Unity3D
+                Unity3D（{{ sidebarList.unity.length }}）
               </span>
             </template>
             <a-menu-item v-for="u of sidebarList.unity" :key="u.local.folder">{{ u.title }}</a-menu-item>
@@ -41,7 +41,7 @@
             <template #title>
               <span>
                 <img class="icon" src="./assets/icons/html5.ico"/>
-                HTML 5
+                HTML 5（{{ sidebarList.h5.length }}）
               </span>
             </template>
             <a-menu-item v-for="i of sidebarList.h5" :key="i.local.folder">{{ i.title }}</a-menu-item>
