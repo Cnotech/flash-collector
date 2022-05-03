@@ -10,18 +10,20 @@ import express from 'express'
 
 const shell = require('shelljs')
 
-//建立静态服务器
-const app = express()
-app.use('/retinue', express.static('retinue'))
-app.use('/games', express.static('games'))
-app.listen(3000)
+const LOCAL_GAME_LIBRARY = "./games", LOCAL_COOKIE_DATABASE = "./cookies.json", PORT = 3000
 
 interface CookieDatabase {
     [name: string]: string
 }
 
-const LOCAL_GAME_LIBRARY = "./games", LOCAL_COOKIE_DATABASE = "./cookies.json"
 let cookieDatabase: CookieDatabase = fs.existsSync(LOCAL_COOKIE_DATABASE) ? JSON.parse(fs.readFileSync(LOCAL_COOKIE_DATABASE).toString()) : {}
+
+
+//建立静态服务器
+const app = express()
+app.use('/retinue', express.static('retinue'))
+app.use('/games', express.static('games'))
+app.listen(PORT)
 
 //初始化全部解析器，返回各自的登录状态
 function init(): Array<{ name: string, login: boolean }> {
@@ -178,7 +180,7 @@ async function launch(type: string, folder: string): Promise<void> {
                 })
                 break
             case "unity":
-                cp.exec("start " + encodeURI(`http://localhost:3000/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())
+                cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())
                 break
             case "h5":
                 break

@@ -26,7 +26,7 @@
                 Flash（{{ sidebarList.flash.length }}）
               </span>
             </template>
-            <a-menu-item v-for="f of sidebarList.flash" :key="f.type+';'+f.local.folder">{{ f.title }}</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="unity">
             <template #title>
@@ -35,7 +35,7 @@
                 Unity3D（{{ sidebarList.unity.length }}）
               </span>
             </template>
-            <a-menu-item v-for="u of sidebarList.unity" :key="u.type+';'+u.local.folder">{{ u.title }}</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="h5">
             <template #title>
