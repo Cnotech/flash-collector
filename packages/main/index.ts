@@ -78,6 +78,9 @@ app.on('activate', () => {
   }
 })
 
+//初始化manager
+manager.init()
+
 //游戏信息解析
 ipcMain.on('parse', async (event, payload: string) => {
   let reply = false

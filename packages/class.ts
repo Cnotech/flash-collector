@@ -20,6 +20,7 @@ interface ParserRegister {
     regex: RegExp,
     entrance: (url: string) => Promise<Result<GameInfo, string>>,
     cookieController: {
+        init: (cookie: string | null, updateCookieCallback: (cookie: string) => void) => void,
         get: () => Promise<Result<string, string>>,
         set: (cookie: string) => void,
         clear: () => void

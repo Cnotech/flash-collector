@@ -12,7 +12,11 @@
         <close-circle-outlined v-show="url!==''" style="color: rgba(0,0,0,0.45)" @click="url=''"/>
       </template>
     </a-input-search>
-    <a-descriptions v-if="displayInfo!=null" bordered title="游戏信息">
+    <a-descriptions v-if="displayInfo!=null" bordered>
+      <template #title>
+        <h2>小游戏信息</h2>
+        <a-button primary @click="download">下载</a-button>
+      </template>
       <a-descriptions-item v-for="item of displayInfo" :label="item.title">{{ item.value }}</a-descriptions-item>
     </a-descriptions>
   </div>
@@ -33,7 +37,7 @@ let url = ref<string>(""), displayInfo = ref<Array<{ title: string, value: strin
 let gameInfo: GameInfo | null = null
 
 //监听解析结果返回
-ipcRenderer.on('result', (event, result: Result<GameInfo, string>) => {
+ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
   console.log(result)
   if (result.ok) {
     gameInfo = result.val
@@ -55,6 +59,20 @@ ipcRenderer.on('result', (event, result: Result<GameInfo, string>) => {
 function parse() {
   loading.value = true
   ipcRenderer.send('parse', url.value)
+}
+
+//监听下载进度事件更新
+ipcRenderer.on('download-progress', (event, payload: { gameInfo: GameInfo, percentage: number }) => {
+  console.log(payload)
+})
+
+ipcRenderer.on('download-reply', (event, payload: GameInfo) => {
+  console.log('finish')
+  console.log(payload)
+})
+
+function download() {
+  ipcRenderer.send('download', gameInfo)
 }
 </script>
 

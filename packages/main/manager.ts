@@ -4,9 +4,33 @@ import {GameInfo, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import Downloader from 'nodejs-file-downloader';
-import ipcMain = Electron.ipcMain;
+import {ipcMain} from 'electron'
 
-const LOCAL_GAME_LIBRARY = "./games"
+interface CookieDatabase {
+    [name: string]: string
+}
+
+const LOCAL_GAME_LIBRARY = "./games", LOCAL_COOKIE_DATABASE = "./cookies.json"
+let cookieDatabase: CookieDatabase = fs.existsSync(LOCAL_COOKIE_DATABASE) ? JSON.parse(fs.readFileSync(LOCAL_COOKIE_DATABASE).toString()) : {}
+
+//初始化全部解析器，返回各自的登录状态
+function init(): Array<{ name: string, login: boolean }> {
+    let res: Array<{ name: string, login: boolean }> = []
+    for (let n of register) {
+        const callback = (c: string) => {
+            cookieDatabase[n.name] = c
+            fs.writeFileSync(LOCAL_COOKIE_DATABASE, JSON.stringify(cookieDatabase, null, 2))
+        }
+        if (cookieDatabase.hasOwnProperty(n.name)) {
+            n.cookieController.init(cookieDatabase[n.name], callback)
+            res.push({name: n.name, login: true})
+        } else {
+            n.cookieController.init(null, callback)
+            res.push({name: n.name, login: false})
+        }
+    }
+    return res
+}
 
 function randomStr(): string {
     let t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890",
@@ -20,6 +44,7 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
     //搜索url匹配
     let regNode: ParserRegister | null = null
     for (let n of register) {
+        console.log(n.regex)
         if (n.regex.test(url)) {
             regNode = n
             break
@@ -76,5 +101,6 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
 
 export default {
     downloader,
-    parser
+    parser,
+    init
 }

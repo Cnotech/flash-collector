@@ -5,6 +5,7 @@ import {BrowserWindow} from "electron";
 
 // let cookie:string|null="isP=false; userWatch=2; username=2612468853; nickname=J3rry; loginfrom=wx; SERVER_ID=f0980091-d9ee5f9f; VUSERID=20220503013741BxY46DCfACi4kepHx2A2EBeJ; Hm_lvt_4f1beaf39805550dd06b5cac412cd19b=1651257273,1651306387,1651392366,1651510165; timekey=bf4a7df2f1da562984d76a1a90d7c401; identity=2612468853; userid=865057103; kk=2612468853; logintime=1651513112; k7_lastlogin=1651513112; avatar=http://sface.7k7kimg.cn/uicons/photo_default_s.png; securitycode=d9046817106fba948ac3313b3fe37e2b; Hm_lpvt_4f1beaf39805550dd06b5cac412cd19b=1651513124"
 let cookie: string | null = null
+let updateCookie: (cookie: string) => void
 
 function get7k7kTime(): string {
     const myDateDays = new Date();
@@ -14,6 +15,13 @@ function get7k7kTime(): string {
     const myDateHoursOne = myDateDays.getHours().toString();
     const myDateMinutesOne = myDateDays.getMinutes().toString();
     return myDateYearOne + myDateMonthOne + myDateDayOne + myDateHoursOne + myDateMinutesOne;
+}
+
+function initCookie(c: string | null, updateCookieCallback: (cookie: string) => void) {
+    if (c != null) {
+        cookie = c
+    }
+    updateCookie = updateCookieCallback
 }
 
 //登录获取cookie
@@ -31,7 +39,11 @@ async function getCookie(): Promise<Result<string, string>> {
             if (cookies.length == 0) {
                 reject("Error:Can't read cookie")
             } else {
-                cookie = cookies[0].value
+                cookie = ""
+                cookies.forEach(item => {
+                    cookie += `${item.name}=${item.value}; `
+                })
+                updateCookie(cookie)
                 resolve(new Ok(cookie))
             }
         })
@@ -116,6 +128,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 }
 
 export default {
+    initCookie,
     entrance,
     getCookie,
     setCookie,
