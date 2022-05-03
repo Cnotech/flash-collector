@@ -26,26 +26,40 @@ function initCookie(c: string | null, updateCookieCallback: (cookie: string) => 
 
 //登录获取cookie
 async function getCookie(): Promise<Result<string, string>> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         cookie = null
         //新建窗口
-        const win = new BrowserWindow({width: 800, height: 600, title: '登录7k7k后关闭窗口'})
+        const win = new BrowserWindow({width: 800, height: 600})
         await win.loadURL('http://www.7k7k.com')
+
+        //修改标题
+        win.webContents.once('did-stop-loading', async () => {
+            win.setTitle("登录7k7k后关闭窗口")
+            let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+            for (let oldItem of old) {
+                await win.webContents.session.cookies.remove('http://www.7k7k.com', oldItem.name)
+            }
+        })
 
         //监听窗口关闭
         win.on('close', async () => {
-            let cookies = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
-            console.log(cookies)
-            if (cookies.length == 0) {
-                reject("Error:Can't read cookie")
-            } else {
-                cookie = ""
-                cookies.forEach(item => {
-                    cookie += `${item.name}=${item.value}; `
-                })
-                updateCookie(cookie)
-                resolve(new Ok(cookie))
-            }
+            win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+                .then(cookies => {
+                    console.log(cookies)
+                    if (cookies.length < 2) {
+                        resolve(new Err("Error:Can't read cookie"))
+                    } else {
+                        cookie = ""
+                        cookies.forEach(item => {
+                            cookie += `${item.name}=${item.value}; `
+                        })
+                        updateCookie(cookie)
+                        resolve(new Ok(cookie))
+                    }
+                }).catch(e => {
+                resolve(new Err("Error:Can't read cookie"))
+            })
+
         })
     })
 }

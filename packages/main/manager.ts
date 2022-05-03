@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 import Downloader from 'nodejs-file-downloader';
 import {ipcMain} from 'electron'
+const shell = require('shelljs')
 
 interface CookieDatabase {
     [name: string]: string
@@ -18,8 +19,7 @@ function init(): Array<{ name: string, login: boolean }> {
     let res: Array<{ name: string, login: boolean }> = []
     for (let n of register) {
         const callback = (c: string) => {
-            cookieDatabase[n.name] = c
-            fs.writeFileSync(LOCAL_COOKIE_DATABASE, JSON.stringify(cookieDatabase, null, 2))
+            saveCookie(n.name, c)
         }
         if (cookieDatabase.hasOwnProperty(n.name)) {
             n.cookieController.init(cookieDatabase[n.name], callback)
@@ -30,6 +30,39 @@ function init(): Array<{ name: string, login: boolean }> {
         }
     }
     return res
+}
+
+function saveCookie(name: string, cookie: string | null) {
+    if (cookie == null) {
+        delete cookieDatabase[name]
+    } else {
+        cookieDatabase[name] = cookie
+    }
+    console.log(cookieDatabase)
+    fs.writeFileSync(LOCAL_COOKIE_DATABASE, JSON.stringify(cookieDatabase, null, 2))
+}
+
+//登录与登出
+async function login(name: string): Promise<Result<null, string>> {
+    for (let n of register) {
+        if (n.name == name) {
+            let r = await n.cookieController.get()
+            if (r.err) return r
+            saveCookie(name, r.val)
+            return new Ok(null)
+        }
+    }
+    return new Err("Error:Can't find such parser")
+}
+
+function logout(name: string) {
+    console.log(name)
+    for (let n of register) {
+        if (name == n.name) {
+            n.cookieController.clear()
+            saveCookie(name, null)
+        }
+    }
 }
 
 function randomStr(): string {
@@ -59,7 +92,7 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
 async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     //创建本地目录
     const dir = path.join(LOCAL_GAME_LIBRARY, info.type, `${info.title}_${info.fromSite}_${randomStr()}`)
-    fs.mkdirSync(dir)
+    shell.mkdir('-p', dir)
 
     //下载源文件
     const sp = info.online.binUrl.split("/")
@@ -102,5 +135,7 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
 export default {
     downloader,
     parser,
-    init
+    init,
+    login,
+    logout
 }

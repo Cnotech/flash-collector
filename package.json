@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.20.2",
+    "@types/shelljs": "^0.8.11",
     "@vitejs/plugin-vue": "^2.1.0",
     "electron": "18.2.0",
     "electron-builder": "^23.0.3",
@@ -45,6 +46,7 @@
     "axios": "^0.27.2",
     "node-fetch": "^3.2.4",
     "nodejs-file-downloader": "^4.9.3",
+    "shelljs": "^0.8.5",
     "ts-results": "^3.3.0",
     "tslib": "^2.4.0",
     "vue-router": "4"

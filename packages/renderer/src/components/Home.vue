@@ -2,7 +2,7 @@
   <div class="container">
     <a-row style="margin-top: 15%;margin-bottom: 5%" type="flex">
       <a-col :span="10"/>
-      <a-col :span="6">
+      <a-col :span="10">
         <a-radio-group
             v-model:value="inputType"
             :bordered="false"
@@ -23,8 +23,8 @@
             size="large"
             @input="parse"
         >
-          <template v-if="gameInfo!=null&&url!==''" #suffix>
-            <p style="color: rgba(0,0,0,0.45);margin-bottom: 0">{{ gameInfo.title }}</p>
+          <template v-if="gameTitle!=null&&url!==''" #suffix>
+            <p style="color: rgba(0,0,0,0.45);margin-bottom: 0">{{ gameTitle }}</p>
           </template>
         </a-input>
       </a-col>
@@ -35,6 +35,7 @@
             :loading="loading"
             size="large"
             type="primary"
+            @click="download"
         >{{ buttonText }}
         </a-button>
       </a-col>
@@ -43,16 +44,16 @@
     <a-row style="height: 20%;padding-top: 10%">
       <a-col :span="10"/>
       <a-col :span="4">
-        <a-space class="status-bar" size="middle">
-          7k7k
-          <check-circle-outlined style="color: #42b983"/>
-          <a-button size="small">登出</a-button>
-        </a-space>
-
-        <a-space class="status-bar" size="middle">
-          4399
-          <close-circle-outlined style="color: gray"/>
-          <a-button size="small">登录</a-button>
+        <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
+          {{ item.name }}
+          <template v-if="item.login">
+            <check-circle-outlined style="color: #42b983"/>
+            <a-button size="small" @click="logout(item.name)">登出</a-button>
+          </template>
+          <template v-else>
+            <close-circle-outlined style="color: gray"/>
+            <a-button size="small" @click="login(item.name)">登录</a-button>
+          </template>
         </a-space>
       </a-col>
     </a-row>
@@ -75,14 +76,52 @@ let url = ref<string>(""),
     buttonDisabled = ref<boolean>(true),
     inputType = ref<number>(0),
     buttonText = ref<string>("下载"),
-    gameInfo = ref<GameInfo | null>(null)
+    gameTitle = ref<string | null>(null),
+    cookieStatus = ref<Array<{ name: string, login: boolean }>>([])
+let gameInfo: GameInfo | null = null
+
+//初始化
+ipcRenderer.on('init-reply', (event, payload: Array<{ name: string, login: boolean }>) => {
+  console.log(payload)
+  cookieStatus.value = payload
+})
+ipcRenderer.send('init')
+
+//登录与登出
+function logout(name: string) {
+  ipcRenderer.send('logout', name)
+  for (let n of cookieStatus.value) {
+    if (n.name == name) {
+      n.login = false
+      break
+    }
+  }
+}
+
+ipcRenderer.on('login-reply', (event, payload: { name: string, status: boolean, errorMessage: string }) => {
+  if (!payload.status) {
+    message.error(payload.errorMessage)
+    return
+  }
+  for (let n of cookieStatus.value) {
+    if (n.name == payload.name) {
+      n.login = payload.status
+      break
+    }
+  }
+})
+
+function login(name: string) {
+  ipcRenderer.send('login', name)
+}
 
 //监听解析结果返回
 ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
   console.log(result)
   if (result.ok) {
     buttonDisabled.value = false
-    gameInfo.value = result.val
+    gameInfo = result.val
+    gameTitle.value = gameInfo.title
   } else {
     message.error(result.val)
   }
@@ -111,12 +150,16 @@ ipcRenderer.on('download-progress', (event, payload: { gameInfo: GameInfo, perce
   console.log(payload)
 })
 
-ipcRenderer.on('download-reply', (event, payload: GameInfo) => {
+ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
   buttonDisabled.value = false
   buttonText.value = "下载"
   url.value = ""
-  console.log('finish')
-  console.log(payload)
+  if (payload.ok) {
+    message.success(`${payload.val.title} 下载成功`)
+    //TODO:显示到最近下载，然后刷新侧边栏
+  } else {
+    message.error(payload.val)
+  }
 })
 
 function download() {
