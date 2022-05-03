@@ -1,7 +1,7 @@
 <template>
   <a-layout style="height: 100%">
     <a-layout-header class="header">
-      <img alt="Icon" class="logo" src="favicon.ico"/>
+      <img alt="Icon" class="logo" src="./assets/favicon.ico"/>
       <div class="name">
         小游戏收集器
       </div>
@@ -26,7 +26,7 @@
                 Flash（{{ sidebarList.flash.length }}）
               </span>
             </template>
-            <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="unity">
             <template #title>
@@ -35,7 +35,7 @@
                 Unity3D（{{ sidebarList.unity.length }}）
               </span>
             </template>
-            <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
           <!--          <a-sub-menu key="h5">-->
           <!--            <template #title>-->
@@ -86,7 +86,6 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
 let sidebarList = ref<List>({flash: [], unity: [], h5: []})
 bus.on('refreshSidebar', refreshSidebar)
 ipcRenderer.on('refresh-reply', (e, p: List) => {
-  console.log(p)
   sidebarList.value = p
 })
 

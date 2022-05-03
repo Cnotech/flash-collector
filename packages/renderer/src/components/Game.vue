@@ -16,10 +16,9 @@
 
     <a-divider>下方为小游戏原始页面，不可点击</a-divider>
 
-    <webview
-        id="webview"
+    <iframe
         :src="info.online.originPage"
-        style="width:100%; height:80%"
+        style="width:100%; height:80%;border-width: 0"
     />
   </div>
 </template>
@@ -27,7 +26,7 @@
 <script lang="ts" setup>
 import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {ipcRenderer} from "electron";
+import {ipcRenderer,} from "electron";
 import {GameInfo} from "../../../class";
 import {message} from "ant-design-vue";
 

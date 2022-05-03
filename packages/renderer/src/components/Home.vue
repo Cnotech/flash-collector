@@ -6,9 +6,10 @@
         <a-input
             v-model:value="url"
             allowClear
-            placeholder="粘贴小游戏网址"
+            placeholder="搜索或粘贴小游戏网址"
             size="large"
             @input="parse"
+            @pressEnter="download"
         >
           <template v-if="gameTitle!=null&&url!==''" #suffix>
             <p style="color: rgba(0,0,0,0.45);margin-bottom: 0">{{ gameTitle }}</p>
@@ -18,12 +19,11 @@
       <a-col :span="1"/>
       <a-col :span="3">
         <a-button
-            :disabled="buttonDisabled"
             :loading="loading"
             size="large"
             type="primary"
             @click="download"
-        >{{ buttonText }}
+        >{{ buttonDisabled ? "搜索" : buttonText }}
         </a-button>
       </a-col>
     </a-row>
@@ -51,7 +51,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue';
 import {useRoute} from 'vue-router';
-import {ipcRenderer} from "electron";
+import {ipcRenderer, shell} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message} from 'ant-design-vue';
@@ -120,7 +120,12 @@ let recentSubmit = 0
 
 function parse() {
   //判断url是否符合提交要求
-  if (url.value == "" || !urlRegex.test(url.value)) return
+  if (url.value == "" || !urlRegex.test(url.value)) {
+    buttonText.value = "搜索"
+    return
+  } else {
+    buttonText.value = "下载"
+  }
 
   //防抖
   if (Date.now() - recentSubmit < 1000) return
@@ -139,7 +144,7 @@ ipcRenderer.on('download-progress', (event, payload: { gameInfo: GameInfo, perce
 
 ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
   buttonDisabled.value = false
-  buttonText.value = "下载"
+  buttonText.value = "搜索"
   url.value = ""
   if (payload.ok) {
     message.success(`${payload.val.title} 下载成功`)
@@ -151,9 +156,13 @@ ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
 })
 
 function download() {
-  buttonDisabled.value = true
-  buttonText.value = "0%"
-  ipcRenderer.send('download', gameInfo)
+  if (buttonDisabled.value) {
+    shell.openExternal(`https://www.baidu.com/s?wd=site%3A7k7k.com+${url.value}&ie=UTF-8`)
+  } else {
+    buttonDisabled.value = true
+    buttonText.value = "0%"
+    ipcRenderer.send('download', gameInfo)
+  }
 }
 </script>
 

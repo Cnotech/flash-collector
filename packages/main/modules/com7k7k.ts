@@ -107,17 +107,24 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     }
     const trueUrl = json.result.url as string, gameType = json.result.gameType
 
-    //请求真实页面
-    let truePage = await axios.get(trueUrl, axiosConfig)
+    let binUrl
+    if (trueUrl.endsWith("swf")) {
+        //处理直接返回swf的情况
+        binUrl = trueUrl
+    } else {
+        //请求真实页面
+        let truePage = await axios.get(trueUrl, axiosConfig)
 
-    //匹配其中的游戏文件
-    m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
-    if (m == null) return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
-    let binUrl = m[0]
-    if (binUrl.indexOf("http") == -1) {
-        let s = trueUrl.split("/")
-        let last = s[s.length - 1]
-        binUrl = trueUrl.replace(last, binUrl)
+        //匹配其中的游戏文件
+        m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
+        if (m == null) return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
+        binUrl = m[0]
+        if (binUrl.indexOf("http") == -1) {
+            let s = trueUrl.split("/")
+            let last = s[s.length - 1]
+            binUrl = trueUrl.replace(last, binUrl)
+        }
+
     }
     console.log("Match bin file " + binUrl)
 
