@@ -10,6 +10,12 @@ import express from 'express'
 
 const shell = require('shelljs')
 
+//建立静态服务器
+const app = express()
+app.use('/retinue', express.static('retinue'))
+app.use('/games', express.static('games'))
+app.listen(3000)
+
 interface CookieDatabase {
     [name: string]: string
 }
@@ -172,13 +178,7 @@ async function launch(type: string, folder: string): Promise<void> {
                 })
                 break
             case "unity":
-                //建立静态服务器
-                const app = express()
-                app.use(express.static('/'))
-                app.listen(3000)
-                // cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
-                //     resolve()
-                // })
+                cp.exec("start " + encodeURI(`http://localhost:3000/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())
                 break
             case "h5":
                 break
