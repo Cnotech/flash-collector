@@ -1,19 +1,6 @@
 <template>
   <div class="container">
-    <a-row style="margin-top: 15%;margin-bottom: 5%" type="flex">
-      <a-col :span="9"/>
-      <a-col :span="10">
-        <a-radio-group
-            v-model:value="inputType"
-            :bordered="false"
-        >
-          <a-radio-button :value="0">标准</a-radio-button>
-          <a-radio-button :value="1">批量</a-radio-button>
-          <a-radio-button :value="2">搜索</a-radio-button>
-        </a-radio-group>
-      </a-col>
-    </a-row>
-    <a-row type="flex">
+    <a-row style="margin-top: 20%" type="flex">
       <a-col :span="2"/>
       <a-col :span="17">
         <a-input
