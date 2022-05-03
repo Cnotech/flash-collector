@@ -44,6 +44,7 @@
     "ant-design-vue": "^3.2.2",
     "axios": "^0.27.2",
     "node-fetch": "^3.2.4",
+    "nodejs-file-downloader": "^4.9.3",
     "ts-results": "^3.3.0",
     "tslib": "^2.4.0",
     "vue-router": "4"

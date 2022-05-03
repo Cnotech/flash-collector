@@ -107,5 +107,6 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
 
 .header {
   color: #eeeeee;
+  background-color: #eeeeee;
 }
 </style>

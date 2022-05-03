@@ -1,8 +1,9 @@
 import {app, BrowserWindow, shell, ipcMain} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
-import {sevenK} from "./downloader";
+import manager from "./manager";
 import {Err} from "ts-results";
+import {GameInfo} from "../class";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -77,13 +78,20 @@ app.on('activate', () => {
   }
 })
 
-ipcMain.on('parse', async (event, payload) => {
+//游戏信息解析
+ipcMain.on('parse', async (event, payload: string) => {
   let reply = false
   setTimeout(() => {
     if (reply) return
-    else event.reply('result', new Err("Error:Fetch timeout"))
+    else event.reply('parse-reply', new Err("Error:Fetch timeout"))
   }, 5000)
-  let res = await sevenK(payload, "isP=false; userWatch=2; username=2612468853; nickname=J3rry; loginfrom=wx; SERVER_ID=f0980091-d9ee5f9f; VUSERID=20220503013741BxY46DCfACi4kepHx2A2EBeJ; Hm_lvt_4f1beaf39805550dd06b5cac412cd19b=1651257273,1651306387,1651392366,1651510165; timekey=bf4a7df2f1da562984d76a1a90d7c401; identity=2612468853; userid=865057103; kk=2612468853; logintime=1651513112; k7_lastlogin=1651513112; avatar=http://sface.7k7kimg.cn/uicons/photo_default_s.png; securitycode=d9046817106fba948ac3313b3fe37e2b; Hm_lpvt_4f1beaf39805550dd06b5cac412cd19b=1651513124")
+  let res = await manager.parser(payload)
   reply = true
-  event.reply('result', res)
+  event.reply('parse-reply', res)
+})
+
+//下载游戏
+ipcMain.on('download', async (event, payload: GameInfo) => {
+  let r = await manager.downloader(payload)
+  event.reply('download-reply', r)
 })
