@@ -3,8 +3,11 @@ import {Err, Ok, Result} from "ts-results";
 import {GameInfo, List, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
+import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {ipcMain} from 'electron'
+import {BrowserWindow, ipcMain} from 'electron'
+import express from 'express'
+
 const shell = require('shelljs')
 
 interface CookieDatabase {
@@ -159,11 +162,41 @@ function readList(): List {
     }
 }
 
+async function launch(type: string, folder: string): Promise<void> {
+    return new Promise(async (resolve) => {
+        const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo
+        switch (infoConfig.type) {
+            case "flash":
+                cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
+                    resolve()
+                })
+                break
+            case "unity":
+                //建立静态服务器
+                const app = express()
+                app.use(express.static('/'))
+                app.listen(3000)
+                // cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
+                //     resolve()
+                // })
+                break
+            case "h5":
+                break
+        }
+    })
+}
+
+function query(type: string, folder: string): GameInfo {
+    return JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString())
+}
+
 export default {
     downloader,
     parser,
     init,
     login,
     logout,
-    readList
+    readList,
+    launch,
+    query
 }

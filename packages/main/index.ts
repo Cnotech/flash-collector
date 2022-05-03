@@ -3,7 +3,7 @@ import {release} from 'os'
 import {join} from 'path'
 import manager from "./manager";
 import {Err} from "ts-results";
-import {GameInfo} from "../class";
+import {GameInfo, List} from "../class";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -28,6 +28,8 @@ async function createWindow() {
             preload: join(__dirname, '../preload/index.cjs'),
             nodeIntegration: true,
             contextIsolation: false,
+            webviewTag: true,
+            plugins: true
         },
         icon: "./retinue/favicon.ico"
     })
@@ -124,6 +126,21 @@ ipcMain.on('download', async (event, payload: GameInfo) => {
 })
 
 //刷新游戏列表
+let gameList: List
 ipcMain.on('refresh', async (event) => {
-    event.reply('refresh-reply', manager.readList())
+    gameList = manager.readList()
+    event.reply('refresh-reply', gameList)
+})
+
+//启动游戏
+ipcMain.on('launch', (event, payload: { type: string, folder: string }) => {
+    manager.launch(payload.type, payload.folder)
+        .then(() => {
+            event.reply('launch-reply', payload)
+        })
+})
+
+//信息查询
+ipcMain.on('query', (event, payload: { type: string, folder: string }) => {
+    event.reply('query-reply', manager.query(payload.type, payload.folder))
 })

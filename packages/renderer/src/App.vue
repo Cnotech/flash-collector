@@ -26,7 +26,7 @@
                 Flash（{{ sidebarList.flash.length }}）
               </span>
             </template>
-            <a-menu-item v-for="f of sidebarList.flash" :key="f.local.folder">{{ f.title }}</a-menu-item>
+            <a-menu-item v-for="f of sidebarList.flash" :key="f.type+';'+f.local.folder">{{ f.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="unity">
             <template #title>
@@ -35,7 +35,7 @@
                 Unity3D（{{ sidebarList.unity.length }}）
               </span>
             </template>
-            <a-menu-item v-for="u of sidebarList.unity" :key="u.local.folder">{{ u.title }}</a-menu-item>
+            <a-menu-item v-for="u of sidebarList.unity" :key="u.type+';'+u.local.folder">{{ u.title }}</a-menu-item>
           </a-sub-menu>
           <a-sub-menu key="h5">
             <template #title>
@@ -44,7 +44,7 @@
                 HTML 5（{{ sidebarList.h5.length }}）
               </span>
             </template>
-            <a-menu-item v-for="i of sidebarList.h5" :key="i.local.folder">{{ i.title }}</a-menu-item>
+            <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
           </a-sub-menu>
         </a-menu>
       </a-layout-sider>
@@ -61,17 +61,17 @@
 <script lang="ts" setup>
 import {ref} from 'vue';
 import {HomeFilled} from '@ant-design/icons-vue';
-import {useRouter} from 'vue-router';
+import {useRouter, useRoute} from 'vue-router';
 import {bus} from './eventbus'
 import {GameInfo, List} from "../../class";
 import {ipcRenderer} from "electron";
 
-const router = useRouter()
+const router = useRouter(), route = useRoute()
 
 const state = ref({
   rootSubmenuKeys: ['home', 'flash', 'unity', 'h5'],
   openKeys: [],
-  selectedKeys: ['home'],
+  selectedKeys: route.path == '/game' ? [route.query.id] : ['home'],
 });
 
 function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {

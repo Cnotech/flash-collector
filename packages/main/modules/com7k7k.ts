@@ -136,7 +136,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         type,
         fromSite: "7k7k",
         online: {
-            originPage: url,
+            originPage: `http://www.7k7k.com/flash/${id}.htm`,
             truePage: trueUrl,
             binUrl
         }
