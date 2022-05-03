@@ -2,7 +2,7 @@
  * @see https://www.electron.build/configuration/configuration
  */
 {
-  "appId": "YourAppID",
+  "appId": "top.edgeless.fc",
   "asar": true,
   "directories": {
     "output": "release/${version}"
@@ -17,6 +17,7 @@
     ]
   },
   "win": {
+    "icon": "./favicon.ico",
     "target": [
       {
         "target": "nsis",
