@@ -84,13 +84,13 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     const axiosConfig = {headers}
 
     //匹配出游戏id
-    let m = url.match(/\d+.htm/)
-    if (m == null) return new Err("Error:Can't parse game id")
-    const id = m[0].split(".")[0]
+    let p = parseID(url)
+    if (p.err) return p
+    const id = p.val
 
     //获取标题
     let originPage = await axios.get(`http://www.7k7k.com/flash/${id}.htm`, axiosConfig)
-    m = (originPage.data as string).match(/<title>.+<\/title>/)
+    let m = (originPage.data as string).match(/<title>.+<\/title>/)
     if (m == null) return new Err("Error:Can't fetch game title")
     let s = m[0].replace(/<\/?title>/g, "").split(/\s*-\s*/)
     const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
@@ -150,9 +150,16 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     })
 }
 
+function parseID(url: string): Result<string, string> {
+    let m = url.match(/\d+.htm/)
+    if (m == null) return new Err("Error:Not a valid 7k7k url")
+    else return new Ok(m[0].split(".")[0])
+}
+
 export default {
-    initCookie,
     entrance,
+    parseID,
+    initCookie,
     getCookie,
     setCookie,
     clearCookie

@@ -4,7 +4,7 @@ interface GameInfo {
     title: string,
     category: string,
     type: "flash" | "unity" | "h5",
-    fromSite: string,
+    fromSite: string, //此值需要与模块名称相同
     online: {
         originPage: string,
         truePage: string,
@@ -20,6 +20,7 @@ interface ParserRegister {
     name: string,
     regex: RegExp,
     entrance: (url: string) => Promise<Result<GameInfo, string>>,
+    parseID: (url: string) => Result<string, string>,
     cookieController: {
         init: (cookie: string | null, updateCookieCallback: (cookie: string) => void) => void,
         get: () => Promise<Result<string, string>>,
@@ -29,9 +30,8 @@ interface ParserRegister {
 }
 
 interface List {
-    flash: GameInfo[],
-    unity: GameInfo[],
-    h5: GameInfo[]
+    // type有效枚举：flash , unity , h5
+    [type: string]: GameInfo[]
 }
 
 export {

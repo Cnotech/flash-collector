@@ -7,6 +7,7 @@ export const register: Array<ParserRegister> = [
         name: "7k7k",
         regex: /https?:\/\/www\.7k7k\.com\/(swf|flash)\/\d+\.htm/,
         entrance: com7k7k.entrance,
+        parseID: com7k7k.parseID,
         cookieController: {
             init: com7k7k.initCookie,
             set: com7k7k.setCookie,

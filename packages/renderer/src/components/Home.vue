@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue';
+import {onUnmounted, ref} from 'vue';
 import {useRoute} from 'vue-router';
 import {ipcRenderer, shell} from "electron";
 import {Result} from "ts-results";
@@ -57,6 +57,7 @@ import {GameInfo} from "../../../class";
 import {message} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
+import {router} from "../router";
 
 const route = useRoute()
 let url = ref<string>(""),
@@ -164,6 +165,13 @@ function download() {
     ipcRenderer.send('download', gameInfo)
   }
 }
+
+//离开页面前注销所有监听器
+onUnmounted(() => {
+  console.log('unmount')
+  const channels = ['download-reply', 'download-progress', 'parse-reply', 'login-reply', 'init-reply']
+  channels.forEach(channel => ipcRenderer.removeAllListeners(channel))
+})
 </script>
 
 <style scoped>

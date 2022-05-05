@@ -4,8 +4,6 @@ import manager from "./manager";
 import {Err} from "ts-results";
 
 
-let gameList: List
-
 export default function () {
 //被动接收初始化请求
     ipcMain.on('init', (event) => {
@@ -55,8 +53,7 @@ export default function () {
 
 //刷新游戏列表
     ipcMain.on('refresh', async (event) => {
-        gameList = manager.readList()
-        event.reply('refresh-reply', gameList)
+        event.reply('refresh-reply', manager.readList())
     })
 
 //启动游戏

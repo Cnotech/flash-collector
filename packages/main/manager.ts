@@ -17,7 +17,11 @@ interface CookieDatabase {
 }
 
 let cookieDatabase: CookieDatabase = fs.existsSync(LOCAL_COOKIE_DATABASE) ? JSON.parse(fs.readFileSync(LOCAL_COOKIE_DATABASE).toString()) : {}
-
+let freshList = true, gameList: List = {
+    flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
+    unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
+    h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+}
 
 //建立静态服务器
 const app = express()
@@ -88,7 +92,6 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
     //搜索url匹配
     let regNode: ParserRegister | null = null
     for (let n of register) {
-        console.log(n.regex)
         if (n.regex.test(url)) {
             regNode = n
             break
@@ -96,8 +99,27 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
     }
     if (regNode == null) return new Err("Error:Can't find parser for this url")
 
-    //进行游戏信息解析
-    return regNode.entrance(url)
+    //遍历list查询此游戏是否被下载了
+    let found: GameInfo | null = null, thisID = regNode.parseID(url).unwrap()
+    for (let type in gameList) {
+        for (let game of gameList[type]) {
+            if (game.fromSite == regNode.name) {
+                let idRes = regNode.parseID(game.online.originPage)
+                if (idRes.err) {
+                    console.log(`Warning:Fatal, can't parse id for local game ${type}/${game.local?.folder} with module ${regNode.name}`)
+                } else if (idRes.val == thisID) {
+                    found = game
+                    break
+                }
+            }
+        }
+    }
+    if (found != null) {
+        return new Ok(found)
+    } else {
+        //进行游戏信息解析
+        return regNode.entrance(url)
+    }
 }
 
 async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
@@ -163,11 +185,16 @@ function geneNaiveList(p: string): GameInfo[] {
 }
 
 function readList(): List {
-    return {
-        flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
-        unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
-        h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+    if (!freshList) {
+        gameList = {
+            flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
+            unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
+            h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+        }
+    } else {
+        freshList = false
     }
+    return gameList
 }
 
 async function launch(type: string, folder: string): Promise<void> {
@@ -189,6 +216,7 @@ async function launch(type: string, folder: string): Promise<void> {
 }
 
 const infoCache = new Map<string, GameInfo>()
+
 function query(type: string, folder: string): GameInfo {
     const key = type + folder
     let q = infoCache.get(key)
