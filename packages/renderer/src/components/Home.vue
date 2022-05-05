@@ -107,9 +107,12 @@ function login(name: string) {
 ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
   console.log(result)
   if (result.ok) {
-    buttonDisabled.value = false
+    loading.value = false
     gameInfo = result.val
     gameTitle.value = gameInfo.title
+    if (result.val.hasOwnProperty('local')) {
+      message.warn(`${result.val.title} 已下载，如果继续则会创建一个副本`)
+    }
   } else {
     message.error(result.val)
   }
@@ -123,13 +126,16 @@ function parse() {
   //判断url是否符合提交要求
   if (url.value == "" || !urlRegex.test(url.value)) {
     buttonText.value = "搜索"
+    buttonDisabled.value = true
+    gameTitle.value = null
     return
   } else {
     buttonText.value = "下载"
+    buttonDisabled.value = false
   }
 
   //防抖
-  if (Date.now() - recentSubmit < 1000) return
+  if (Date.now() - recentSubmit < 500) return
 
   //提交搜索请求
   recentSubmit = Date.now()
@@ -145,6 +151,7 @@ ipcRenderer.on('download-progress', (event, payload: { gameInfo: GameInfo, perce
 
 ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
   buttonDisabled.value = false
+  loading.value = false
   buttonText.value = "搜索"
   url.value = ""
   if (payload.ok) {
@@ -160,15 +167,14 @@ function download() {
   if (buttonDisabled.value) {
     shell.openExternal(`https://www.baidu.com/s?wd=site%3A7k7k.com+${url.value}&ie=UTF-8`)
   } else {
-    buttonDisabled.value = true
-    buttonText.value = "0%"
+    loading.value = true
+    buttonText.value = "下载中"
     ipcRenderer.send('download', gameInfo)
   }
 }
 
 //离开页面前注销所有监听器
 onUnmounted(() => {
-  console.log('unmount')
   const channels = ['download-reply', 'download-progress', 'parse-reply', 'login-reply', 'init-reply']
   channels.forEach(channel => ipcRenderer.removeAllListeners(channel))
 })
