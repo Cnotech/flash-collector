@@ -57,8 +57,8 @@ export default function () {
     })
 
 //启动游戏
-    ipcMain.on('launch', (event, payload: { type: string, folder: string }) => {
-        manager.launch(payload.type, payload.folder)
+    ipcMain.on('launch', (event, payload: { type: string, folder: string, backup: boolean }) => {
+        manager.launch(payload.type, payload.folder, payload.backup)
             .then(() => {
                 event.reply('launch-reply', payload)
             })

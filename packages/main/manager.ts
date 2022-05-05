@@ -197,14 +197,20 @@ function readList(): List {
     return gameList
 }
 
-async function launch(type: string, folder: string): Promise<void> {
+async function launch(type: string, folder: string, backup: boolean): Promise<void> {
     return new Promise(async (resolve) => {
         const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo
         switch (infoConfig.type) {
             case "flash":
-                cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
-                    resolve()
-                })
+                if (backup) {
+                    cp.exec(`"${path.join("retinue", "ruffle.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
+                        resolve()
+                    })
+                } else {
+                    cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
+                        resolve()
+                    })
+                }
                 break
             case "unity":
                 cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())

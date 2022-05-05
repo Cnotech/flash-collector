@@ -2,15 +2,28 @@
   <div style="width:100%; height:100%">
     <a-page-header
         :sub-title="info.category"
-        :title="info.title"
     >
-
+      <template #title>
+        <a @click="openExt(info.online.originPage)">{{ info.title }}</a>
+      </template>
       <template #tags>
         <a-tag v-if="status" color="blue">运行中</a-tag>
         <a-tag v-else color="gray">未运行</a-tag>
       </template>
       <template #extra>
-        <a-button :disabled="status" type="primary" @click="launch">{{ status ? "正在运行" : "开始游戏" }}</a-button>
+        <a-dropdown v-if="info.type==='flash'">
+          <template #overlay>
+            <a-menu>
+              <a-menu-item key="1" @click="launch(true)">兼容模式</a-menu-item>
+              <a-menu-item key="2" @click="openExt(info.online.truePage)">源站播放</a-menu-item>
+            </a-menu>
+          </template>
+          <a-button :disabled="status" type="primary" @click="launch(false)">
+            {{ status ? "正在运行" : "开始游戏" }}
+            <DownOutlined/>
+          </a-button>
+        </a-dropdown>
+        <a-button v-else type="primary" @click="launch(false)">{{ status ? "正在运行" : "开始游戏" }}</a-button>
       </template>
     </a-page-header>
 
@@ -26,11 +39,13 @@
 <script lang="ts" setup>
 import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {ipcRenderer,} from "electron";
+import {ipcRenderer, shell} from "electron";
 import {GameInfo} from "../../../class";
+import {DownOutlined} from '@ant-design/icons-vue';
 import {message} from "ant-design-vue";
 
 const route = useRoute(), router = useRouter()
+
 
 let status = ref<boolean>(false),
     info = ref<GameInfo>({
@@ -56,8 +71,8 @@ ipcRenderer.on('launch-reply', (e, payload: { type: string, folder: string }) =>
   }
 })
 
-function launch() {
-  ipcRenderer.send('launch', {type: info.value.type, folder: info.value.local?.folder})
+function launch(backup: boolean) {
+  ipcRenderer.send('launch', {type: info.value.type, folder: info.value.local?.folder, backup})
   status.value = true
 }
 
@@ -69,6 +84,10 @@ async function query(): Promise<GameInfo> {
       resolve(args)
     })
   })
+}
+
+function openExt(url: string) {
+  shell.openExternal(url)
 }
 
 //配置查询

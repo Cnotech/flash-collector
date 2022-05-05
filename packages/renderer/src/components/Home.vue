@@ -156,7 +156,7 @@ ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
   url.value = ""
   if (payload.ok) {
     message.success(`${payload.val.title} 下载成功`)
-    //TODO:显示到最近下载，然后刷新侧边栏
+    //TODO:显示到最近下载
     bus.emit('refreshSidebar')
   } else {
     message.error(payload.val)
