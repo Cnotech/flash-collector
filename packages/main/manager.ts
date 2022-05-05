@@ -188,8 +188,17 @@ async function launch(type: string, folder: string): Promise<void> {
     })
 }
 
+const infoCache = new Map<string, GameInfo>()
 function query(type: string, folder: string): GameInfo {
-    return JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString())
+    const key = type + folder
+    let q = infoCache.get(key)
+    if (q != undefined) {
+        return q
+    } else {
+        let info = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString())
+        infoCache.set(key, info)
+        return info
+    }
 }
 
 export default {
