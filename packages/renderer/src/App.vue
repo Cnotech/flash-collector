@@ -1,53 +1,55 @@
 <template>
-  <a-layout style="height: 100%">
-    <a-layout-header class="header">
-      <img alt="Icon" class="logo" src="./assets/favicon.ico"/>
-      <div class="name">
+  <a-layout-sider
+      style=" overflow: auto;height: 100vh; position: fixed; left: 0; top: 0; bottom: 0; background: #fff;margin-top: 10px"
+      width="200">
+    <a-space style="margin-left: 5px">
+      <img alt="Icon" src="./assets/favicon.ico" style="height: 50px;width: 50px"/>
+      <div style="font-size: larger">
         小游戏收集器
       </div>
-    </a-layout-header>
-    <a-layout>
-      <a-layout-sider width="200" style="background: #fff">
-        <a-menu
-            v-model:openKeys="state.openKeys"
-            v-model:selectedKeys="state.selectedKeys"
-            v-on:click="onChangeMenu"
-            mode="inline"
-            :style="{ height: '100%', borderRight: 0 }"
-        >
-          <a-menu-item key="home">
-            <home-filled style="height: 20px;width: 20px"/>
-            首页
-          </a-menu-item>
-          <a-sub-menu key="flash">
-            <template #title>
+    </a-space>
+    <a-menu
+        v-model:openKeys="state.openKeys"
+        v-model:selectedKeys="state.selectedKeys"
+        :style="{ height: '100%', borderRight: 0 }"
+        mode="inline"
+        v-on:click="onChangeMenu"
+    >
+      <a-menu-item key="home">
+        <home-filled style="height: 20px;width: 20px"/>
+        首页
+      </a-menu-item>
+      <a-sub-menu key="flash">
+        <template #title>
               <span>
                 <img class="icon" src="./assets/icons/flash.ico"/>
                 Flash（{{ sidebarList.flash.length }}）
               </span>
-            </template>
-            <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
-          </a-sub-menu>
-          <a-sub-menu key="unity">
-            <template #title>
+        </template>
+        <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
+      </a-sub-menu>
+      <a-sub-menu key="unity">
+        <template #title>
               <span>
                 <img class="icon" src="./assets/icons/unity3d.ico"/>
                 Unity3D（{{ sidebarList.unity.length }}）
               </span>
-            </template>
-            <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
-          </a-sub-menu>
-          <!--          <a-sub-menu key="h5">-->
-          <!--            <template #title>-->
-          <!--              <span>-->
-          <!--                <img class="icon" src="./assets/icons/html5.ico"/>-->
-          <!--                HTML 5（{{ sidebarList.h5.length }}）-->
-          <!--              </span>-->
-          <!--            </template>-->
-          <!--            <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>-->
-          <!--          </a-sub-menu>-->
-        </a-menu>
-      </a-layout-sider>
+        </template>
+        <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
+      </a-sub-menu>
+      <!--          <a-sub-menu key="h5">-->
+      <!--            <template #title>-->
+      <!--              <span>-->
+      <!--                <img class="icon" src="./assets/icons/html5.ico"/>-->
+      <!--                HTML 5（{{ sidebarList.h5.length }}）-->
+      <!--              </span>-->
+      <!--            </template>-->
+      <!--            <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>-->
+      <!--          </a-sub-menu>-->
+    </a-menu>
+  </a-layout-sider>
+  <a-layout style="height: 100%;margin-left: 200px">
+    <a-layout>
       <a-layout style="padding: 16px;margin: 16px">
         <a-layout-content
             :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
@@ -97,32 +99,9 @@ refreshSidebar()
 
 </script>
 <style>
-.name {
-  float: left;
-  width: 120px;
-  height: 48px;
-  margin-left: 16px;
-  padding: 0;
-  color: #fff;
-  font-size: larger;
-}
-
-.logo {
-  float: left;
-  width: 50px;
-  height: 50px;
-  margin: 8px 0 0 -25px;
-  padding: 0;
-}
-
 .icon {
   height: 19px;
   width: 19px;
   margin-top: -3px;
-}
-
-.header {
-  color: #eeeeee;
-  background-color: #eeeeee;
 }
 </style>

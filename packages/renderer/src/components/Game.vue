@@ -46,6 +46,7 @@ import {message} from "ant-design-vue";
 
 const route = useRoute(), router = useRouter()
 
+let playingList: string[] = []
 
 let status = ref<boolean>(false),
     info = ref<GameInfo>({
@@ -66,12 +67,14 @@ let status = ref<boolean>(false),
 
 //监听游戏运行结束
 ipcRenderer.on('launch-reply', (e, payload: { type: string, folder: string }) => {
+  playingList = playingList.filter(val => val != payload.folder)
   if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
     status.value = false
   }
 })
 
 function launch(backup: boolean) {
+  playingList.push(info.value.local?.folder as string)
   ipcRenderer.send('launch', {type: info.value.type, folder: info.value.local?.folder, backup})
   status.value = true
 }
@@ -97,6 +100,11 @@ onMounted(async () => {
 router.afterEach(async () => {
   if (route.query.id == null) return
   info.value = await query()
+  if (info.value.local && playingList.includes(info.value.local.folder)) {
+    status.value = true
+  } else {
+    status.value = false
+  }
 })
 
 </script>
