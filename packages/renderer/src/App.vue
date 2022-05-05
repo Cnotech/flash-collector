@@ -1,12 +1,12 @@
 <template>
   <a-layout-sider
-      style=" overflow: auto;height: 100vh; position: fixed; left: 0; top: 0; bottom: 0; background: #fff;margin-top: 10px"
-      width="200">
-    <a-space style="margin-left: 5px">
+      style="overflow: auto;height: 100vh;position: fixed;left: 0; top: 0; bottom: 0;background: #fff;">
+    <a-space style="margin-left: 5px;margin-top: 10px">
       <img alt="Icon" src="./assets/favicon.ico" style="height: 50px;width: 50px"/>
-      <div style="font-size: larger">
-        小游戏收集器
+      <div style="font-weight: bolder;font-size: medium">
+        Flash Collector
       </div>
+      <br/>
     </a-space>
     <a-menu
         v-model:openKeys="state.openKeys"

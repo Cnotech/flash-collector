@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <img alt="Icon" src="../assets/favicon.ico" style="height: 64px;width: 64px;margin: 20% 55% 5% 45%"/>
+    <img alt="Icon" src="../assets/favicon.ico" style="height: 64px;width: 64px;margin: 10% 55% 5% 45%"/>
     <a-row type="flex">
       <a-col :span="2"/>
       <a-col :span="17">
