@@ -25,6 +25,14 @@ let freshList = true, gameList: List = {
 
 //建立静态服务器
 const app = express()
+app.use((req, res, next) => {
+    if (req.path.indexOf('Player.html') != -1 && req.path.indexOf('flash') != -1) {
+        //请求Flash的Player页面
+        res.sendFile(path.join(process.cwd(), "retinue", "Flash_Web_Player", "Player.html"))
+    } else {
+        next()
+    }
+})
 app.use('/retinue', express.static('retinue'))
 app.use('/games', express.static('games'))
 app.listen(PORT)
@@ -203,7 +211,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<vo
         switch (infoConfig.type) {
             case "flash":
                 if (backup) {
-                    cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Flash_Web_Player/Player.html?load=/games/flash/${folder}/${infoConfig.local?.binFile}`), () => resolve())
+                    cp.exec("start " + encodeURI(`http://localhost:${PORT}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve())
                 } else {
                     cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
                         resolve()

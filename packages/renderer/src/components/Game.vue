@@ -11,18 +11,30 @@
         <a-tag v-else color="gray">未运行</a-tag>
       </template>
       <template #extra>
-        <a-dropdown v-if="info.type==='flash'">
-          <template #overlay>
-            <a-menu>
-              <a-menu-item key="1" @click="launch(true)">兼容模式</a-menu-item>
-              <a-menu-item key="2" @click="openExt(info.online.truePage)">源站播放</a-menu-item>
-            </a-menu>
-          </template>
-          <a-button :disabled="status" type="primary" @click="launch(false)">
-            {{ status ? "正在运行" : "开始游戏" }}
-            <DownOutlined/>
-          </a-button>
-        </a-dropdown>
+        <template v-if="info.type==='flash'">
+          <a-dropdown>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="1" @click="launch(true)">兼容模式</a-menu-item>
+                <a-menu-item key="2" @click="openExt(info.online.truePage)">源站播放</a-menu-item>
+              </a-menu>
+            </template>
+            <a-button :disabled="status" type="primary" @click="launch(false)">
+              {{ status ? "正在运行" : "开始游戏" }}
+              <DownOutlined/>
+            </a-button>
+          </a-dropdown>
+          <a-popover title="无法本地运行Flash？" trigger="hover">
+            <template #content>
+              <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
+              <p>请按照以下步骤手动下载缺失的文件：</p>
+              <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面</p>
+              <p>2. 将网络请求中{{ info.local.binFile }}以外的其他.swf文件下载到游戏存储目录
+                （games/flash/{{ info.local.folder }}），注意保持相对路径正确</p>
+            </template>
+            <QuestionCircleOutlined/>
+          </a-popover>
+        </template>
         <a-button v-else type="primary" @click="launch(false)">{{ status ? "正在运行" : "开始游戏" }}</a-button>
       </template>
     </a-page-header>
@@ -41,7 +53,7 @@ import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {ipcRenderer, shell} from "electron";
 import {GameInfo} from "../../../class";
-import {DownOutlined} from '@ant-design/icons-vue';
+import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
 import {message} from "ant-design-vue";
 
 const route = useRoute(), router = useRouter()
