@@ -1,7 +1,9 @@
-import {Result, Ok, Err} from "ts-results";
+import {Result, Ok, Err} from 'ts-results';
 import axios, {AxiosRequestConfig} from 'axios';
-import {GameInfo} from "../../class";
-import {BrowserWindow} from "electron";
+import {GameInfo} from '../../class';
+import {BrowserWindow} from 'electron';
+import iconv from 'iconv-lite'
+import fs from 'fs'
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -46,6 +48,7 @@ async function getCookie(): Promise<Result<string, string>> {
                         resolve(new Ok(cookie))
                     }
                 }).catch(e => {
+                console.log(e)
                 resolve(new Err("Error:Can't read cookie"))
             })
 
@@ -68,7 +71,16 @@ function getAxiosConfig(referer: string): AxiosRequestConfig {
         cookie
     }
     headers['user-agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
-    return {headers}
+    return {
+        headers,
+        responseType: "arraybuffer"
+    }
+}
+
+async function fetch(url: string, referer: string): Promise<string> {
+    let b = await axios.get(url, getAxiosConfig(referer))
+    let str = iconv.decode(Buffer.from(b.data), 'GB2312')
+    return iconv.encode(str, 'UTF8').toString()
 }
 
 async function entrance(url: string): Promise<Result<GameInfo, string>> {
@@ -81,45 +93,45 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     const id = p.val
 
     //获取标题
-    let originPage = await axios.get(`https://www.4399.com/flash/${id}.htm`, getAxiosConfig("https://www.4399.com"))
-    let m = (originPage.data as string).match(/<title>.+<\/title>/)
+    let originPage = await fetch(`https://www.4399.com/flash/${id}.htm`, "https://www.4399.com")
+    fs.writeFileSync("page.html", originPage)
+    let m = originPage.match(/<title>.+<\/title>/)
     if (m == null) return new Err("Error:Can't fetch game title")
     const title = m[0].replace(/<\/?title>/g, "").split(",")[0]
-    console.log(title)
+    // console.log('title:'+title)
 
     //获取分类
-    m = (originPage.data as string).match(/分类：.+小游戏/)
+    m = (originPage as string).match(/分类：.+小游戏/)
     if (m == null) return new Err("Error:Can't get game category")
     const category = m[0].slice(-5, -3)
-    console.log(category)
+    // console.log('cate:'+category)
 
     //获取游戏页面链接
-    m = (originPage.data as string).match(new RegExp(`/flash/${id}_\\d.htm`))
+    m = (originPage as string).match(new RegExp(`/flash/${id}_\\d.htm`))
     if (m == null) return new Err("Error:Can't parse playing page")
     const playingPage = m[0]
-    console.log(playingPage)
+    // console.log('playingPage:'+playingPage)
 
     //获取游戏页面
-    originPage = await axios.get(`https://www.4399.com${playingPage}`, getAxiosConfig(`https://www.4399.com/flash/${id}.htm`))
+    let page = await fetch(`https://www.4399.com${playingPage}`, `https://www.4399.com/flash/${id}.htm`)
 
     //匹配服务器源
-    let page = originPage.data as string
     m = page.match(/src="\/js\/server.+\.js"/)
     if (m == null) return new Err("Error:Can't match server js file")
     //请求服务器源js文件
-    let serverJS = await axios.get(`https://www.4399.com${m[0]}`, getAxiosConfig(`https://www.4399.com${playingPage}`))
+    let serverJS = await fetch(`https://www.4399.com${m[0].split('"')[1]}`, `https://www.4399.com${playingPage}`)
     //匹配其中的 webServer
-    m = (serverJS.data as string).match(/webServer\s*=\s*".+"/)
+    m = serverJS.match(/webServer\s*=\s*".+"/)
     if (m == null) return new Err("Error:Can't match webServer")
     let webServer = m[0].split('"')[1]
     if (webServer.slice(0, 2) == "//") webServer = "https:" + webServer
-    console.log(webServer)
+    // console.log(webServer)
 
     //匹配真实页面路径
     m = page.match(/_strGamePath\s*=\s*".*"/)
     if (m == null) return new Err("Error:Can't match true game page")
     const trueUrl = webServer + m[0].split('"')[1]
-    console.log(trueUrl)
+    console.log('trueUrl:' + trueUrl)
 
     //匹配二进制文件
     let binUrl
@@ -127,19 +139,25 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         //处理直接返回swf的情况
         binUrl = trueUrl
     } else {
-        //请求真实页面
-        let truePage = await axios.get(trueUrl, getAxiosConfig(`https://www.4399.com${playingPage}`))
+        //尝试探测swf
+        let res = await detect(trueUrl, `https://www.4399.com${playingPage}`)
+        if (res.ok) {
+            binUrl = res.val
+        } else {
+            console.log(res.val)
+            //请求真实页面
+            let truePage = await axios.get(trueUrl, getAxiosConfig(`https://www.4399.com${playingPage}`))
 
-        //匹配其中的游戏文件
-        m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
-        if (m == null) return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
-        binUrl = m[0]
-        if (binUrl.indexOf("http") == -1) {
-            let s = trueUrl.split("/")
-            let last = s[s.length - 1]
-            binUrl = trueUrl.replace(last, binUrl)
+            //匹配其中的游戏文件
+            m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
+            if (m == null) return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
+            binUrl = m[0]
+            if (binUrl.indexOf("http") == -1) {
+                let s = trueUrl.split("/")
+                let last = s[s.length - 1]
+                binUrl = trueUrl.replace(last, binUrl)
+            }
         }
-
     }
     console.log("Match bin file " + binUrl)
 
@@ -163,6 +181,43 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             binUrl
         }
     })
+}
+
+const detectArray = [
+        'main.swf',
+        'game.swf',
+        'play.swf'
+    ],
+    priority: { [playerName: string]: string } = {
+        "jifen2.htm": 'main.swf',
+        "jifen3.htm": 'main.swf',
+        "game.htm": 'game.swf',
+        "game2.htm": 'play.swf',
+        "jifen3d.htm": 'main.swf'
+    }
+
+async function detect(trueUrl: string, playingPage: string): Promise<Result<string, string>> {
+    //解析结尾播放器名称
+    let s = trueUrl.split("/")
+    let playerName = s[s.length - 1]
+    //生成探测序列
+    let first: string
+    if (priority.hasOwnProperty(playerName)) {
+        first = priority[playerName]
+    } else {
+        console.log("Warning:Unknown player html name : " + playerName)
+        first = 'main.swf'
+    }
+    let seq = [first].concat(detectArray.filter(val => val != first)), url
+    for (let swfName of seq) {
+        url = trueUrl.replace(playerName, swfName)
+        let r = await axios.head(url, getAxiosConfig(`https://www.4399.com${playingPage}`))
+        if (r.status < 400) {
+            console.log('detected ' + swfName)
+            return new Ok(url)
+        }
+    }
+    return new Err("Can't detect swf file")
 }
 
 function parseID(url: string): Result<string, string> {

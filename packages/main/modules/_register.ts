@@ -1,8 +1,20 @@
 import com7k7k from "./com7k7k";
-import {Result} from "ts-results";
+import com4399 from "./com4399";
 import {ParserRegister} from "../../class";
 
 export const register: Array<ParserRegister> = [
+    {
+        name: "4399",
+        regex: /https?:\/\/www\.4399\.com\/flash\/[\d_]+\.htm/,
+        entrance: com4399.entrance,
+        parseID: com4399.parseID,
+        cookieController: {
+            init: com4399.initCookie,
+            set: com4399.setCookie,
+            get: com4399.getCookie,
+            clear: com4399.clearCookie
+        }
+    },
     {
         name: "7k7k",
         regex: /https?:\/\/www\.7k7k\.com\/(swf|flash)\/\d+\.htm/,
