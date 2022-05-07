@@ -166,7 +166,7 @@ ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
 
 function download() {
   if (buttonDisabled.value) {
-    shell.openExternal(`https://www.baidu.com/s?wd=site%3A7k7k.com+${url.value}&ie=UTF-8`)
+    shell.openExternal(`https://www.baidu.com/s?wd=site%3A4399.com+${url.value}&ie=UTF-8`)
   } else {
     loading.value = true
     buttonText.value = "下载中"

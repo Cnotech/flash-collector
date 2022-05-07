@@ -7,8 +7,7 @@
         <a @click="openExt(info.online.originPage)">{{ info.title }}</a>
       </template>
       <template #tags>
-        <a-tag v-if="status" color="blue">运行中</a-tag>
-        <a-tag v-else color="gray">未运行</a-tag>
+        <a-tag color="blue">{{ info.fromSite }}</a-tag>
       </template>
       <template #extra>
         <template v-if="info.type==='flash'">
@@ -24,13 +23,13 @@
               <DownOutlined/>
             </a-button>
           </a-dropdown>
-          <a-popover title="无法在本地正确运行游戏？" trigger="hover">
+          <a-popover placement="rightBottom" title="无法在本地正确运行游戏？" trigger="hover">
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
               <p>请按照以下步骤手动下载缺失的文件：</p>
               <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面</p>
               <p>2. 将网络请求中{{ info.local.binFile }}以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到游戏存储目录
-                （games/flash/{{ info.local.folder }}），注意保持相对路径正确</p>
+                （<a @click="openFolder">games/flash/{{ info.local.folder }}</a>），注意保持相对路径正确</p>
               <p>3. 打开兼容模式，按下F12并切换到“控制台”选项卡查看文件是否正确加载，如出现404检查对应文件是否正确放置</p>
             </template>
             <QuestionCircleOutlined/>
@@ -56,6 +55,8 @@ import {ipcRenderer, shell} from "electron";
 import {GameInfo} from "../../../class";
 import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
 import {message} from "ant-design-vue";
+import cp from 'child_process'
+import * as path from "path";
 
 const route = useRoute(), router = useRouter()
 
@@ -104,6 +105,10 @@ async function query(): Promise<GameInfo> {
 
 function openExt(url: string) {
   shell.openExternal(url)
+}
+
+function openFolder() {
+  cp.execSync(`explorer "${path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)}"`)
 }
 
 //配置查询
