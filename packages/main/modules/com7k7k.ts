@@ -115,7 +115,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         let truePage = await axios.get(trueUrl, axiosConfig)
 
         //匹配其中的游戏文件
-        m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
+        m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
         if (m == null) return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
         binUrl = m[0]
         if (binUrl.indexOf("http") == -1) {

@@ -142,6 +142,10 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     const d = new Downloader({
         url: info.online.binUrl,
         directory: dir,
+        headers: {
+            'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+            referer: info.online.originPage
+        },
         onProgress(percentage: string) {
             ipcMain.emit('download-progress', {
                 gameInfo: info,

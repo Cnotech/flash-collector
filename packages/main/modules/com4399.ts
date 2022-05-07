@@ -3,7 +3,6 @@ import axios, {AxiosRequestConfig} from 'axios';
 import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
 import iconv from 'iconv-lite'
-import fs from 'fs'
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -21,20 +20,20 @@ async function getCookie(): Promise<Result<string, string>> {
         cookie = null
         //新建窗口
         const win = new BrowserWindow({width: 800, height: 600})
-        await win.loadURL('https://www.4399.com')
+        await win.loadURL('http://www.4399.com')
 
         //修改标题
         win.webContents.once('did-stop-loading', async () => {
             win.setTitle("登录4399后关闭窗口")
-            let old = await win.webContents.session.cookies.get({url: 'https://www.4399.com'})
+            let old = await win.webContents.session.cookies.get({url: 'http://www.4399.com'})
             for (let oldItem of old) {
-                await win.webContents.session.cookies.remove('https://www.4399.com', oldItem.name)
+                await win.webContents.session.cookies.remove('http://www.4399.com', oldItem.name)
             }
         })
 
         //监听窗口关闭
         win.on('close', async () => {
-            win.webContents.session.cookies.get({url: 'https://www.4399.com'})
+            win.webContents.session.cookies.get({url: 'http://www.4399.com'})
                 .then(cookies => {
                     console.log(cookies)
                     if (cookies.length < 2) {
@@ -93,8 +92,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     const id = p.val
 
     //获取标题
-    let originPage = await fetch(`https://www.4399.com/flash/${id}.htm`, "https://www.4399.com")
-    fs.writeFileSync("page.html", originPage)
+    let originPage = await fetch(`http://www.4399.com/flash/${id}.htm`, "http://www.4399.com")
+    // fs.writeFileSync("page.html", originPage)
     let m = originPage.match(/<title>.+<\/title>/)
     if (m == null) return new Err("Error:Can't fetch game title")
     const title = m[0].replace(/<\/?title>/g, "").split(",")[0]
@@ -113,18 +112,18 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     // console.log('playingPage:'+playingPage)
 
     //获取游戏页面
-    let page = await fetch(`https://www.4399.com${playingPage}`, `https://www.4399.com/flash/${id}.htm`)
+    let page = await fetch(`http://www.4399.com${playingPage}`, `http://www.4399.com/flash/${id}.htm`)
 
     //匹配服务器源
     m = page.match(/src="\/js\/server.+\.js"/)
     if (m == null) return new Err("Error:Can't match server js file")
     //请求服务器源js文件
-    let serverJS = await fetch(`https://www.4399.com${m[0].split('"')[1]}`, `https://www.4399.com${playingPage}`)
+    let serverJS = await fetch(`http://www.4399.com${m[0].split('"')[1]}`, `http://www.4399.com${playingPage}`)
     //匹配其中的 webServer
     m = serverJS.match(/webServer\s*=\s*".+"/)
     if (m == null) return new Err("Error:Can't match webServer")
     let webServer = m[0].split('"')[1]
-    if (webServer.slice(0, 2) == "//") webServer = "https:" + webServer
+    if (webServer.slice(0, 2) == "//") webServer = "http:" + webServer
     // console.log(webServer)
 
     //匹配真实页面路径
@@ -140,16 +139,15 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         binUrl = trueUrl
     } else {
         //尝试探测swf
-        let res = await detect(trueUrl, `https://www.4399.com${playingPage}`)
+        let res = await detect(trueUrl)
         if (res.ok) {
             binUrl = res.val
         } else {
             console.log(res.val)
             //请求真实页面
-            let truePage = await axios.get(trueUrl, getAxiosConfig(`https://www.4399.com${playingPage}`))
-
+            let truePage = await fetch(trueUrl, `http://www.4399.com${playingPage}`)
             //匹配其中的游戏文件
-            m = truePage.data.match(/(https?:\/\/)?[^'"\s]+.(swf|unity3d)/)
+            m = truePage.match(/(http?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
             if (m == null) return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
             binUrl = m[0]
             if (binUrl.indexOf("http") == -1) {
@@ -176,7 +174,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         type,
         fromSite: "4399",
         online: {
-            originPage: `https://www.4399.com/flash/${id}.htm`,
+            originPage: `http://www.4399.com/flash/${id}.htm`,
             truePage: trueUrl,
             binUrl
         }
@@ -186,17 +184,18 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 const detectArray = [
         'main.swf',
         'game.swf',
-        'play.swf'
+        'play.swf',
+        'mainload.swf'
     ],
     priority: { [playerName: string]: string } = {
         "jifen2.htm": 'main.swf',
-        "jifen3.htm": 'main.swf',
+        "jifen3.htm": 'mainload.swf',
         "game.htm": 'game.swf',
         "game2.htm": 'play.swf',
         "jifen3d.htm": 'main.swf'
     }
 
-async function detect(trueUrl: string, playingPage: string): Promise<Result<string, string>> {
+async function detect(trueUrl: string): Promise<Result<string, string>> {
     //解析结尾播放器名称
     let s = trueUrl.split("/")
     let playerName = s[s.length - 1]
@@ -211,10 +210,15 @@ async function detect(trueUrl: string, playingPage: string): Promise<Result<stri
     let seq = [first].concat(detectArray.filter(val => val != first)), url
     for (let swfName of seq) {
         url = trueUrl.replace(playerName, swfName)
-        let r = await axios.head(url, getAxiosConfig(`https://www.4399.com${playingPage}`))
-        if (r.status < 400) {
-            console.log('detected ' + swfName)
-            return new Ok(url)
+        try {
+            let r = await axios.head(url, getAxiosConfig(trueUrl))
+            console.log(`detect ${url}, response status : ${r.status},content length : ${r.headers['content-length']}`)
+            if (r.status < 400 && Number(r.headers['content-length']) > 40960) {
+                console.log('detected ' + swfName)
+                return new Ok(url)
+            }
+        } catch (e) {
+            // fs.writeFileSync('err.json',JSON.stringify(e,null,2))
         }
     }
     return new Err("Can't detect swf file")

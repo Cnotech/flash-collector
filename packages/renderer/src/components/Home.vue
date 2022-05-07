@@ -141,7 +141,7 @@ function parse() {
   //提交搜索请求
   recentSubmit = Date.now()
   loading.value = true
-  ipcRenderer.send('parse', url.value)
+  ipcRenderer.send('parse', url.value.split("#")[0])
 }
 
 //监听下载进度事件更新
