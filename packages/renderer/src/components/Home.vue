@@ -50,8 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from 'vue';
-import {shell} from "electron";
+import {onMounted, onUnmounted, ref} from 'vue';
+import {shell, clipboard} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
@@ -171,6 +171,25 @@ async function download() {
     }
   }
 }
+
+//页面入焦时检查剪切板
+let recentClip = ""
+const listener = () => {
+  if (document.visibilityState === 'visible') {
+    let text = clipboard.readText()
+    if (recentClip != text && urlRegex.test(text)) {
+      recentClip = text
+      url.value = text
+      parse()
+    }
+  }
+}
+onMounted(() => {
+  document.addEventListener("visibilitychange", listener)
+})
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", listener)
+})
 </script>
 
 <style scoped>
