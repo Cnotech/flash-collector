@@ -1,6 +1,7 @@
 import {ipcMain} from "electron";
-import {Reply, Request} from "../class";
+import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
+import {Err, Result} from "ts-results";
 
 const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }) => {
@@ -9,6 +10,33 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     query: async (payload: { type: string, folder: string }) => {
         return manager.query(payload.type, payload.folder)
+    },
+    init: async () => {
+        return manager.init()
+    },
+    logout: (name: string) => {
+        manager.logout(name)
+    },
+    login: async (payload: string) => {
+        let r = await manager.login(payload)
+        let replyPayload: { name: string, status: boolean, errorMessage: string }
+        if (r.ok) {
+            replyPayload = {
+                name: payload,
+                status: true,
+                errorMessage: ""
+            }
+        } else {
+            replyPayload = {
+                name: payload,
+                status: false,
+                errorMessage: r.val
+            }
+        }
+        return replyPayload
+    },
+    parse: async (payload: string): Promise<Result<GameInfo, string>> => {
+        return manager.parser(payload)
     }
 }
 

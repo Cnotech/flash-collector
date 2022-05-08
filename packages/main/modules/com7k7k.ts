@@ -44,7 +44,6 @@ async function getCookie(): Promise<Result<string, string>> {
         win.on('close', async () => {
             win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
                 .then(cookies => {
-                    console.log(cookies)
                     if (cookies.length < 2) {
                         resolve(new Err("Error:Can't read cookie"))
                     } else {
@@ -72,95 +71,117 @@ function clearCookie() {
 }
 
 async function entrance(url: string): Promise<Result<GameInfo, string>> {
-    //检查cookie是否为空
-    if (cookie == null && (await getCookie()).err) return new Err("Error:Can't get cookie")
-    //构造header
-    const headers: any = {
-        referer: url,
-        cookie
-    }
-    headers['user-agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
-    const axiosConfig = {headers}
+    return new Promise(async (resolve) => {
+        //检查cookie是否为空
+        if (cookie == null && (await getCookie()).err) {
+            resolve(new Err("Error:Can't get cookie"))
+            return
+        }
 
-    //匹配出游戏id
-    let p = parseID(url)
-    if (p.err) return p
-    const id = p.val
+        //配置超时定时器
+        let timeout = true
+        setTimeout(() => {
+            if (timeout) resolve(new Err("Error:Parse timeout"))
+        }, 5000)
 
-    //获取标题
-    let originPage = await axios.get(`http://www.7k7k.com/flash/${id}.htm`, axiosConfig)
-    let m = (originPage.data as string).match(/<title>.+<\/title>/)
-    if (m == null) return new Err("Error:Can't fetch game title")
-    let s = m[0].replace(/<\/?title>/g, "").split(/\s*-\s*/)
-    const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
+        //构造header
+        const headers: any = {
+            referer: url,
+            cookie
+        }
+        headers['user-agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+        const axiosConfig = {headers}
 
-    //发送API请求
-    const queryUrl = `http://www.7k7k.com/swf/game/${id}/?time=${get7k7kTime()}`
-    let res = await axios.get(queryUrl, {
-        headers
-    })
-    console.log(res.data)
-    let json = res.data
-    if (json?.result?.url == '') {
-        return new Err("Error:Request 7k7k api failed, have you logged in?")
-    }
-    const trueUrl = json.result.url as string, gameType = json.result.gameType
+        //匹配出游戏id
+        let p = parseID(url)
+        if (p.err) {
+            resolve(p)
+            return
+        }
+        const id = p.val
 
-    let binUrl
-    if (trueUrl.endsWith("swf")) {
-        //处理直接返回swf的情况
-        binUrl = trueUrl
-    } else {
-        //请求真实页面
-        let truePage = await axios.get(trueUrl, axiosConfig)
-
-        //匹配其中的游戏文件
-        m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
+        //获取标题
+        let originPage = await axios.get(`http://www.7k7k.com/flash/${id}.htm`, axiosConfig)
+        let m = (originPage.data as string).match(/<title>.+<\/title>/)
         if (m == null) {
-            // return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
-            console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
-            return new Ok({
-                title,
-                category,
-                type: 'h5',
-                fromSite: "7k7k",
-                online: {
-                    originPage: `http://www.7k7k.com/flash/${id}.htm`,
-                    truePage: trueUrl,
-                    binUrl: trueUrl
-                }
-            })
+            resolve(new Err("Error:Can't fetch game title"))
+            return
         }
-        binUrl = m[0]
-        if (binUrl.indexOf("http") == -1) {
-            let s = trueUrl.split("/")
-            let last = s[s.length - 1]
-            binUrl = trueUrl.replace(last, binUrl)
+        let s = m[0].replace(/<\/?title>/g, "").split(/\s*-\s*/)
+        const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
+
+        //发送API请求
+        const queryUrl = `http://www.7k7k.com/swf/game/${id}/?time=${get7k7kTime()}`
+        let res = await axios.get(queryUrl, {
+            headers
+        })
+        console.log(res.data)
+        let json = res.data
+        if (json?.result?.url == '') {
+            resolve(new Err("Error:Request 7k7k api failed, have you logged in?"))
+            return
         }
+        const trueUrl = json.result.url as string, gameType = json.result.gameType
 
-    }
-    console.log("Match bin file " + binUrl)
+        let binUrl
+        if (trueUrl.endsWith("swf")) {
+            //处理直接返回swf的情况
+            binUrl = trueUrl
+        } else {
+            //请求真实页面
+            let truePage = await axios.get(trueUrl, axiosConfig)
 
-    //确定游戏类型
-    let type: "flash" | "unity" | "h5"
-    if (binUrl.endsWith("swf")) {
-        type = "flash"
-    } else if (binUrl.endsWith("unity3d")) {
-        type = "unity"
-    } else type = "h5"
+            //匹配其中的游戏文件
+            m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
+            if (m == null) {
+                // return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
+                console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
+                resolve(new Ok({
+                    title,
+                    category,
+                    type: 'h5',
+                    fromSite: "7k7k",
+                    online: {
+                        originPage: `http://www.7k7k.com/flash/${id}.htm`,
+                        truePage: trueUrl,
+                        binUrl: trueUrl
+                    }
+                }))
+                return
+            }
+            binUrl = m[0]
+            if (binUrl.indexOf("http") == -1) {
+                let s = trueUrl.split("/")
+                let last = s[s.length - 1]
+                binUrl = trueUrl.replace(last, binUrl)
+            }
 
-
-    return new Ok({
-        title,
-        category,
-        type,
-        fromSite: "7k7k",
-        online: {
-            originPage: `http://www.7k7k.com/flash/${id}.htm`,
-            truePage: trueUrl,
-            binUrl
         }
+        console.log("Match bin file " + binUrl)
+
+        //确定游戏类型
+        let type: "flash" | "unity" | "h5"
+        if (binUrl.endsWith("swf")) {
+            type = "flash"
+        } else if (binUrl.endsWith("unity3d")) {
+            type = "unity"
+        } else type = "h5"
+
+        //返回结果
+        timeout = false
+        resolve(new Ok({
+            title,
+            category,
+            type,
+            fromSite: "7k7k",
+            online: {
+                originPage: `http://www.7k7k.com/flash/${id}.htm`,
+                truePage: trueUrl,
+                binUrl
+            }
+        }))
     })
+
 }
 
 function parseID(url: string): Result<string, string> {

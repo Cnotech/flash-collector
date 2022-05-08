@@ -51,43 +51,40 @@
 
 <script lang="ts" setup>
 import {onUnmounted, ref} from 'vue';
-import {useRoute} from 'vue-router';
 import {ipcRenderer, shell} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
-import {router} from "../router";
+import bridge from "../bridge";
 
-const route = useRoute()
 let url = ref<string>(""),
     loading = ref<boolean>(false),
     buttonDisabled = ref<boolean>(true),
-    inputType = ref<number>(0),
     buttonText = ref<string>("下载"),
     gameTitle = ref<string | null>(null),
     cookieStatus = ref<Array<{ name: string, login: boolean }>>([])
 let gameInfo: GameInfo | null = null
 
-//初始化
-ipcRenderer.on('init-reply', (event, payload: Array<{ name: string, login: boolean }>) => {
+//异步初始化cookie状态
+bridge('init').then((payload: Array<{ name: string, login: boolean }>) => {
   cookieStatus.value = payload
 })
-ipcRenderer.send('init')
 
 //登录与登出
-function logout(name: string) {
-  ipcRenderer.send('logout', name)
+async function logout(name: string) {
   for (let n of cookieStatus.value) {
     if (n.name == name) {
       n.login = false
       break
     }
   }
+  await bridge('logout', name)
 }
 
-ipcRenderer.on('login-reply', (event, payload: { name: string, status: boolean, errorMessage: string }) => {
+async function login(name: string) {
+  let payload: { name: string, status: boolean, errorMessage: string } = await bridge('login', name)
   if (!payload.status) {
     message.error(payload.errorMessage)
     return
@@ -98,15 +95,34 @@ ipcRenderer.on('login-reply', (event, payload: { name: string, status: boolean, 
       break
     }
   }
-})
-
-function login(name: string) {
-  ipcRenderer.send('login', name)
 }
 
 //监听解析结果返回
-ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
+const urlRegex = /https?:\/\/\S+\.html?/
+let recentSubmit = 0
+
+async function parse() {
+  //判断url是否符合提交要求
+  if (url.value == "" || !urlRegex.test(url.value)) {
+    buttonText.value = "搜索"
+    buttonDisabled.value = true
+    gameTitle.value = null
+    return
+  } else {
+    buttonText.value = "下载"
+    buttonDisabled.value = false
+  }
+
+  //防抖
+  if (Date.now() - recentSubmit < 500) return
+
+  //提交搜索请求
+  recentSubmit = Date.now()
+  loading.value = true
+  let result: Result<GameInfo, string> = await bridge('parse', url.value.split("#")[0])
   console.log(result)
+
+  //处理返回结果
   if (result.ok) {
     loading.value = false
     gameInfo = result.val
@@ -133,30 +149,6 @@ ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
     message.error(result.val)
   }
   loading.value = false
-})
-
-const urlRegex = /https?:\/\/\S+\.html?/
-
-let recentSubmit = 0
-function parse() {
-  //判断url是否符合提交要求
-  if (url.value == "" || !urlRegex.test(url.value)) {
-    buttonText.value = "搜索"
-    buttonDisabled.value = true
-    gameTitle.value = null
-    return
-  } else {
-    buttonText.value = "下载"
-    buttonDisabled.value = false
-  }
-
-  //防抖
-  if (Date.now() - recentSubmit < 500) return
-
-  //提交搜索请求
-  recentSubmit = Date.now()
-  loading.value = true
-  ipcRenderer.send('parse', url.value.split("#")[0])
 }
 
 //监听下载进度事件更新

@@ -35,7 +35,6 @@ async function getCookie(): Promise<Result<string, string>> {
         win.on('close', async () => {
             win.webContents.session.cookies.get({url: 'http://www.4399.com'})
                 .then(cookies => {
-                    console.log(cookies)
                     if (cookies.length < 2) {
                         resolve(new Err("Error:Can't read cookie"))
                     } else {
@@ -83,116 +82,153 @@ async function fetch(url: string, referer: string): Promise<string> {
 }
 
 async function entrance(url: string): Promise<Result<GameInfo, string>> {
-    //检查cookie是否为空
-    if (cookie == null && (await getCookie()).err) return new Err("Error:Can't get cookie")
+    return new Promise(async (resolve) => {
+        //检查cookie是否为空
+        if (cookie == null && (await getCookie()).err) {
+            resolve(new Err("Error:Can't get cookie"))
+            return
+        }
 
-    //匹配出游戏id
-    let p = parseID(url)
-    if (p.err) return p
-    const id = p.val
+        //配置超时定时器
+        let timeout = true
+        setTimeout(() => {
+            if (timeout) {
+                resolve(new Err("Error:Parse timeout"))
+                return
+            }
+        }, 5000)
 
-    //获取标题
-    let originPage = await fetch(`http://www.4399.com/flash/${id}.htm`, "http://www.4399.com")
-    // fs.writeFileSync("page.html", originPage)
-    let m = originPage.match(/<title>.+<\/title>/)
-    if (m == null) return new Err("Error:Can't fetch game title")
-    const title = m[0].replace(/<\/?title>/g, "").split(/[,_]/)[0]
-    // console.log('title:'+title)
+        //匹配出游戏id
+        let p = parseID(url)
+        if (p.err) {
+            resolve(p)
+            return
+        }
+        const id = p.val
 
-    //获取分类
-    m = (originPage as string).match(/分类：.+小游戏/)
-    if (m == null) return new Err("Error:Can't get game category")
-    const category = m[0].slice(-5, -3)
-    // console.log('cate:'+category)
+        //获取标题
+        let originPage = await fetch(`http://www.4399.com/flash/${id}.htm`, "http://www.4399.com")
+        // fs.writeFileSync("page.html", originPage)
+        let m = originPage.match(/<title>.+<\/title>/)
+        if (m == null) {
+            resolve(new Err("Error:Can't fetch game title"))
+            return
+        }
+        const title = m[0].replace(/<\/?title>/g, "").split(/[,_]/)[0]
+        // console.log('title:'+title)
 
-    //获取游戏页面链接
-    m = (originPage as string).match(new RegExp(`/flash/${id}_\\d.htm`))
-    if (m == null) return new Err("Error:Can't parse playing page")
-    const playingPage = m[0]
-    // console.log('playingPage:'+playingPage)
+        //获取分类
+        m = (originPage as string).match(/分类：.+小游戏/)
+        if (m == null) {
+            resolve(new Err("Error:Can't get game category"))
+            return
+        }
+        const category = m[0].slice(-5, -3)
+        // console.log('cate:'+category)
 
-    //获取游戏页面
-    let page = await fetch(`http://www.4399.com${playingPage}`, `http://www.4399.com/flash/${id}.htm`)
+        //获取游戏页面链接
+        m = (originPage as string).match(new RegExp(`/flash/${id}_\\d.htm`))
+        if (m == null) {
+            resolve(new Err("Error:Can't parse playing page"))
+            return
+        }
+        const playingPage = m[0]
+        // console.log('playingPage:'+playingPage)
 
-    //匹配服务器源
-    m = page.match(/src="\/js\/(server|s\d+).+\.js"/)
-    if (m == null) return new Err("Error:Can't match server js file")
-    //请求服务器源js文件
-    let serverJS = await fetch(`http://www.4399.com${m[0].split('"')[1]}`, `http://www.4399.com${playingPage}`)
-    //匹配其中的 webServer
-    m = serverJS.match(/webServer\s*=\s*".+"/)
-    if (m == null) return new Err("Error:Can't match webServer")
-    let webServer = m[0].split('"')[1]
-    if (webServer.slice(0, 2) == "//") webServer = "http:" + webServer
-    // console.log(webServer)
+        //获取游戏页面
+        let page = await fetch(`http://www.4399.com${playingPage}`, `http://www.4399.com/flash/${id}.htm`)
 
-    //匹配真实页面路径
-    m = page.match(/_strGamePath\s*=\s*".*"/)
-    if (m == null) return new Err("Error:Can't match true game page")
-    const trueUrl = webServer + m[0].split('"')[1]
-    console.log('trueUrl:' + trueUrl)
+        //匹配服务器源
+        m = page.match(/src="\/js\/(server|s\d+).+\.js"/)
+        if (m == null) {
+            resolve(new Err("Error:Can't match server js file"))
+            return
+        }
+        //请求服务器源js文件
+        let serverJS = await fetch(`http://www.4399.com${m[0].split('"')[1]}`, `http://www.4399.com${playingPage}`)
+        //匹配其中的 webServer
+        m = serverJS.match(/webServer\s*=\s*".+"/)
+        if (m == null) {
+            resolve(new Err("Error:Can't match webServer"))
+            return
+        }
+        let webServer = m[0].split('"')[1]
+        if (webServer.slice(0, 2) == "//") webServer = "http:" + webServer
+        // console.log(webServer)
 
-    //匹配二进制文件
-    let binUrl
-    if (trueUrl.endsWith("swf")) {
-        //处理直接返回swf的情况
-        binUrl = trueUrl
-    } else {
-        //尝试探测swf
-        let res = await detect(trueUrl)
-        if (res.ok) {
-            binUrl = res.val
+        //匹配真实页面路径
+        m = page.match(/_strGamePath\s*=\s*".*"/)
+        if (m == null) {
+            resolve(new Err("Error:Can't match true game page"))
+            return
+        }
+        const trueUrl = webServer + m[0].split('"')[1]
+        console.log('trueUrl:' + trueUrl)
+
+        //匹配二进制文件
+        let binUrl
+        if (trueUrl.endsWith("swf")) {
+            //处理直接返回swf的情况
+            binUrl = trueUrl
         } else {
-            console.log(res.val)
-            //请求真实页面
-            let truePage = await fetch(trueUrl, `http://www.4399.com${playingPage}`)
-            //匹配其中的游戏文件
-            m = truePage.match(/(http?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
-            if (m == null) {
-                // return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
-                console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
-                return new Ok({
-                    title,
-                    category,
-                    type: "h5",
-                    fromSite: "4399",
-                    online: {
-                        originPage: `http://www.4399.com/flash/${id}.htm`,
-                        truePage: trueUrl,
-                        binUrl: trueUrl
-                    }
-                })
-            }
-            binUrl = m[0]
-            if (binUrl.indexOf("http") == -1) {
-                let s = trueUrl.split("/")
-                let last = s[s.length - 1]
-                binUrl = trueUrl.replace(last, binUrl)
+            //尝试探测swf
+            let res = await detect(trueUrl)
+            if (res.ok) {
+                binUrl = res.val
+            } else {
+                console.log(res.val)
+                //请求真实页面
+                let truePage = await fetch(trueUrl, `http://www.4399.com${playingPage}`)
+                //匹配其中的游戏文件
+                m = truePage.match(/(http?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
+                if (m == null) {
+                    // return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
+                    console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
+                    resolve(new Ok({
+                        title,
+                        category,
+                        type: "h5",
+                        fromSite: "4399",
+                        online: {
+                            originPage: `http://www.4399.com/flash/${id}.htm`,
+                            truePage: trueUrl,
+                            binUrl: trueUrl
+                        }
+                    }))
+                    return
+                }
+                binUrl = m[0]
+                if (binUrl.indexOf("http") == -1) {
+                    let s = trueUrl.split("/")
+                    let last = s[s.length - 1]
+                    binUrl = trueUrl.replace(last, binUrl)
+                }
             }
         }
-    }
-    console.log("Match bin file " + binUrl)
+        console.log("Match bin file " + binUrl)
 
-    //确定游戏类型
-    let type: "flash" | "unity" | "h5"
-    if (binUrl.endsWith("swf")) {
-        type = "flash"
-    } else if (binUrl.endsWith("unity3d")) {
-        type = "unity"
-    } else type = "h5"
+        //确定游戏类型
+        let type: "flash" | "unity" | "h5"
+        if (binUrl.endsWith("swf")) {
+            type = "flash"
+        } else if (binUrl.endsWith("unity3d")) {
+            type = "unity"
+        } else type = "h5"
 
 
-    return new Ok({
-        title,
-        category,
-        type,
-        fromSite: "4399",
-        online: {
-            originPage: `http://www.4399.com/flash/${id}.htm`,
-            truePage: trueUrl,
-            binUrl
-        }
+        resolve(new Ok({
+            title,
+            category,
+            type,
+            fromSite: "4399",
+            online: {
+                originPage: `http://www.4399.com/flash/${id}.htm`,
+                truePage: trueUrl,
+                binUrl
+            }
+        }))
     })
+
 }
 
 const detectArray = [

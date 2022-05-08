@@ -61,7 +61,6 @@ function saveCookie(name: string, cookie: string | null) {
     } else {
         cookieDatabase[name] = cookie
     }
-    console.log(cookieDatabase)
     fs.writeFileSync(LOCAL_COOKIE_DATABASE, JSON.stringify(cookieDatabase, null, 2))
 }
 
@@ -79,7 +78,6 @@ async function login(name: string): Promise<Result<null, string>> {
 }
 
 function logout(name: string) {
-    console.log(name)
     for (let n of register) {
         if (name == n.name) {
             n.cookieController.clear()
