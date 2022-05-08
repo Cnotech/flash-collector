@@ -1,12 +1,13 @@
 import {ipcMain} from "electron";
 import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
-import {Err, Result} from "ts-results";
+import {Err, Ok, Result} from "ts-results";
 
 const registry: { [name: string]: (...args: any) => any } = {
-    launch: async (payload: { type: string, folder: string, backup: boolean }) => {
-        await manager.launch(payload.type, payload.folder, payload.backup)
-        return payload
+    launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
+        let status = await manager.launch(payload.type, payload.folder, payload.backup)
+        if (status) return new Ok(payload)
+        else return new Err("Error:Install dependency first")
     },
     query: async (payload: { type: string, folder: string }) => {
         return manager.query(payload.type, payload.folder)
@@ -43,6 +44,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     refresh: async () => {
         return manager.readList()
+    },
+    install: (type) => {
+        return manager.install(type)
     }
 }
 

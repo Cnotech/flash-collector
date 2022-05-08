@@ -92,10 +92,11 @@ import {useRoute, useRouter} from 'vue-router';
 import {shell} from "electron";
 import {GameInfo} from "../../../class";
 import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
-import {message} from "ant-design-vue";
+import {message, Modal} from "ant-design-vue";
 import cp from 'child_process'
 import path from "path";
 import bridge from "../bridge";
+import {Result} from "ts-results";
 
 const route = useRoute(), router = useRouter()
 
@@ -122,10 +123,31 @@ let status = ref<boolean>(false),
 async function launch(backup: boolean) {
   playingList.push(info.value.local?.folder as string)
   status.value = true
-  let payload = await bridge('launch', {type: info.value.type, folder: info.value.local?.folder, backup})
-  playingList = playingList.filter(val => val != payload.folder)
-  if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
+  let res: Result<{ type: string, folder: string, backup: boolean }, string> = await bridge('launch', {
+    type: info.value.type,
+    folder: info.value.local?.folder,
+    backup
+  })
+  if (res.ok) {
+    const payload = res.val
+    playingList = playingList.filter(val => val != payload.folder)
+    if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
+      status.value = false
+    }
+  } else {
+    console.log(res.val)
+    playingList = playingList.filter(val => val != info.value.local?.folder)
     status.value = false
+    //说明需要安装运行库
+    Modal.confirm({
+      title: "运行库可能未安装",
+      content: '您需要先正确安装运行库才能启动游戏，如果这是误报请在“设置”界面禁用运行库检查',
+      okText: "安装",
+      cancelText: "取消",
+      onOk() {
+        bridge('install', info.value.type).then(tip => message.success(tip))
+      }
+    })
   }
 }
 

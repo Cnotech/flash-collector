@@ -7,6 +7,7 @@ import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
 import {BrowserWindow, ipcMain} from 'electron'
 import express from 'express'
+import * as os from "os";
 
 const shell = require('shelljs')
 
@@ -214,25 +215,42 @@ function readList(): List {
     return gameList
 }
 
-async function launch(type: string, folder: string, backup: boolean): Promise<void> {
+function checkDependency(type: 'flash' | 'unity'): boolean {
+    switch (type) {
+        case "flash":
+            return fs.existsSync("C:\\Windows\\System32\\Macromed\\Flash\\pepflashplayer.dll") || fs.existsSync("C:\\Windows\\SysWOW64\\Macromed\\Flash\\pepflashplayer.dll")
+        case "unity":
+            return fs.existsSync("C:\\Program Files\\Unity\\WebPlayer64\\Uninstall.exe") || fs.existsSync("C:\\Program Files\\Unity\\WebPlayer\\Uninstall.exe") || fs.existsSync("C:\\Program Files (x86)\\Unity\\WebPlayer\\Uninstall.exe")
+    }
+}
+
+async function launch(type: string, folder: string, backup: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
         const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo
         switch (infoConfig.type) {
             case "flash":
                 if (backup) {
-                    cp.exec("start " + encodeURI(`http://localhost:${PORT}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve())
+                    if (!checkDependency('flash')) {
+                        resolve(false)
+                    } else {
+                        cp.exec("start " + encodeURI(`http://localhost:${PORT}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve(true))
+                    }
                 } else {
                     cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
-                        resolve()
+                        resolve(true)
                     })
                 }
                 break
             case "unity":
-                cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())
+                if (!checkDependency('unity')) {
+                    resolve(false)
+                } else {
+                    cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve(true))
+                }
                 break
             case "h5":
                 if (backup) {
-                    cp.exec("start " + encodeURI(infoConfig.online.binUrl), () => resolve())
+                    cp.exec("start " + encodeURI(infoConfig.online.binUrl), () => resolve(true))
                 } else {
                     const win = new BrowserWindow({width: 1200, height: 800})
                     await win.loadURL(infoConfig.online.binUrl, {
@@ -240,7 +258,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<vo
                         userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
                     })
                     win.on('close', () => {
-                        resolve()
+                        resolve(true)
                     })
                 }
                 break
@@ -262,6 +280,24 @@ function query(type: string, folder: string): GameInfo {
     }
 }
 
+async function install(type: 'flash' | 'unity'): Promise<string> {
+    return new Promise((resolve) => {
+        if (type == 'flash') {
+            cp.exec(`"${path.join('retinue', 'Flash_Web_Player', 'Flash_Player_v32.0.0.465_NPAPI_Final.exe')}" /ai /gm2`, () => {
+                cp.exec(`"${path.join('retinue', 'Flash_Web_Player', 'Flash_Player_v32.0.0.465_PPAPI_Final.exe')}" /ai /gm2`, () => {
+                    resolve("Flash 运行库安装完成")
+                })
+            })
+        } else {
+            if (process.arch == "x64") {
+                cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer64.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
+            } else {
+                cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
+            }
+        }
+    })
+}
+
 export default {
     downloader,
     parser,
@@ -270,5 +306,6 @@ export default {
     logout,
     readList,
     launch,
-    query
+    query,
+    install
 }
