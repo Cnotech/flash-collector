@@ -1,7 +1,6 @@
 import {app, BrowserWindow, shell, ipcMain} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
-import receptionist from "./receptionist";
 import bridge from "./bridge";
 
 // Disable GPU Acceleration for Windows 7
@@ -70,14 +69,13 @@ app.on('second-instance', () => {
     }
 })
 
-app.on('activate', () => {
+app.on('activate', async () => {
     const allWindows = BrowserWindow.getAllWindows()
     if (allWindows.length) {
         allWindows[0].focus()
     } else {
-        createWindow()
+        await createWindow()
     }
 })
 
-receptionist()
 bridge()
