@@ -6,6 +6,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }) => {
         await manager.launch(payload.type, payload.folder, payload.backup)
         return payload
+    },
+    query: async (payload: { type: string, folder: string }) => {
+        return manager.query(payload.type, payload.folder)
     }
 }
 
@@ -20,7 +23,7 @@ export default function () {
     ipcMain.on('bridge', async (event, req: Request) => {
         let entry = callMap.get(req.functionName)
         if (entry == null) {
-            console.log('Warning:Unknown function ' + req.functionName)
+            console.log(`Error:Function ${req.functionName} unregistered!`)
         } else {
             const payload = await entry(...req.args),
                 reply: Reply = {

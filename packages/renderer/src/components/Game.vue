@@ -89,7 +89,7 @@
 <script lang="ts" setup>
 import {ref, onMounted} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {ipcRenderer, shell} from "electron";
+import {shell} from "electron";
 import {GameInfo} from "../../../class";
 import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
 import {message} from "ant-design-vue";
@@ -121,21 +121,18 @@ let status = ref<boolean>(false),
 //启动游戏
 async function launch(backup: boolean) {
   playingList.push(info.value.local?.folder as string)
-  let payload = await bridge('launch', {type: info.value.type, folder: info.value.local?.folder, backup}, "EXTRA!!!")
+  status.value = true
+  let payload = await bridge('launch', {type: info.value.type, folder: info.value.local?.folder, backup})
   playingList = playingList.filter(val => val != payload.folder)
   if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
     status.value = false
   }
 }
 
+//查询信息
 async function query(): Promise<GameInfo> {
   let s = (route.query.id as string).split(";")
-  ipcRenderer.send('query', {type: s[0], folder: s[1]})
-  return new Promise((resolve) => {
-    ipcRenderer.once('query-reply', (event, args) => {
-      resolve(args)
-    })
-  })
+  return bridge('query', {type: s[0], folder: s[1]})
 }
 
 function openExt(url: string) {
@@ -153,11 +150,7 @@ onMounted(async () => {
 router.afterEach(async () => {
   if (route.query.id == null) return
   info.value = await query()
-  if (info.value.local && playingList.includes(info.value.local.folder)) {
-    status.value = true
-  } else {
-    status.value = false
-  }
+  status.value = !!(info.value.local && playingList.includes(info.value.local.folder));
 })
 
 </script>

@@ -27,7 +27,6 @@ export default async function (functionName: string, ...args: any): Promise<any>
         const req: Request = {
             id, args, functionName
         }
-        console.log(req)
         ipcRenderer.send('bridge', req)
     })
 }
