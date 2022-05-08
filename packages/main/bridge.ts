@@ -37,6 +37,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     parse: async (payload: string): Promise<Result<GameInfo, string>> => {
         return manager.parser(payload)
+    },
+    download: async (payload: GameInfo) => {
+        return manager.downloader(payload)
     }
 }
 

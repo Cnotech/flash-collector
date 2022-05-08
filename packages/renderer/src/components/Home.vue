@@ -50,8 +50,8 @@
 </template>
 
 <script lang="ts" setup>
-import {onUnmounted, ref} from 'vue';
-import {ipcRenderer, shell} from "electron";
+import {ref} from 'vue';
+import {shell} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
@@ -151,41 +151,26 @@ async function parse() {
   loading.value = false
 }
 
-//监听下载进度事件更新
-ipcRenderer.on('download-progress', (event, payload: { gameInfo: GameInfo, percentage: number }) => {
-  buttonText.value = payload.percentage + "%"
-  console.log(payload)
-})
-
-ipcRenderer.on('download-reply', (event, payload: Result<GameInfo, string>) => {
-  buttonDisabled.value = false
-  loading.value = false
-  buttonText.value = "搜索"
-  url.value = ""
-  if (payload.ok) {
-    message.success(`${payload.val.title} 下载成功`)
-    //TODO:显示到最近下载
-    bus.emit('refreshSidebar')
-  } else {
-    message.error(payload.val)
-  }
-})
-
-function download() {
+async function download() {
   if (buttonDisabled.value) {
-    shell.openExternal(`https://www.baidu.com/s?wd=site%3A4399.com+${url.value}&ie=UTF-8`)
+    await shell.openExternal(`https://www.baidu.com/s?wd=site%3A4399.com+${url.value}&ie=UTF-8`)
   } else {
     loading.value = true
     buttonText.value = "下载中"
-    ipcRenderer.send('download', gameInfo)
+    let payload: Result<GameInfo, string> = await bridge('download', gameInfo)
+    buttonDisabled.value = false
+    loading.value = false
+    buttonText.value = "搜索"
+    url.value = ""
+    if (payload.ok) {
+      message.success(`${payload.val.title} 下载成功`)
+      //TODO:显示到最近下载，然后提供查看按钮
+      bus.emit('refreshSidebar')
+    } else {
+      message.error(payload.val)
+    }
   }
 }
-
-//离开页面前注销所有监听器
-onUnmounted(() => {
-  const channels = ['download-reply', 'download-progress', 'parse-reply', 'login-reply', 'init-reply']
-  channels.forEach(channel => ipcRenderer.removeAllListeners(channel))
-})
 </script>
 
 <style scoped>
