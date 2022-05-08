@@ -65,8 +65,8 @@ import {ref} from 'vue';
 import {HomeFilled} from '@ant-design/icons-vue';
 import {useRouter, useRoute} from 'vue-router';
 import {bus} from './eventbus'
-import {GameInfo, List} from "../../class";
-import {ipcRenderer} from "electron";
+import {List} from "../../class";
+import bridge from "./bridge";
 
 const router = useRouter(), route = useRoute()
 
@@ -87,12 +87,9 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
 //刷新侧边栏游戏列表
 let sidebarList = ref<List>({flash: [], unity: [], h5: []})
 bus.on('refreshSidebar', refreshSidebar)
-ipcRenderer.on('refresh-reply', (e, p: List) => {
-  sidebarList.value = p
-})
 
-function refreshSidebar() {
-  ipcRenderer.send('refresh')
+async function refreshSidebar() {
+  sidebarList.value = await bridge('refresh')
 }
 
 refreshSidebar()

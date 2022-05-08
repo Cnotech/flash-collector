@@ -40,6 +40,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     download: async (payload: GameInfo) => {
         return manager.downloader(payload)
+    },
+    refresh: async () => {
+        return manager.readList()
     }
 }
 
