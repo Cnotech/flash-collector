@@ -94,7 +94,8 @@ import {GameInfo} from "../../../class";
 import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
 import {message} from "ant-design-vue";
 import cp from 'child_process'
-import * as path from "path";
+import path from "path";
+import bridge from "../bridge";
 
 const route = useRoute(), router = useRouter()
 
@@ -117,18 +118,14 @@ let status = ref<boolean>(false),
       }
     })
 
-//监听游戏运行结束
-ipcRenderer.on('launch-reply', (e, payload: { type: string, folder: string }) => {
+//启动游戏
+async function launch(backup: boolean) {
+  playingList.push(info.value.local?.folder as string)
+  let payload = await bridge('launch', {type: info.value.type, folder: info.value.local?.folder, backup}, "EXTRA!!!")
   playingList = playingList.filter(val => val != payload.folder)
   if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
     status.value = false
   }
-})
-
-function launch(backup: boolean) {
-  playingList.push(info.value.local?.folder as string)
-  ipcRenderer.send('launch', {type: info.value.type, folder: info.value.local?.folder, backup})
-  status.value = true
 }
 
 async function query(): Promise<GameInfo> {

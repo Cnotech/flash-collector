@@ -2,6 +2,7 @@ import {app, BrowserWindow, shell, ipcMain} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import receptionist from "./receptionist";
+import bridge from "./bridge";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -79,3 +80,4 @@ app.on('activate', () => {
 })
 
 receptionist()
+bridge()

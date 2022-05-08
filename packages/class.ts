@@ -34,8 +34,21 @@ interface List {
     [type: string]: GameInfo[]
 }
 
+interface Request {
+    id: number,
+    functionName: string,
+    args: any
+}
+
+interface Reply {
+    id: number,
+    payload: any
+}
+
 export {
     GameInfo,
     ParserRegister,
-    List
+    List,
+    Request,
+    Reply
 }
