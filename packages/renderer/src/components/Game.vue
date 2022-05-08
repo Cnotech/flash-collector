@@ -82,6 +82,7 @@
     <iframe
         :src="info.online.originPage"
         style="width:100%; height:80%;border-width: 0"
+        sandbox=""
     />
   </div>
 </template>
