@@ -116,7 +116,21 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 
         //匹配其中的游戏文件
         m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
-        if (m == null) return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
+        if (m == null) {
+            // return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
+            console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
+            return new Ok({
+                title,
+                category,
+                type: 'h5',
+                fromSite: "7k7k",
+                online: {
+                    originPage: `http://www.7k7k.com/flash/${id}.htm`,
+                    truePage: trueUrl,
+                    binUrl: trueUrl
+                }
+            })
+        }
         binUrl = m[0]
         if (binUrl.indexOf("http") == -1) {
             let s = trueUrl.split("/")

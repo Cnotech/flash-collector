@@ -96,7 +96,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
     // fs.writeFileSync("page.html", originPage)
     let m = originPage.match(/<title>.+<\/title>/)
     if (m == null) return new Err("Error:Can't fetch game title")
-    const title = m[0].replace(/<\/?title>/g, "").split(",")[0]
+    const title = m[0].replace(/<\/?title>/g, "").split(/[,_]/)[0]
     // console.log('title:'+title)
 
     //获取分类
@@ -148,7 +148,21 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             let truePage = await fetch(trueUrl, `http://www.4399.com${playingPage}`)
             //匹配其中的游戏文件
             m = truePage.match(/(http?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
-            if (m == null) return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
+            if (m == null) {
+                // return new Err("Error:Can't either try download any swf file or match any bin file, if this is a HTML5 game thus it's not supported yet")
+                console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
+                return new Ok({
+                    title,
+                    category,
+                    type: "h5",
+                    fromSite: "4399",
+                    online: {
+                        originPage: `http://www.4399.com/flash/${id}.htm`,
+                        truePage: trueUrl,
+                        binUrl: trueUrl
+                    }
+                })
+            }
             binUrl = m[0]
             if (binUrl.indexOf("http") == -1) {
                 let s = trueUrl.split("/")

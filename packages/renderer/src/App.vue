@@ -37,15 +37,15 @@
         </template>
         <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
       </a-sub-menu>
-      <!--          <a-sub-menu key="h5">-->
-      <!--            <template #title>-->
-      <!--              <span>-->
-      <!--                <img class="icon" src="./assets/icons/html5.ico"/>-->
-      <!--                HTML 5（{{ sidebarList.h5.length }}）-->
-      <!--              </span>-->
-      <!--            </template>-->
-      <!--            <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>-->
-      <!--          </a-sub-menu>-->
+      <a-sub-menu key="h5">
+        <template #title>
+                    <span>
+                      <img class="icon" src="./assets/icons/html5.ico"/>
+                      HTML 5（{{ sidebarList.h5.length }}）
+                    </span>
+        </template>
+        <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
+      </a-sub-menu>
     </a-menu>
   </a-layout-sider>
   <a-layout style="height: 100%;margin-left: 200px">

@@ -137,36 +137,43 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     shell.mkdir('-p', dir)
 
     //下载源文件
-    const sp = info.online.binUrl.split("/")
-    let downloadedFileName: string = sp[sp.length - 1]
-    const d = new Downloader({
-        url: info.online.binUrl,
-        directory: dir,
-        headers: {
-            'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
-            referer: info.online.originPage
-        },
-        onProgress(percentage: string) {
-            ipcMain.emit('download-progress', {
-                gameInfo: info,
-                percentage
-            })
-        },
-        onBeforeSave(finalName: string) {
-            downloadedFileName = finalName
+    if (info.type != 'h5') {
+        const sp = info.online.binUrl.split("/")
+        let downloadedFileName: string = sp[sp.length - 1]
+        const d = new Downloader({
+            url: info.online.binUrl,
+            directory: dir,
+            headers: {
+                'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+                referer: info.online.originPage
+            },
+            onProgress(percentage: string) {
+                ipcMain.emit('download-progress', {
+                    gameInfo: info,
+                    percentage
+                })
+            },
+            onBeforeSave(finalName: string) {
+                downloadedFileName = finalName
+            }
+        })
+        try {
+            await d.download();
+        } catch (error) {
+            console.log(error);
+            return new Err("Error:Can't download game file")
         }
-    })
-    try {
-        await d.download();
-    } catch (error) {
-        console.log(error);
-        return new Err("Error:Can't download game file")
-    }
 
-    //下载完成
-    info.local = {
-        binFile: downloadedFileName,
-        folder: door
+        //下载完成
+        info.local = {
+            binFile: downloadedFileName,
+            folder: door
+        }
+    } else {
+        info.local = {
+            binFile: info.online.binUrl,
+            folder: door
+        }
     }
     ipcMain.emit('download-progress', {
         gameInfo: info,
@@ -226,6 +233,18 @@ async function launch(type: string, folder: string, backup: boolean): Promise<vo
                 cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve())
                 break
             case "h5":
+                if (backup) {
+                    cp.exec("start " + encodeURI(infoConfig.online.binUrl), () => resolve())
+                } else {
+                    const win = new BrowserWindow({width: 1200, height: 800})
+                    await win.loadURL(infoConfig.online.binUrl, {
+                        httpReferrer: infoConfig.online.truePage,
+                        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+                    })
+                    win.on('close', () => {
+                        resolve()
+                    })
+                }
                 break
         }
     })

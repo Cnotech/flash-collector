@@ -35,7 +35,45 @@
             <QuestionCircleOutlined/>
           </a-popover>
         </template>
-        <a-button v-else type="primary" @click="launch(false)">{{ status ? "正在运行" : "开始游戏" }}</a-button>
+        <template v-else-if="info.type=='h5'">
+          <a-dropdown>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="2" @click="openExt(info.online.truePage)">源站播放</a-menu-item>
+              </a-menu>
+            </template>
+            <a-button :disabled="status" type="primary" @click="launch(false)">
+              {{ status ? "正在运行" : "开始游戏" }}
+              <DownOutlined/>
+            </a-button>
+          </a-dropdown>
+          <a-popover placement="rightBottom" title="这是一个在线游戏" trigger="hover">
+            <template #content>
+              <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制</p>
+            </template>
+            <QuestionCircleOutlined/>
+          </a-popover>
+        </template>
+        <template v-else-if="info.type==='unity'">
+          <a-dropdown>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="2" @click="openExt(info.online.truePage)">源站播放</a-menu-item>
+              </a-menu>
+            </template>
+            <a-button :disabled="status" type="primary" @click="launch(false)">
+              {{ status ? "正在运行" : "开始游戏" }}
+              <DownOutlined/>
+            </a-button>
+          </a-dropdown>
+          <a-popover placement="rightBottom" title="可能出现错误" trigger="hover">
+            <template #content>
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制</p>
+            </template>
+            <QuestionCircleOutlined/>
+          </a-popover>
+        </template>
       </template>
     </a-page-header>
 

@@ -55,7 +55,7 @@ import {useRoute} from 'vue-router';
 import {ipcRenderer, shell} from "electron";
 import {Result} from "ts-results";
 import {GameInfo} from "../../../class";
-import {message} from 'ant-design-vue';
+import {message, Modal} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 import {router} from "../router";
@@ -113,6 +113,21 @@ ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
     gameTitle.value = gameInfo.title
     if (result.val.hasOwnProperty('local')) {
       message.warn(`${result.val.title} 已下载，如果继续则会创建一个副本`)
+      return
+    }
+    //处理html5类别
+    if (result.val.type == 'h5') {
+      Modal.confirm({
+        title: "这似乎是一个HTML5游戏",
+        content: "目前尚没有效果好的爬取HTML5游戏的开源解决方案，因此若继续则只会保存解析到的真实游戏页面而不会下载",
+        okText: "继续",
+        cancelText: "取消",
+        onCancel() {
+          gameInfo = null
+          buttonText.value = "搜索"
+          url.value = ""
+        }
+      })
     }
   } else {
     message.error(result.val)
@@ -121,8 +136,8 @@ ipcRenderer.on('parse-reply', (event, result: Result<GameInfo, string>) => {
 })
 
 const urlRegex = /https?:\/\/\S+\.html?/
-let recentSubmit = 0
 
+let recentSubmit = 0
 function parse() {
   //判断url是否符合提交要求
   if (url.value == "" || !urlRegex.test(url.value)) {
