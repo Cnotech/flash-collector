@@ -5,9 +5,11 @@
 ## 特性
 
 - 一键解析下载 Flash 和 Unity3D Web 小游戏
-- 一键收藏 HTML5 小游戏
-- 支持站点登录
-- 自动检测并安装依赖库
+- 在本地运行 Flash 和 Unity3D Web 小游戏
+- 一键解析并保存 HTML5 小游戏真实页面
+- 自动添加 Referer 绕过 HTML5 小游戏真实页面请求限制
+- 登录站点自动获取cookie、Referer / UA请求模拟，避免触发站点反爬策略
+- 自动检测并安装必要的运行库
 - 原生支持 4399 和 7k7k 两大站点
 - 模块化设计，可拓展小游戏站点支持
 
@@ -25,9 +27,9 @@
 
 ## 反馈
 
-如果遇到无法解析的 **Flash 或 Unity3D** 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，**不接受 HTML5 或页游的反馈请求**
+如果遇到无法解析或解析为 HTML5 的 **Flash 或 Unity3D 游戏**请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，**不接受 HTML5 或页游的反馈请求**
 
-## 增加小游戏网站支持
+## 拓展小游戏网站支持
 
 定位到 `./packages/main/modules`，编写并在 `_register.ts` 中注册你的模块
 
