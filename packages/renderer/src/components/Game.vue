@@ -4,7 +4,13 @@
         :sub-title="info.category"
     >
       <template #title>
-        <a @click="openExt(info.online.originPage)">{{ info.title }}</a>
+        <template v-if="rename.status">
+          <a-space>
+            <a-input v-model:value="rename.value" @pressEnter="confirmRen"/>
+            <a-button size="middle" type="primary" @click="confirmRen">完成</a-button>
+          </a-space>
+        </template>
+        <a v-else @click="openExt(info.online.originPage)">{{ info.title }}</a>
       </template>
       <template #tags>
         <a-tag color="blue">{{ info.fromSite }}</a-tag>
@@ -133,7 +139,8 @@ let status = ref<boolean>(false),
         binFile: "",
         folder: ""
       }
-    })
+    }),
+    rename = ref<{ status: boolean, value: string }>({status: false, value: ""})
 
 //启动游戏
 async function launch(backup: boolean) {
@@ -175,7 +182,15 @@ async function query(): Promise<GameInfo> {
 
 //重命名与删除
 function ren() {
+  rename.value.value = info.value.title
+  rename.value.status = true
+}
 
+function confirmRen() {
+  rename.value.status = false
+  info.value.title = rename.value.value
+  fs.writeFileSync(path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string, "info.json"), JSON.stringify(info.value, null, 2))
+  bus.emit('refreshSidebar')
 }
 
 function del() {
