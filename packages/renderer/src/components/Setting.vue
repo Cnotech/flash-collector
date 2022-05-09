@@ -16,7 +16,7 @@
   <a-card style="width: 100%" title="游戏服务端口">
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
-      <a-button>应用</a-button>
+      <a-button @click="restart">应用</a-button>
     </a-space>
   </a-card>
   <br/>
@@ -88,7 +88,7 @@ onMounted(async () => {
   port.value = config.port
 })
 
-onUnmounted(async () => {
+const save = async () => {
   let config = await getConfig()
 
   config.search.site = site.value
@@ -100,7 +100,14 @@ onUnmounted(async () => {
 
   setConfig(config)
   bus.emit('update-search-pattern')
-})
+}
+
+onUnmounted(save)
+
+async function restart() {
+  await save()
+  bridge('restart')
+}
 
 </script>
 

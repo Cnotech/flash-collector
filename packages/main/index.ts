@@ -1,7 +1,8 @@
-import {app, BrowserWindow, shell, Menu} from 'electron'
+import {app, BrowserWindow, Menu, shell} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import bridge from "./bridge";
+import cp from "child_process"
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -79,8 +80,18 @@ app.on('activate', async () => {
     }
 })
 
-export function toggleDevtool() {
+function toggleDevtool() {
     win?.webContents.toggleDevTools()
 }
 
+function restart() {
+    if (app.isPackaged) cp.exec("flash-collector.exe")
+    else cp.exec("electron .")
+    app.exit()
+}
+
 bridge()
+export {
+    toggleDevtool,
+    restart
+}
