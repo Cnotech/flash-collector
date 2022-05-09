@@ -20,8 +20,10 @@ interface ParserRegister {
     name: string,
     regex: RegExp,
     entrance: (url: string) => Promise<Result<GameInfo, string>>,
-    parseID: (url: string) => Result<string, string>,
-    getNickName: (cookie: string) => Result<string, string>,
+    utils: {
+        parseID: (url: string) => Result<string, string>,
+        getNickName: (cookie: string) => Result<string, string>,
+    },
     cookieController: {
         init: (cookie: string | null, updateCookieCallback: (cookie: string) => void) => void,
         get: () => Promise<Result<string, string>>,

@@ -43,7 +43,7 @@
                       HTML 5（{{ sidebarList.h5.length }}）
                     </span>
         </template>
-        <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
+        <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
       </a-sub-menu>
       <a-menu-item key="setting">
         <setting-filled style="height: 20px;width: 20px"/>
@@ -66,7 +66,7 @@
 <script lang="ts" setup>
 import {ref} from 'vue';
 import {HomeFilled, SettingFilled} from '@ant-design/icons-vue';
-import {useRouter, useRoute} from 'vue-router';
+import {useRoute, useRouter} from 'vue-router';
 import {bus} from './eventbus'
 import {List} from "../../class";
 import bridge from "./bridge";

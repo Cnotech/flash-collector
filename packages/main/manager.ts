@@ -46,7 +46,7 @@ function init(): { config: Config, status: LoginStatus[] } {
             s.push({
                 name: n.name,
                 login: true,
-                nickName: n.getNickName(config.cookies[n.name]).unwrapOr("Unknown")
+                nickName: n.utils.getNickName(config.cookies[n.name]).unwrapOr("Unknown")
             })
         } else {
             n.cookieController.init(null, callback)
@@ -77,7 +77,7 @@ async function login(name: string): Promise<Result<string, string>> {
             let r = await n.cookieController.get()
             if (r.err) return r
             saveCookie(name, r.val)
-            return new Ok(n.getNickName(r.val).unwrapOr("Unknown"))
+            return new Ok(n.utils.getNickName(r.val).unwrapOr("Unknown"))
         }
     }
     return new Err("Error:Can't find such parser")
@@ -112,11 +112,11 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
     if (regNode == null) return new Err("Error:Can't find parser for this url")
 
     //遍历list查询此游戏是否被下载了
-    let found: GameInfo | null = null, thisID = regNode.parseID(url).unwrap()
+    let found: GameInfo | null = null, thisID = regNode.utils.parseID(url).unwrap()
     for (let type in gameList) {
         for (let game of gameList[type]) {
             if (game.fromSite == regNode.name) {
-                let idRes = regNode.parseID(game.online.originPage)
+                let idRes = regNode.utils.parseID(game.online.originPage)
                 if (idRes.err) {
                     console.log(`Warning:Fatal, can't parse id for local game ${type}/${game.local?.folder} with module ${regNode.name}`)
                 } else if (idRes.val == thisID) {
@@ -286,6 +286,11 @@ function query(type: string, folder: string): GameInfo {
     }
 }
 
+function rename(type: string, folder: string) {
+    const key = type + folder
+    infoCache.delete(key)
+}
+
 async function install(type: 'flash' | 'unity'): Promise<string> {
     return new Promise((resolve) => {
         if (type == 'flash') {
@@ -313,5 +318,6 @@ export default {
     readList,
     launch,
     query,
+    rename,
     install
 }

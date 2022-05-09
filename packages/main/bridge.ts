@@ -14,6 +14,7 @@ const registry: { [name: string]: (...args: any) => any } = {
     query: async (payload: { type: string, folder: string }) => {
         return manager.query(payload.type, payload.folder)
     },
+    rename: manager.rename,
     init: manager.init,
     logout: manager.logout,
     login: async (payload: string) => {
