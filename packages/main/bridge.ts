@@ -1,8 +1,9 @@
 import {ipcMain} from "electron";
-import {GameInfo, Reply, Request} from "../class";
+import {Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
 import {toggleDevtool} from "./index";
+import {getConfig, setConfig} from "./config";
 
 const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
@@ -13,45 +14,37 @@ const registry: { [name: string]: (...args: any) => any } = {
     query: async (payload: { type: string, folder: string }) => {
         return manager.query(payload.type, payload.folder)
     },
-    init: async () => {
-        return manager.init()
-    },
-    logout: (name: string) => {
-        manager.logout(name)
-    },
+    init: manager.init,
+    logout: manager.logout,
     login: async (payload: string) => {
         let r = await manager.login(payload)
-        let replyPayload: { name: string, status: boolean, errorMessage: string }
+        let replyPayload: { name: string, status: boolean, errorMessage: string, nickName: string }
         if (r.ok) {
             replyPayload = {
                 name: payload,
                 status: true,
-                errorMessage: ""
+                errorMessage: "",
+                nickName: r.val
             }
         } else {
             replyPayload = {
                 name: payload,
                 status: false,
-                errorMessage: r.val
+                errorMessage: r.val,
+                nickName: ""
             }
         }
         return replyPayload
     },
-    parse: async (payload: string): Promise<Result<GameInfo, string>> => {
-        return manager.parser(payload)
-    },
-    download: async (payload: GameInfo) => {
-        return manager.downloader(payload)
-    },
-    refresh: async () => {
-        return manager.readList()
-    },
-    install: (type) => {
-        return manager.install(type)
-    },
+    parse: manager.parser,
+    download: manager.downloader,
+    refresh: manager.readList,
+    install: manager.install,
     devtool: () => {
         toggleDevtool()
-    }
+    },
+    getConfig,
+    setConfig
 }
 
 export default function () {

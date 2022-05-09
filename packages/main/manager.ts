@@ -1,23 +1,18 @@
 import {register} from "./modules/_register";
 import {Err, Ok, Result} from "ts-results";
-import {GameInfo, List, ParserRegister} from "../class";
+import {GameInfo, List, LoginStatus, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
 import {BrowserWindow, ipcMain} from 'electron'
 import express from 'express'
-import * as os from "os";
+import {Config, getConfig, setConfig} from "./config";
 
 const shell = require('shelljs')
 
-const LOCAL_GAME_LIBRARY = "./games", LOCAL_COOKIE_DATABASE = "./cookies.json", PORT = 3000
+const LOCAL_GAME_LIBRARY = "./games"
 
-interface CookieDatabase {
-    [name: string]: string
-}
-
-let cookieDatabase: CookieDatabase = fs.existsSync(LOCAL_COOKIE_DATABASE) ? JSON.parse(fs.readFileSync(LOCAL_COOKIE_DATABASE).toString()) : {}
 let freshList = true, gameList: List = {
     flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
     unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
@@ -36,43 +31,53 @@ app.use((req, res, next) => {
 })
 app.use('/retinue', express.static('retinue'))
 app.use('/games', express.static('games'))
-app.listen(PORT)
+app.listen(getConfig().port)
 
-//初始化全部解析器，返回各自的登录状态
-function init(): Array<{ name: string, login: boolean }> {
-    let res: Array<{ name: string, login: boolean }> = []
+//初始化全部解析器，返回配置和登录状态
+function init(): { config: Config, status: LoginStatus[] } {
+    let s: LoginStatus[] = [],
+        config = getConfig()
     for (let n of register) {
         const callback = (c: string) => {
             saveCookie(n.name, c)
         }
-        if (cookieDatabase.hasOwnProperty(n.name)) {
-            n.cookieController.init(cookieDatabase[n.name], callback)
-            res.push({name: n.name, login: true})
+        if (config.cookies.hasOwnProperty(n.name)) {
+            n.cookieController.init(config.cookies[n.name], callback)
+            s.push({
+                name: n.name,
+                login: true,
+                nickName: n.getNickName(config.cookies[n.name]).unwrapOr("Unknown")
+            })
         } else {
             n.cookieController.init(null, callback)
-            res.push({name: n.name, login: false})
+            s.push({
+                name: n.name,
+                login: false,
+                nickName: ""
+            })
         }
     }
-    return res
+    return {config, status: s}
 }
 
 function saveCookie(name: string, cookie: string | null) {
+    let config = getConfig()
     if (cookie == null) {
-        delete cookieDatabase[name]
+        delete config.cookies[name]
     } else {
-        cookieDatabase[name] = cookie
+        config.cookies[name] = cookie
     }
-    fs.writeFileSync(LOCAL_COOKIE_DATABASE, JSON.stringify(cookieDatabase, null, 2))
+    setConfig(config)
 }
 
-//登录与登出
-async function login(name: string): Promise<Result<null, string>> {
+//登录与登出，登录成功返回昵称
+async function login(name: string): Promise<Result<string, string>> {
     for (let n of register) {
         if (n.name == name) {
             let r = await n.cookieController.get()
             if (r.err) return r
             saveCookie(name, r.val)
-            return new Ok(null)
+            return new Ok(n.getNickName(r.val).unwrapOr("Unknown"))
         }
     }
     return new Err("Error:Can't find such parser")
@@ -226,14 +231,15 @@ function checkDependency(type: 'flash' | 'unity'): boolean {
 
 async function launch(type: string, folder: string, backup: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
-        const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo
+        const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo,
+            config = getConfig()
         switch (infoConfig.type) {
             case "flash":
                 if (backup) {
                     if (!checkDependency('flash')) {
                         resolve(false)
                     } else {
-                        cp.exec("start " + encodeURI(`http://localhost:${PORT}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve(true))
+                        cp.exec("start " + encodeURI(`http://localhost:${config.port}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve(true))
                     }
                 } else {
                     cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
@@ -245,7 +251,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                 if (!checkDependency('unity')) {
                     resolve(false)
                 } else {
-                    cp.exec("start " + encodeURI(`http://localhost:${PORT}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve(true))
+                    cp.exec("start " + encodeURI(`http://localhost:${config.port}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve(true))
                 }
                 break
             case "h5":

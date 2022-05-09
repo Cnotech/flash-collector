@@ -1,4 +1,4 @@
-import {Result, Ok, Err} from 'ts-results';
+import {Err, Ok, Result} from 'ts-results';
 import axios, {AxiosRequestConfig} from 'axios';
 import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
@@ -280,11 +280,18 @@ function parseID(url: string): Result<string, string> {
     else return new Ok(m[0].split(/(_\d)?\./)[0])
 }
 
+function getNickName(cookie: string): Result<string, string> {
+    let m = cookie.match(/Qnick=.+;/)
+    if (m == null) return new Err("Error:Can't match nick name")
+    return new Ok(m[0].split(/[=;]/)[1])
+}
+
 export default {
     entrance,
     parseID,
     initCookie,
     getCookie,
     setCookie,
-    clearCookie
+    clearCookie,
+    getNickName
 }

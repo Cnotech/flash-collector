@@ -21,6 +21,7 @@ interface ParserRegister {
     regex: RegExp,
     entrance: (url: string) => Promise<Result<GameInfo, string>>,
     parseID: (url: string) => Result<string, string>,
+    getNickName: (cookie: string) => Result<string, string>,
     cookieController: {
         init: (cookie: string | null, updateCookieCallback: (cookie: string) => void) => void,
         get: () => Promise<Result<string, string>>,
@@ -45,10 +46,28 @@ interface Reply {
     payload: any
 }
 
+interface Config {
+    cookies: { [site: string]: string },
+    search: {
+        site: string,
+        method: string
+    },
+    libCheck: boolean,
+    port: number,
+}
+
+interface LoginStatus {
+    name: string,
+    login: boolean,
+    nickName: string
+}
+
 export {
     GameInfo,
     ParserRegister,
     List,
     Request,
-    Reply
+    Reply,
+    LoginStatus,
+    Config
 }

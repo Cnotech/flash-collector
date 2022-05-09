@@ -30,10 +30,10 @@
     </a-row>
 
     <a-row style="height: 20%;padding-top: 10%">
-      <a-col :span="10"/>
-      <a-col :span="4">
+      <a-col :span="8"/>
+      <a-col :span="6">
         <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
-          {{ item.name }}
+          {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
           <template v-if="item.login">
             <check-circle-outlined style="color: #42b983"/>
             <a-button size="small" @click="logout(item.name)">登出</a-button>
@@ -51,26 +51,72 @@
 
 <script lang="ts" setup>
 import {onMounted, onUnmounted, ref} from 'vue';
-import {shell, clipboard} from "electron";
+import {clipboard, shell} from "electron";
 import {Result} from "ts-results";
-import {GameInfo} from "../../../class";
+import {Config, GameInfo, LoginStatus} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 import bridge from "../bridge";
+import {getConfig} from "../config";
 
 let url = ref<string>(""),
     loading = ref<boolean>(false),
     buttonDisabled = ref<boolean>(true),
     buttonText = ref<string>("下载"),
     gameTitle = ref<string | null>(null),
-    cookieStatus = ref<Array<{ name: string, login: boolean }>>([])
-let gameInfo: GameInfo | null = null
+    cookieStatus = ref<LoginStatus[]>([])
+let gameInfo: GameInfo | null = null,
+    searchPattern: string = `https://www.baidu.com/s?wd=site%3A4399.com+%s`
 
-//异步初始化cookie状态
-bridge('init').then((payload: Array<{ name: string, login: boolean }>) => {
-  cookieStatus.value = payload
-})
+//初始化，获取cookie状态和配置
+async function init() {
+  let r: { config: Config, status: LoginStatus[] } = await bridge('init')
+  cookieStatus.value = r.status
+  genSearchPattern(r.config)
+}
+
+init()
+
+//生成搜索模式
+function genSearchPattern(config: Config) {
+  const {site, method} = config.search
+  if (method == 'origin') {
+    switch (site) {
+      case '4399':
+        searchPattern = "http://so2.4399.com/search/search.php?k=%s"
+        break
+      case '7k7k':
+        searchPattern = "http://so.7k7k.com/game/%s/"
+        break
+    }
+  } else {
+    //生成站点位置
+    let s: string = "4399.com"
+    switch (site) {
+      case '4399':
+        s = "4399.com"
+        break
+      case '7k7k':
+        s = "7k7k.com"
+        break
+    }
+    //根据搜索引擎生成搜索模式
+    switch (method) {
+      case 'baidu':
+        searchPattern = `https://www.baidu.com/s?wd=site%3A${s}+%s`
+        break
+      case 'bing':
+        searchPattern = `https://cn.bing.com/search?q=site%3A${s}+%s`
+        break
+      case 'google':
+        searchPattern = `https://www.google.com/search?q=site%3A${s}+%s`
+        break
+
+    }
+  }
+  console.log(searchPattern)
+}
 
 //登录与登出
 async function logout(name: string) {
@@ -84,7 +130,7 @@ async function logout(name: string) {
 }
 
 async function login(name: string) {
-  let payload: { name: string, status: boolean, errorMessage: string } = await bridge('login', name)
+  let payload: { name: string, status: boolean, errorMessage: string, nickName: string } = await bridge('login', name)
   if (!payload.status) {
     message.error(payload.errorMessage)
     return
@@ -92,6 +138,7 @@ async function login(name: string) {
   for (let n of cookieStatus.value) {
     if (n.name == payload.name) {
       n.login = payload.status
+      n.nickName = payload.nickName
       break
     }
   }
@@ -153,7 +200,7 @@ async function parse() {
 
 async function download() {
   if (buttonDisabled.value) {
-    await shell.openExternal(`https://www.baidu.com/s?wd=site%3A4399.com+${url.value}&ie=UTF-8`)
+    await shell.openExternal(searchPattern.replace("%s", url.value))
   } else {
     loading.value = true
     buttonText.value = "下载中"
@@ -175,20 +222,26 @@ async function download() {
 //页面入焦时检查剪切板
 let recentClip = ""
 const listener = () => {
-  if (document.visibilityState === 'visible') {
-    let text = clipboard.readText()
-    if (recentClip != text && urlRegex.test(text)) {
-      recentClip = text
-      url.value = text
-      parse()
+      if (document.visibilityState === 'visible') {
+        let text = clipboard.readText()
+        if (recentClip != text && urlRegex.test(text)) {
+          recentClip = text
+          url.value = text
+          parse()
+        }
+      }
+    },
+    updateSearchPattern = async () => {
+      genSearchPattern(await getConfig())
     }
-  }
-}
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener("visibilitychange", listener)
+
+  bus.on('update-search-pattern', updateSearchPattern)
 })
 onUnmounted(() => {
   document.removeEventListener("visibilitychange", listener)
+  bus.off('update-search-pattern', updateSearchPattern)
 })
 </script>
 
