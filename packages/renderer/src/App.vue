@@ -1,7 +1,7 @@
 <template>
   <a-layout-sider
       style="position: fixed;background: #fff;">
-    <a-space style="margin-left: 5px;margin-top: 10px">
+    <a-space style="margin:10px 0 10px 10px">
       <img alt="Icon" src="./assets/favicon.ico" style="height: 50px;width: 50px"/>
       <div style="font-weight: bolder;font-size: medium">
         Flash Collector
