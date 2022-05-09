@@ -209,11 +209,16 @@ function del() {
             if (fs.existsSync(p)) {
               message.error("删除失败，请检查文件是否被占用然后手动删除")
             } else {
-              message.success(info.value.title + " 移动至回收站成功")
+              message.success(info.value.title + " 已被移动至回收站")
               bus.emit('refreshSidebar')
               router.push("/")
             }
           })
+          .catch(e => {
+            console.log(e)
+            message.error("删除失败，请检查文件是否被占用然后手动删除")
+          })
+
     }
   })
 }

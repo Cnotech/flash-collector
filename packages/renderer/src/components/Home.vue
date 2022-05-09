@@ -30,8 +30,8 @@
     </a-row>
 
     <a-row style="height: 20%;padding-top: 10%">
-      <a-col :span="8"/>
-      <a-col :span="6">
+      <a-col :span="9"/>
+      <a-col :span="6" style="margin-left: 1%">
         <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
           {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
           <template v-if="item.login">

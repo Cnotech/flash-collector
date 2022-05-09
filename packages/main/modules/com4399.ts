@@ -132,7 +132,12 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             resolve(new Err("Error:Can't get game category"))
             return
         }
-        const category = m[0].slice(-5, -3)
+        m = m[0].match(/[^>]+小游戏/)
+        if (m == null) {
+            resolve(new Err("Error:Can't parse game category"))
+            return
+        }
+        const category = m[0].slice(0, -3)
         // console.log('cate:'+category)
 
         //获取游戏页面链接
