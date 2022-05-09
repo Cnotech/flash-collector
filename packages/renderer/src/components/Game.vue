@@ -10,6 +10,18 @@
         <a-tag color="blue">{{ info.fromSite }}</a-tag>
       </template>
       <template #extra>
+        <a-dropdown>
+          <template #overlay>
+            <a-menu>
+              <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
+              <a-menu-item key="del" @click="del">删除</a-menu-item>
+            </a-menu>
+          </template>
+          <a-button :disabled="status" @click="ren">
+            重命名
+            <DownOutlined/>
+          </a-button>
+        </a-dropdown>
         <template v-if="info.type==='flash'">
           <a-dropdown>
             <template #overlay>
@@ -35,7 +47,7 @@
             <QuestionCircleOutlined/>
           </a-popover>
         </template>
-        <template v-else-if="info.type=='h5'">
+        <template v-else-if="info.type==='h5'">
           <a-dropdown>
             <template #overlay>
               <a-menu>
@@ -87,17 +99,18 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue';
+import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {shell} from "electron";
 import {GameInfo} from "../../../class";
-import {DownOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
+import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
 import {message, Modal} from "ant-design-vue";
 import cp from 'child_process'
 import path from "path";
 import bridge from "../bridge";
 import {Result} from "ts-results";
 import fs from "fs";
+import {bus} from "../eventbus";
 
 const route = useRoute(), router = useRouter()
 const banScript = fs.readFileSync("retinue/banScript.js").toString()
@@ -160,12 +173,46 @@ async function query(): Promise<GameInfo> {
   return bridge('query', {type: s[0], folder: s[1]})
 }
 
+//重命名与删除
+function ren() {
+
+}
+
+function del() {
+  Modal.confirm({
+    title: '是否将此游戏移动至回收站？',
+    icon: createVNode(ExclamationCircleOutlined),
+    content: '如果当前此文件正在被占用则可能删除失败，需要手动删除',
+    okText: '删除',
+    okType: 'danger',
+    cancelText: '取消',
+    onOk() {
+      const p = path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)
+      shell.trashItem(p)
+          .then(() => {
+            if (fs.existsSync(p)) {
+              message.error("删除失败，请检查文件是否被占用然后手动删除")
+            } else {
+              message.success(info.value.title + " 移动至回收站成功")
+              bus.emit('refreshSidebar')
+              router.push("/")
+            }
+          })
+    }
+  })
+}
+
+//打开外部
 function openExt(url: string) {
   shell.openExternal(url)
 }
 
 function openFolder() {
-  cp.execSync(`explorer "${path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)}"`)
+  try {
+    cp.execSync(`explorer "${path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)}"`)
+  } catch (e) {
+    //console.log(e)
+  }
 }
 
 let recentExtURL = ""
