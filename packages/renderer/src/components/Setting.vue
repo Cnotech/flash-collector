@@ -23,6 +23,19 @@
   <a-card style="width: 100%" title="开发者工具">
     <a-button @click="devtool">DevTool</a-button>
   </a-card>
+  <br/>
+  <a-card style="width: 100%" title="许可与条款">
+    此软件免费获取并在 <a @click="shell.openExternal('https://github.com/Cnotech/flash-collector')">Cnotech/flash-collector</a> 以
+    MPL2.0 协议开源，使用此软件及其相关内容即表示您同意下述条款：
+    <br/><br/>
+    （1）该仓库的代码以及编译后的可执行文件（即本软件）仅供个人交流学习使用，作者不对以任何形式使用这些代码或可执行文件造成的后果负责；
+    <br/>
+    （2）禁止任何个人或组织将此软件及其相关内容用作商业用途，使用开源代码时必须严格遵守 MPL2.0 协议；
+    <br/>
+    （3）本软件及其仓库是 Flash Collector 字样及下图所示图标（渐变绿底FC字）的最早使用者，任何个人或组织不得未经授权使用相关字样或图标。
+    <br/><br/>
+    <img alt="Icon" src="../assets/favicon.ico" style="height: 50px;width: 50px;margin: 10px 0 0 50%"/>
+  </a-card>
 </template>
 
 <script lang="ts" setup>
@@ -31,6 +44,7 @@ import {onMounted, onUnmounted, ref, watch} from "vue";
 import bridge from "../bridge";
 import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
+import {shell} from "electron";
 
 const siteOptions = ref<SelectProps['options']>([
   {
