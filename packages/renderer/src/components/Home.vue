@@ -115,7 +115,7 @@ function genSearchPattern(config: Config) {
 
     }
   }
-  console.log(searchPattern)
+  // console.log(searchPattern)
 }
 
 //登录与登出
@@ -224,10 +224,14 @@ let recentClip = ""
 const listener = () => {
       if (document.visibilityState === 'visible') {
         let text = clipboard.readText()
-        if (recentClip != text && urlRegex.test(text)) {
-          recentClip = text
-          url.value = text
-          parse()
+        if (recentClip != text) {
+          if (urlRegex.test(text)) {
+            recentClip = text
+            url.value = text
+            parse()
+          } else {
+            recentClip = ""
+          }
         }
       }
     },

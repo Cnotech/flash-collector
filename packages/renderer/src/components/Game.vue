@@ -19,8 +19,8 @@
         <a-dropdown>
           <template #overlay>
             <a-menu>
-              <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
               <a-menu-item key="del" @click="del">删除</a-menu-item>
+              <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
             </a-menu>
           </template>
           <a-button :disabled="status" @click="ren">

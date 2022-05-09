@@ -9,6 +9,5 @@ tmp
 **/.tmp
 release
 .idea
-cookies.json
 games
 config.json

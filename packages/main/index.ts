@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu, shell} from 'electron'
+import {app, BrowserWindow, shell} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import bridge from "./bridge";
@@ -19,7 +19,6 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 let win: BrowserWindow | null = null
 
 async function createWindow() {
-    Menu.setApplicationMenu(null)
     win = new BrowserWindow({
         title: 'Main window',
         width: 1400,
@@ -33,6 +32,7 @@ async function createWindow() {
         },
         icon: "./retinue/favicon.ico"
     })
+    win.removeMenu()
 
     if (app.isPackaged) {
         await win.loadFile(join(__dirname, '../renderer/index.html'))

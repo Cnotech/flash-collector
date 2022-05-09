@@ -1,6 +1,6 @@
 {
   "name": "flash-collector",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "dist/main/index.cjs",
   "author": "Cno <dsyourshy@qq.com>",
   "license": "MIT",

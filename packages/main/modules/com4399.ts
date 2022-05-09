@@ -20,11 +20,20 @@ async function getCookie(): Promise<Result<string, string>> {
         cookie = null
         //新建窗口
         const win = new BrowserWindow({width: 800, height: 600})
+
+        //清空预留cookie
+        let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+        for (let oldItem of old) {
+            await win.webContents.session.cookies.remove('http://www.7k7k.com', oldItem.name)
+        }
+
+        //加载页面
         await win.loadURL('http://www.4399.com')
 
         //修改标题
         win.webContents.once('did-stop-loading', async () => {
             win.setTitle("登录4399后关闭窗口")
+            //清空临时cookie
             let old = await win.webContents.session.cookies.get({url: 'http://www.4399.com'})
             for (let oldItem of old) {
                 await win.webContents.session.cookies.remove('http://www.4399.com', oldItem.name)
