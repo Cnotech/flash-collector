@@ -104,6 +104,22 @@ async function refreshSidebar() {
 
 refreshSidebar()
 
+//响应式侧边栏高亮
+function updateSidebarOpen() {
+  const p = route.path
+  if (p == '/') {
+    state.value.selectedKeys = ['home']
+  } else if (p == '/setting') {
+    state.value.selectedKeys = ['setting']
+  } else {
+    //说明在Game
+    state.value.selectedKeys = [route.query.id]
+  }
+}
+
+updateSidebarOpen()
+router.afterEach(updateSidebarOpen)
+
 </script>
 <style>
 .icon {
