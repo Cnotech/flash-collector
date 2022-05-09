@@ -5,7 +5,7 @@
   <a-card style="width: 100%" title="搜索方式">
     <a-space>
       <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
-      <a-select v-model:value="method" :options="methodOptions" style="width: 120px"></a-select>
+      <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
     </a-space>
   </a-card>
   <br/>
