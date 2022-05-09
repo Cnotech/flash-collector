@@ -77,18 +77,17 @@
       </template>
     </a-page-header>
 
-    <a-divider>下方为小游戏原始页面，不可点击</a-divider>
+    <a-divider>下方为小游戏原始页面，仅供浏览</a-divider>
 
-    <iframe
-        :src="info.online.originPage"
+    <div
+        id="webview-container"
         style="width:100%; height:80%;border-width: 0"
-        sandbox=""
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ref, onMounted} from 'vue';
+import {onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {shell} from "electron";
 import {GameInfo} from "../../../class";
@@ -98,10 +97,13 @@ import cp from 'child_process'
 import path from "path";
 import bridge from "../bridge";
 import {Result} from "ts-results";
+import fs from "fs";
 
 const route = useRoute(), router = useRouter()
+const banScript = fs.readFileSync("retinue/banScript.js").toString()
 
-let playingList: string[] = []
+let playingList: string[] = [],
+    webview: any
 
 let status = ref<boolean>(false),
     info = ref<GameInfo>({
@@ -166,14 +168,40 @@ function openFolder() {
   cp.execSync(`explorer "${path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)}"`)
 }
 
-//配置查询
+let recentExtURL = ""
 onMounted(async () => {
+  //配置查询
   info.value = await query()
+  //动态添加webview
+  webview = document.createElement("webview");
+  webview.setAttribute('style', "height:100%")
+  webview.setAttribute('src', info.value.online.originPage);
+  (document.getElementById('webview-container') as HTMLElement).appendChild(webview);
+
+  //监听webview加载完成事件，执行脚本
+  webview.addEventListener('did-stop-loading', () => {
+    webview.executeJavaScript(banScript)
+  })
+  //监听webview新窗口事件
+  // webview.addEventListener('new-window', async (e:any) => {
+  //   if((e.url as string).slice(0,4)=="http"){
+  //     if(recentExtURL==e.url){
+  //       message.success("已打开外部链接")
+  //       recentExtURL=""
+  //       await shell.openExternal(e.url)
+  //     }else{
+  //       message.info("双击以打开外部链接")
+  //     }
+  //   }
+  // })
 })
+
+//配置更新查询
 router.afterEach(async () => {
   if (route.query.id == null) return
   info.value = await query()
   status.value = !!(info.value.local && playingList.includes(info.value.local.folder));
+  webview.setAttribute('src', info.value.online.originPage)
 })
 
 </script>
