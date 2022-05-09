@@ -217,7 +217,7 @@ async function download() {
       message.success(createVNode(`span`, {
         innerHTML: `${payload.val.title} 下载成功，<a>点击查看</a>`,
         onClick() {
-          router.push(`/game?type=${info.type}&id=${info.type};${info.local?.folder}`)
+          router.push(`/game?id=${info.type};${info.local?.folder}`)
         }
       }))
       //TODO:显示到最近下载，然后提供查看按钮

@@ -90,7 +90,7 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
   } else if (info.keyPath[0] == 'setting') {
     router.push('/setting')
   } else {
-    router.push(`/game?type=${info.keyPath[0]}&id=${info.keyPath[1]}`)
+    router.push(`/game?id=${info.keyPath[1]}`)
   }
 }
 
