@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts" setup>
-import {onMounted, onUnmounted, ref} from 'vue';
+import {createVNode, onMounted, onUnmounted, ref} from 'vue';
 import {clipboard, shell} from "electron";
 import {Result} from "ts-results";
 import {Config, GameInfo, LoginStatus} from "../../../class";
@@ -59,6 +59,9 @@ import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 import bridge from "../bridge";
 import {getConfig} from "../config";
+import {useRouter} from 'vue-router';
+
+const router = useRouter()
 
 let url = ref<string>(""),
     loading = ref<boolean>(false),
@@ -210,7 +213,13 @@ async function download() {
     buttonText.value = "搜索"
     url.value = ""
     if (payload.ok) {
-      message.success(`${payload.val.title} 下载成功`)
+      const info = payload.val
+      message.success(createVNode(`span`, {
+        innerHTML: `${payload.val.title} 下载成功，<a>点击查看</a>`,
+        onClick() {
+          router.push(`/game?type=${info.type}&id=${info.type};${info.local?.folder}`)
+        }
+      }))
       //TODO:显示到最近下载，然后提供查看按钮
       bus.emit('refreshSidebar')
     } else {
