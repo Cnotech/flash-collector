@@ -2,7 +2,7 @@ import {ipcMain} from "electron";
 import {Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
-import {restart, toggleDevtool} from "./index";
+import {restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
 
 const registry: { [name: string]: (...args: any) => any } = {
@@ -46,7 +46,8 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     getConfig,
     setConfig,
-    restart
+    restart,
+    version
 }
 
 export default function () {

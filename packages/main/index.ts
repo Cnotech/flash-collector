@@ -20,7 +20,7 @@ let win: BrowserWindow | null = null
 
 async function createWindow() {
     win = new BrowserWindow({
-        title: 'Main window',
+        title: 'Launching...',
         width: 1400,
         height: 800,
         webPreferences: {
@@ -90,8 +90,13 @@ function restart() {
     app.exit()
 }
 
+function version() {
+    return app.getVersion()
+}
+
 bridge()
 export {
     toggleDevtool,
-    restart
+    restart,
+    version
 }

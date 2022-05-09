@@ -79,6 +79,11 @@ const state = ref({
   selectedKeys: route.path == '/game' ? [route.query.id] : ['home'],
 });
 
+//设置标题
+bridge('version').then(ver => {
+  document.title = `Flash Collector - 小游戏收集器 v${ver}`
+})
+
 function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
   if (info.keyPath[0] == 'home') {
     router.push('/')
