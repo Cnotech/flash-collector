@@ -28,7 +28,7 @@ async function getCookie(): Promise<Result<string, string>> {
     return new Promise(async (resolve) => {
         cookie = null
         //新建窗口
-        const win = new BrowserWindow({width: 800, height: 600})
+        const win = new BrowserWindow({width: 800, height: 600, icon: "./retinue/favicon.ico"})
 
         //清空预留cookie
         let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})

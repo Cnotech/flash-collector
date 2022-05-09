@@ -85,7 +85,7 @@
               <DownOutlined/>
             </a-button>
           </a-dropdown>
-          <a-popover placement="rightBottom" title="可能出现错误" trigger="hover">
+          <a-popover placement="rightBottom" title="关于源站播放" trigger="hover">
             <template #content>
               <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制</p>
             </template>

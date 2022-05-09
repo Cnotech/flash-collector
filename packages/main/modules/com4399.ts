@@ -19,12 +19,12 @@ async function getCookie(): Promise<Result<string, string>> {
     return new Promise(async (resolve) => {
         cookie = null
         //新建窗口
-        const win = new BrowserWindow({width: 800, height: 600})
+        const win = new BrowserWindow({width: 800, height: 600, icon: "./retinue/favicon.ico"})
 
         //清空预留cookie
-        let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+        let old = await win.webContents.session.cookies.get({url: 'http://www.4399.com'})
         for (let oldItem of old) {
-            await win.webContents.session.cookies.remove('http://www.7k7k.com', oldItem.name)
+            await win.webContents.session.cookies.remove('http://www.4399.com', oldItem.name)
         }
 
         //加载页面

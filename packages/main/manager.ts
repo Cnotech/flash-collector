@@ -221,6 +221,7 @@ function readList(): List {
 }
 
 function checkDependency(type: 'flash' | 'unity'): boolean {
+    if (!getConfig().libCheck) return true
     switch (type) {
         case "flash":
             return fs.existsSync("C:\\Windows\\System32\\Macromed\\Flash\\pepflashplayer.dll") || fs.existsSync("C:\\Windows\\SysWOW64\\Macromed\\Flash\\pepflashplayer.dll")
