@@ -13,7 +13,7 @@
         <a v-else @click="openExt(info.online.originPage)">{{ info.title }}</a>
       </template>
       <template #tags>
-        <a-tag color="blue">{{ info.fromSite }}</a-tag>
+        <a-tag color="green">{{ info.fromSite }}</a-tag>
       </template>
       <template #extra>
         <a-dropdown>
