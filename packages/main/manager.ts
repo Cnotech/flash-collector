@@ -285,7 +285,7 @@ async function install(type: 'flash' | 'unity'): Promise<string> {
         if (type == 'flash') {
             cp.exec(`"${path.join('retinue', 'Flash_Web_Player', 'Flash_Player_v32.0.0.465_NPAPI_Final.exe')}" /ai /gm2`, () => {
                 cp.exec(`"${path.join('retinue', 'Flash_Web_Player', 'Flash_Player_v32.0.0.465_PPAPI_Final.exe')}" /ai /gm2`, () => {
-                    resolve("Flash 运行库安装完成")
+                    resolve("Flash Player 安装完成")
                 })
             })
         } else {

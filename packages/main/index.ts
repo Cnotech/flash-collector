@@ -1,4 +1,4 @@
-import {app, BrowserWindow, shell, ipcMain} from 'electron'
+import {app, BrowserWindow, shell, Menu} from 'electron'
 import {release} from 'os'
 import {join} from 'path'
 import bridge from "./bridge";
@@ -18,9 +18,10 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 let win: BrowserWindow | null = null
 
 async function createWindow() {
+    Menu.setApplicationMenu(null)
     win = new BrowserWindow({
         title: 'Main window',
-        width: 1200,
+        width: 1400,
         height: 800,
         webPreferences: {
             preload: join(__dirname, '../preload/index.cjs'),
@@ -77,5 +78,9 @@ app.on('activate', async () => {
         await createWindow()
     }
 })
+
+export function toggleDevtool() {
+    win?.webContents.toggleDevTools()
+}
 
 bridge()

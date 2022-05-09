@@ -1,6 +1,6 @@
 <template>
   <a-layout-sider
-      style="overflow: auto;height: 100vh;position: fixed;left: 0; top: 0; bottom: 0;background: #fff;">
+      style="position: fixed;background: #fff;">
     <a-space style="margin-left: 5px;margin-top: 10px">
       <img alt="Icon" src="./assets/favicon.ico" style="height: 50px;width: 50px"/>
       <div style="font-weight: bolder;font-size: medium">
@@ -12,7 +12,6 @@
         v-model:openKeys="state.openKeys"
         v-model:selectedKeys="state.selectedKeys"
         :style="{ height: '100%', borderRight: 0 }"
-        mode="inline"
         v-on:click="onChangeMenu"
     >
       <a-menu-item key="home">
@@ -46,13 +45,17 @@
         </template>
         <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local.folder">{{ i.title }}</a-menu-item>
       </a-sub-menu>
+      <a-menu-item key="setting">
+        <setting-filled style="height: 20px;width: 20px"/>
+        设置
+      </a-menu-item>
     </a-menu>
   </a-layout-sider>
   <a-layout style="height: 100%;margin-left: 200px">
     <a-layout>
       <a-layout style="padding: 16px;margin: 16px">
         <a-layout-content
-            :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px' }"
+            :style="{ background: '#fff', padding: '24px', margin: 0, minHeight: '280px', overflow:'auto'}"
         >
           <router-view/>
         </a-layout-content>
@@ -62,7 +65,7 @@
 </template>
 <script lang="ts" setup>
 import {ref} from 'vue';
-import {HomeFilled} from '@ant-design/icons-vue';
+import {HomeFilled, SettingFilled} from '@ant-design/icons-vue';
 import {useRouter, useRoute} from 'vue-router';
 import {bus} from './eventbus'
 import {List} from "../../class";
@@ -79,6 +82,8 @@ const state = ref({
 function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
   if (info.keyPath[0] == 'home') {
     router.push('/')
+  } else if (info.keyPath[0] == 'setting') {
+    router.push('/setting')
   } else {
     router.push(`/game?type=${info.keyPath[0]}&id=${info.keyPath[1]}`)
   }

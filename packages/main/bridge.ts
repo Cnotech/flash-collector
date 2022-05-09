@@ -2,6 +2,7 @@ import {ipcMain} from "electron";
 import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
+import {toggleDevtool} from "./index";
 
 const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
@@ -47,6 +48,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     install: (type) => {
         return manager.install(type)
+    },
+    devtool: () => {
+        toggleDevtool()
     }
 }
 
