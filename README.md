@@ -39,7 +39,7 @@
 
 ## 编译
 
-执行 `yarn build`，然后将 `retinue` 复制到编译后得到的 `win-unpacked` 文件夹内
+执行 `yarn build`，如果你在默认路径安装了 7-Zip 则会将压缩包生成至 `release` 目录
 
 ## 条款
 
