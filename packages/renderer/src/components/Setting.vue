@@ -1,6 +1,7 @@
 <template>
   <a-page-header
       title="设置"
+      @back="router.back()"
   />
   <a-card style="width: 100%" title="搜索方式">
     <a-space>
@@ -15,14 +16,14 @@
   <br/>
   <a-card style="width: 100%" title="游戏服务端口">
     若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
-    <br/>
+    <br/><br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
-      <a-button @click="restart">应用</a-button>
+      <a-button @click="restart" :type="oldPort==port?'default':'primary'">应用</a-button>
     </a-space>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="安装 4399 源站播放脚本">
+  <a-card style="width: 100%" title="安装 4399 源站播放脚本" id="4399">
     由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装 4399 源站播放脚本：
     <br/>
     （1）在你的默认浏览器安装<a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或<a
@@ -64,7 +65,10 @@ import bridge from "../bridge";
 import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
 import {shell} from "electron";
-import {router} from "../router";
+import {useRoute,useRouter} from "vue-router";
+
+const router=useRouter(),
+    route=useRoute()
 
 const siteOptions = ref<SelectProps['options']>([
   {
@@ -93,7 +97,8 @@ let methodOptions = ref([
 let site = ref<string>("4399"),
     method = ref<string>("baidu"),
     libCheck = ref<boolean>(true),
-    port = ref<number>(3000)
+    port = ref<number>(3000),
+    oldPort=ref(3000)
 
 function devtool() {
   bridge('devtool')
@@ -130,6 +135,7 @@ onMounted(async () => {
   libCheck.value = config.libCheck
 
   port.value = config.port
+  oldPort.value=config.port
 })
 
 const save = async () => {
@@ -149,6 +155,9 @@ const save = async () => {
 onUnmounted(save)
 
 router.beforeEach(() => {
+  if(route.path=='/setting'&&oldPort.value!=port.value){
+    message.info("更改的游戏服务端口将会在应用重启后生效")
+  }
   return validPort()
 })
 
