@@ -8,11 +8,13 @@ interface GameInfo {
     online: {
         originPage: string,
         truePage: string,
-        binUrl: string
+        binUrl: string,
+        icon?: string
     },
     local?: {
         binFile: string,
-        folder: string
+        folder: string,
+        icon?: string
     }
 }
 

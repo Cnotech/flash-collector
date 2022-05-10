@@ -3,9 +3,15 @@ import axios, {AxiosRequestConfig} from 'axios';
 import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
 import iconv from 'iconv-lite'
+import cheerio from 'cheerio'
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
+
+interface SearchResult {
+    icon: string,
+    id: string
+}
 
 function initCookie(c: string | null, updateCookieCallback: (cookie: string) => void) {
     if (c != null) {
@@ -229,6 +235,35 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             type = "unity"
         } else type = "h5"
 
+        //生成搜索页面数组
+        const $ = cheerio.load(await fetch(encodeURI("http://so2.4399.com/search/search.php?k=" + title), "http://www.4399.com"))
+        let searchResults: SearchResult[] = []
+        let child, icon, nodeId
+        $('.type_d').each((index, root) => {
+            //获取第一个孩子
+            child = $(root).children('a').first()
+            m = child.prop('href').match(/\d+\.htm/)
+            if (m == null) return
+            nodeId = m[0].split('.')[0]
+
+            //获取第一个孙子
+            child = child.children('img').first()
+            icon = 'http:' + child.prop('src')
+            searchResults.push({
+                id: nodeId,
+                icon
+            })
+        })
+        //查找图标
+        icon = undefined
+        for (let n of searchResults) {
+            if (n.id == id) {
+                icon = n.icon
+                console.log("Get icon : " + icon)
+                break
+            }
+        }
+        if (icon == undefined) console.log("Warning:Can't get icon")
 
         resolve(new Ok({
             title,
@@ -238,7 +273,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             online: {
                 originPage: `http://www.4399.com/flash/${id}.htm`,
                 truePage: trueUrl,
-                binUrl
+                binUrl,
+                icon
             }
         }))
     })

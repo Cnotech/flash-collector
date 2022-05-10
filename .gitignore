@@ -12,3 +12,4 @@ release
 games
 config.json
 *.7z
+test.*

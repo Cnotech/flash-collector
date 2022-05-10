@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {BrowserWindow, ipcMain} from 'electron'
+import {BrowserWindow} from 'electron'
 import express from 'express'
 import {Config, getConfig, setConfig} from "./config";
 
@@ -151,12 +151,6 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
                 'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
                 referer: info.online.originPage
             },
-            onProgress(percentage: string) {
-                ipcMain.emit('download-progress', {
-                    gameInfo: info,
-                    percentage
-                })
-            },
             onBeforeSave(finalName: string) {
                 downloadedFileName = finalName
             }
@@ -179,10 +173,35 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
             folder: door
         }
     }
-    ipcMain.emit('download-progress', {
-        gameInfo: info,
-        percentage: 100
-    })
+
+    //下载图标
+    if (info.online.icon) {
+        const sp = info.online.icon.split("/")
+        let iconFileName = sp[sp.length - 1]
+        const d = new Downloader({
+            url: info.online.icon,
+            directory: dir,
+            headers: {
+                'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
+                referer: info.online.originPage
+            },
+            onBeforeSave(finalName: string) {
+                //解析拓展名
+                let sp = finalName.split('.')
+                let extName = sp[sp.length - 1]
+                iconFileName = "icon." + extName
+                return iconFileName
+            }
+        })
+
+        try {
+            await d.download();
+            info.local.icon = iconFileName
+        } catch (error) {
+            console.log(error);
+            console.log("Can't download icon, ignore")
+        }
+    }
 
     //保存配置文件
     fs.writeFileSync(path.join(dir, "info.json"), JSON.stringify(info, null, 2))

@@ -10,13 +10,15 @@
     "build": "electron-builder && node scripts/copy.js",
     "init": "git config core.hooksPath .git/hooks/ && rm -rf .git/hooks && npx simple-git-hooks",
     "test:e2e": "npx playwright test",
-    "test:e2e:headless": "npx playwright test --headed"
+    "test:e2e:headless": "npx playwright test --headed",
+    "test": "ts-node test/test.ts"
   },
   "engines": {
     "node": ">=14.17.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.20.2",
+    "@types/cheerio": "^0.22.31",
     "@types/express": "^4.17.13",
     "@types/shelljs": "^0.8.11",
     "@vitejs/plugin-vue": "^2.1.0",
@@ -24,7 +26,7 @@
     "electron-builder": "^23.0.3",
     "nano-staged": "^0.6.0",
     "simple-git-hooks": "^2.7.0",
-    "typescript": "^4.6.3",
+    "typescript": "^4.6.4",
     "vite": "^2.9.1",
     "vite-plugin-electron": "^0.4.3",
     "vite-plugin-resolve": "^2.0.1",
@@ -45,12 +47,14 @@
   "dependencies": {
     "ant-design-vue": "^3.2.2",
     "axios": "^0.27.2",
+    "cheerio": "^1.0.0-rc.10",
     "express": "^4.18.1",
     "iconv-lite": "^0.6.3",
     "mitt": "^3.0.0",
     "node-fetch": "^3.2.4",
     "nodejs-file-downloader": "^4.9.3",
     "shelljs": "^0.8.5",
+    "ts-node": "^10.7.0",
     "ts-results": "^3.3.0",
     "tslib": "^2.4.0",
     "vue-router": "4"
