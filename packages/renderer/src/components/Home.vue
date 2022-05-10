@@ -197,7 +197,11 @@ async function parse() {
     }
     //处理没有图标
     if (!result.val.online.icon) {
-      message.warning("无法匹配图标")
+      let tip = "无法匹配图标"
+      if (result.val.fromSite == "4399") {
+        tip += "，这是因为游戏标题有敏感词被4399屏蔽了"
+      }
+      message.warning(tip)
     }
   } else {
     message.error(result.val)
