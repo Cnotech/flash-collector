@@ -5,8 +5,8 @@ async function getConfig(): Promise<Config> {
     return bridge('getConfig')
 }
 
-function setConfig(config: Config) {
-    bridge('setConfig', config)
+function setConfig(config: Config, emergency: boolean) {
+    bridge('setConfig', config, emergency)
 }
 
 export {

@@ -29,7 +29,7 @@
       </a-col>
     </a-row>
 
-    <a-row v-show="localSearch.length>0" style="margin-top: 20px;margin-bottom: -10%" type="flex">
+    <a-row v-show="localSearch.length>0" style="margin-top: 20px" type="flex">
       <a-col :span="2"/>
       <a-col :span="19">
         <strong>本地游戏库</strong>
@@ -58,6 +58,27 @@
             </a-list-item>
           </template>
         </a-list>
+      </a-col>
+    </a-row>
+
+    <a-row v-show="recentLaunch.length>0" style="margin-top: 20px" type="flex">
+      <a-col :span="2"/>
+      <a-col :span="22">
+        <strong>最近启动</strong>
+        <br/>
+        <a-space style="margin-top: 15px">
+          <a-space v-for="item of recentLaunch" align="center" direction="vertical" style="margin: 10px;cursor: pointer"
+                   @click="router.push(`/game?id=${item.info.type};${item.info.local.folder}`)">
+            <a-avatar v-if="item.info.local.icon"
+                      :src="`http://localhost:${port}/games/${item.info.type}/${item.info.local.folder}/${item.info.local.icon}`"
+                      shape="square" size="large"/>
+            <a-avatar v-else shape="square" size="large" style="background-color: #4bb117">
+              {{ item.info.title.slice(0, 2) }}
+            </a-avatar>
+            {{ item.info.title }}
+            <small style="color: gray">{{ item.freq }}次</small>
+          </a-space>
+        </a-space>
       </a-col>
     </a-row>
 
@@ -92,6 +113,7 @@ import {bus} from "../eventbus";
 import bridge from "../bridge";
 import {getConfig} from "../config";
 import {useRouter} from 'vue-router';
+import {query} from "express";
 
 const router = useRouter()
 
@@ -101,13 +123,29 @@ let url = ref<string>(""),
     buttonText = ref<string>("下载"),
     gameTitle = ref<string | null>(null),
     cookieStatus = ref<LoginStatus[]>([]),
-    localSearch = ref<GameInfo[]>([])
+    localSearch = ref<GameInfo[]>([]),
+    port = ref(3000),
+    recentLaunch = ref<{ info: GameInfo, freq: number }[]>([])
+
+
 let gameInfo: GameInfo | null = null,
     searchPattern: string = `https://www.baidu.com/s?wd=site%3A4399.com+%s`
 
-let port = ref(3000)
-getConfig().then(c => {
+getConfig().then(async (c) => {
+  //配置端口
   port.value = c.port
+  //配置最近启动
+  let s, res: { info: GameInfo, freq: number }[] = [], count = 0
+  for (let n of c.recentLaunch) {
+    s = n.id.split(';')
+    res.push({
+      info: await bridge('query', {type: s[0], folder: s[1]}),
+      freq: n.freq
+    })
+    count++
+    if (count == 5) break
+  }
+  recentLaunch.value = res
 })
 
 //初始化，获取cookie状态和配置

@@ -58,6 +58,7 @@ interface Config {
     },
     libCheck: boolean,
     port: number,
+    recentLaunch: { id: string, freq: number }[]
 }
 
 interface LoginStatus {

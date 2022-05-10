@@ -65,7 +65,7 @@ import bridge from "../bridge";
 import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
 import {shell} from "electron";
-import {useRoute,useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 
 const router=useRouter(),
     route=useRoute()
@@ -148,7 +148,7 @@ const save = async () => {
 
   config.port = port.value
 
-  setConfig(config)
+  setConfig(config, true)
   bus.emit('update-search-pattern')
 }
 

@@ -1,13 +1,13 @@
 import {register} from "./modules/_register";
 import {Err, Ok, Result} from "ts-results";
-import {GameInfo, List, LoginStatus, ParserRegister} from "../class";
+import {Config, GameInfo, List, LoginStatus, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
 import {BrowserWindow} from 'electron'
 import express from 'express'
-import {Config, getConfig, setConfig} from "./config";
+import {getConfig, setConfig} from "./config";
 
 const shell = require('shelljs')
 
@@ -67,7 +67,7 @@ function saveCookie(name: string, cookie: string | null) {
     } else {
         config.cookies[name] = cookie
     }
-    setConfig(config)
+    setConfig(config, true)
 }
 
 //登录与登出，登录成功返回昵称
@@ -296,6 +296,29 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                 }
                 break
         }
+        //记录到recentLaunch
+        const id = type + ";" + folder
+        let entry: { id: string, freq: number } | null = null, res: Config['recentLaunch'] = []
+        for (let n of config.recentLaunch) {
+            if (n.id == id) {
+                entry = n
+            } else {
+                res.push(n)
+            }
+        }
+        if (entry) {
+            res.unshift({
+                id,
+                freq: entry.freq + 1
+            })
+        } else {
+            res.unshift({
+                id,
+                freq: 1
+            })
+        }
+        config.recentLaunch = res
+        setConfig(config, false)
     })
 }
 
