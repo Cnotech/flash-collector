@@ -3,9 +3,11 @@
     <a-page-header
         :sub-title="info.category"
     >
-      <template v-if="info.local.icon" #avatar>
-        <a-avatar :src="`http://localhost:${port}/games/${info.type}/${info.local.folder}/${info.local.icon}`"
+      <template #avatar>
+        <a-avatar v-if="info.local.icon"
+                  :src="`http://localhost:${port}/games/${info.type}/${info.local.folder}/${info.local.icon}`"
                   shape="square" size="large"/>
+        <a-avatar v-else shape="square" style="background-color: #4bb117">{{ info.title.slice(0, 2) }}</a-avatar>
       </template>
       <template #title>
         <template v-if="rename.status">

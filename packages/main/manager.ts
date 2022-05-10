@@ -336,6 +336,18 @@ async function install(type: 'flash' | 'unity'): Promise<string> {
     })
 }
 
+function localSearch(text: string): GameInfo[] {
+    let res: GameInfo[] = []
+    for (let type in gameList) {
+        for (let game of gameList[type]) {
+            if (game.title.indexOf(text) >= 0) {
+                res.push(game)
+            }
+        }
+    }
+    return res
+}
+
 export default {
     downloader,
     parser,
@@ -346,5 +358,6 @@ export default {
     launch,
     query,
     rename,
-    install
+    install,
+    localSearch
 }

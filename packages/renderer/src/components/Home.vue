@@ -9,7 +9,7 @@
             allowClear
             placeholder="搜索或粘贴小游戏网址"
             size="large"
-            @input="parse"
+            @change="parse"
             @pressEnter="download"
         >
           <template v-if="gameTitle!=null&&url!==''" #suffix>
@@ -26,6 +26,38 @@
             @click="download"
         >{{ buttonDisabled ? "搜索" : buttonText }}
         </a-button>
+      </a-col>
+    </a-row>
+
+    <a-row v-show="localSearch.length>0" style="margin-top: 20px;margin-bottom: -10%" type="flex">
+      <a-col :span="2"/>
+      <a-col :span="19">
+        <strong>本地游戏库</strong>
+        <br/>
+        <a-list :data-source="localSearch" item-layout="horizontal">
+          <template #renderItem="{ item }">
+            <a-list-item @click="router.push(`/game?id=${item.type};${item.local.folder}`)">
+              <a-list-item-meta>
+                <template #title>
+                  {{ item.title }}
+                </template>
+                <template #avatar>
+                  <a-avatar v-if="item.local.icon"
+                            :src="`http://localhost:${port}/games/${item.type}/${item.local.folder}/${item.local.icon}`"
+                            shape="square"/>
+                  <a-avatar v-else shape="square" style="background-color: #4bb117">{{ item.title.slice(0, 2) }}
+                  </a-avatar>
+                </template>
+                <template #description>
+                  <a-tag color="purple">{{ item.category }}</a-tag>
+                  <a-tag color="cyan">{{ item.type }}</a-tag>
+                  <a-tag color="green">{{ item.fromSite }}</a-tag>
+                </template>
+              </a-list-item-meta>
+            </a-list-item>
+          </template>
+        </a-list>
+
       </a-col>
     </a-row>
 
@@ -68,9 +100,15 @@ let url = ref<string>(""),
     buttonDisabled = ref<boolean>(true),
     buttonText = ref<string>("下载"),
     gameTitle = ref<string | null>(null),
-    cookieStatus = ref<LoginStatus[]>([])
+    cookieStatus = ref<LoginStatus[]>([]),
+    localSearch = ref<GameInfo[]>([])
 let gameInfo: GameInfo | null = null,
     searchPattern: string = `https://www.baidu.com/s?wd=site%3A4399.com+%s`
+
+let port = ref(3000)
+getConfig().then(c => {
+  port.value = c.port
+})
 
 //初始化，获取cookie状态和配置
 async function init() {
@@ -154,9 +192,16 @@ let recentSubmit = 0
 async function parse() {
   //判断url是否符合提交要求
   if (url.value == "" || !urlRegex.test(url.value)) {
+    //配置交互
     buttonText.value = "搜索"
     buttonDisabled.value = true
     gameTitle.value = null
+    //更新本地搜索
+    if (url.value != "") {
+      localSearch.value = await bridge('localSearch', url.value)
+    } else {
+      localSearch.value = []
+    }
     return
   } else {
     buttonText.value = "下载"

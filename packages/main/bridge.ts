@@ -47,7 +47,9 @@ const registry: { [name: string]: (...args: any) => any } = {
     getConfig,
     setConfig,
     restart,
-    version
+    version,
+    localSearch: manager.localSearch
+
 }
 
 export default function () {
