@@ -2,6 +2,7 @@ import {Err, Ok, Result} from "ts-results";
 import axios from 'axios';
 import {GameInfo} from "../../class";
 import {BrowserWindow} from "electron";
+import cheerio from "cheerio";
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -176,6 +177,11 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             type = "unity"
         } else type = "h5"
 
+        //匹配图标
+        const $ = cheerio.load(originPage.data)
+        let icon = $('#theme-blue > div.main > div.columns > div.columns_l.con_box > div.wrap.wrap_info > div.game_info > div.game_info_l.game_info_l70 > a > img').prop('src')
+        console.log("Get icon : " + icon)
+
         //返回结果
         timeout = false
         resolve(new Ok({
@@ -186,7 +192,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             online: {
                 originPage: `http://www.7k7k.com/flash/${id}.htm`,
                 truePage: trueUrl,
-                binUrl
+                binUrl,
+                icon
             }
         }))
     })
