@@ -110,7 +110,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
         const id = p.val
 
-        //获取标题
+        //获取标题和分类
         let originPage = await axios.get(`http://www.7k7k.com/flash/${id}.htm`, axiosConfig)
         let m = (originPage.data as string).match(/<title>.+<\/title>/)
         if (m == null) {
@@ -119,6 +119,11 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
         let s = m[0].replace(/<\/?title>/g, "").split(/\s*-\s*/)
         const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
+
+        //匹配图标
+        const $ = cheerio.load(originPage.data)
+        let icon = $('#theme-blue > div.main > div.columns > div.columns_l.con_box > div.wrap.wrap_info > div.game_info > div.game_info_l.game_info_l70 > a > img').prop('src')
+        console.log("Get icon : " + icon)
 
         //发送API请求
         const queryUrl = `http://www.7k7k.com/swf/game/${id}/?time=${get7k7kTime()}`
@@ -154,7 +159,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
                     online: {
                         originPage: `http://www.7k7k.com/flash/${id}.htm`,
                         truePage: trueUrl,
-                        binUrl: trueUrl
+                        binUrl: trueUrl,
+                        icon
                     }
                 }))
                 return
@@ -176,11 +182,6 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         } else if (binUrl.endsWith("unity3d")) {
             type = "unity"
         } else type = "h5"
-
-        //匹配图标
-        const $ = cheerio.load(originPage.data)
-        let icon = $('#theme-blue > div.main > div.columns > div.columns_l.con_box > div.wrap.wrap_info > div.game_info > div.game_info_l.game_info_l70 > a > img').prop('src')
-        console.log("Get icon : " + icon)
 
         //返回结果
         timeout = false
