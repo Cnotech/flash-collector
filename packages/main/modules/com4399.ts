@@ -2,8 +2,9 @@ import {Err, Ok, Result} from 'ts-results';
 import axios, {AxiosRequestConfig} from 'axios';
 import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
-import iconv from 'iconv-lite'
-import cheerio from 'cheerio'
+import iconv from 'iconv-lite';
+import cheerio from 'cheerio';
+import {GBKEncodeURI} from "./gbkEncodeUri";
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -159,7 +160,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         let page = await fetch(`http://www.4399.com${playingPage}`, `http://www.4399.com/flash/${id}.htm`)
 
         //匹配服务器源
-        m = page.match(/src="\/js\/(server|s\d+).*\.js"/)
+        m = page.match(/src="\/js\/\S+\.js"/)
         if (m == null) {
             resolve(new Err("Error:Can't match server js file"))
             return
@@ -236,7 +237,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         } else type = "h5"
 
         //生成搜索页面数组
-        const searchPage = await fetch(encodeURI("http://so2.4399.com/search/search.php?k=" + title), "http://www.4399.com")
+        const searchPage = await fetch("http://so2.4399.com/search/search.php?k=" + GBKEncodeURI(title), "http://www.4399.com")
         const $ = cheerio.load(searchPage)
         let searchResults: SearchResult[] = []
         let child, icon, nodeId
