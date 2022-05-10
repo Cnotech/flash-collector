@@ -195,6 +195,10 @@ async function parse() {
         }
       })
     }
+    //处理没有图标
+    if (!result.val.online.icon) {
+      message.warning("无法匹配图标")
+    }
   } else {
     message.error(result.val)
   }

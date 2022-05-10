@@ -3,6 +3,10 @@
     <a-page-header
         :sub-title="info.category"
     >
+      <template v-if="info.local.icon" #avatar>
+        <a-avatar :src="`http://localhost:${port}/games/${info.type}/${info.local.folder}/${info.local.icon}`"
+                  shape="square" size="large"/>
+      </template>
       <template #title>
         <template v-if="rename.status">
           <a-space>
@@ -120,6 +124,7 @@ import bridge from "../bridge";
 import {Result} from "ts-results";
 import fs from "fs";
 import {bus} from "../eventbus";
+import {getConfig} from "../config";
 
 const route = useRoute(), router = useRouter()
 const banScript = fs.readFileSync("retinue/banScript.js").toString()
@@ -144,6 +149,13 @@ let status = ref<boolean>(false),
       }
     }),
     rename = ref<{ status: boolean, value: string }>({status: false, value: ""})
+
+
+let port = ref(3000)
+getConfig().then(c => {
+  port.value = c.port
+})
+
 
 //启动游戏
 async function launch(backup: boolean) {

@@ -25,7 +25,12 @@
                 Flash（{{ sidebarList.flash.length }}）
               </span>
         </template>
-        <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
+        <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">
+          <a-avatar v-if="i.local.icon" #icon
+                    :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+                    style="margin-top: -3px;margin-left: -5px"/>
+          {{ i.title }}
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="unity">
         <template #title>
@@ -34,7 +39,12 @@
                 Unity3D（{{ sidebarList.unity.length }}）
               </span>
         </template>
-        <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
+        <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">
+          <a-avatar v-if="i.local.icon" #icon
+                    :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+                    style="margin-top: -3px;margin-left: -5px"/>
+          {{ i.title }}
+        </a-menu-item>
       </a-sub-menu>
       <a-sub-menu key="h5">
         <template #title>
@@ -43,7 +53,12 @@
                       HTML 5（{{ sidebarList.h5.length }}）
                     </span>
         </template>
-        <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local?.folder">{{ i.title }}</a-menu-item>
+        <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local?.folder">
+          <a-avatar v-if="i.local.icon" #icon
+                    :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+                    style="margin-top: -3px;margin-left: -5px"/>
+          {{ i.title }}
+        </a-menu-item>
       </a-sub-menu>
       <a-menu-item key="setting">
         <setting-filled style="height: 20px;width: 20px"/>
@@ -70,6 +85,7 @@ import {useRoute, useRouter} from 'vue-router';
 import {bus} from './eventbus'
 import {List} from "../../class";
 import bridge from "./bridge";
+import {getConfig} from "./config";
 
 const router = useRouter(), route = useRoute()
 
@@ -78,6 +94,11 @@ const state = ref({
   openKeys: [],
   selectedKeys: route.path == '/game' ? [route.query.id] : ['home'],
 });
+
+let port = ref(3000)
+getConfig().then(c => {
+  port.value = c.port
+})
 
 //设置标题
 bridge('version').then(ver => {

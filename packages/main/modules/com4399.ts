@@ -236,7 +236,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         } else type = "h5"
 
         //生成搜索页面数组
-        const $ = cheerio.load(await fetch(encodeURI("http://so2.4399.com/search/search.php?k=" + title), "http://www.4399.com"))
+        const searchPage = await fetch(encodeURI("http://so2.4399.com/search/search.php?k=" + title), "http://www.4399.com")
+        const $ = cheerio.load(searchPage)
         let searchResults: SearchResult[] = []
         let child, icon, nodeId
         $('.type_d').each((index, root) => {
