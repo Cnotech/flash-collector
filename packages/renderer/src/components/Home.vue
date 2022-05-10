@@ -36,8 +36,9 @@
         <br/>
         <a-list :data-source="localSearch" item-layout="horizontal">
           <template #renderItem="{ item }">
-            <a-list-item @click="router.push(`/game?id=${item.type};${item.local.folder}`)">
-              <a-list-item-meta>
+            <a-list-item>
+              <a-list-item-meta style="cursor: pointer"
+                                @click="router.push(`/game?id=${item.type};${item.local.folder}`)">
                 <template #title>
                   {{ item.title }}
                 </template>
@@ -57,7 +58,6 @@
             </a-list-item>
           </template>
         </a-list>
-
       </a-col>
     </a-row>
 
