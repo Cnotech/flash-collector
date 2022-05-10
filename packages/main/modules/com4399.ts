@@ -153,7 +153,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         let page = await fetch(`http://www.4399.com${playingPage}`, `http://www.4399.com/flash/${id}.htm`)
 
         //匹配服务器源
-        m = page.match(/src="\/js\/(server|s\d+).+\.js"/)
+        m = page.match(/src="\/js\/(server|s\d+).*\.js"/)
         if (m == null) {
             resolve(new Err("Error:Can't match server js file"))
             return
