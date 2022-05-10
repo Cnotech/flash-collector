@@ -39,19 +39,30 @@ async function getCookie(): Promise<Result<string, string>> {
 
         //修改标题
         win.webContents.once('did-stop-loading', async () => {
-            win.setTitle("登录4399后关闭窗口")
+            win.setTitle("使用已实名认证的成人账户登录4399")
+            //点击登录
+            await win.webContents.executeJavaScript("document.getElementById('login_tologin').click()")
             //清空临时cookie
             let old = await win.webContents.session.cookies.get({url: 'http://www.4399.com'})
             for (let oldItem of old) {
                 await win.webContents.session.cookies.remove('http://www.4399.com', oldItem.name)
             }
+            //新增登录成功监听器
+            let cookie
+            let i = setInterval(async () => {
+                cookie = await win.webContents.session.cookies.get({url: 'http://www.4399.com'})
+                if (cookie.length >= 5) {
+                    win.close()
+                    clearInterval(i)
+                }
+            }, 1000)
         })
 
         //监听窗口关闭
         win.on('close', async () => {
             win.webContents.session.cookies.get({url: 'http://www.4399.com'})
                 .then(cookies => {
-                    if (cookies.length < 2) {
+                    if (cookies.length < 5) {
                         resolve(new Err("Error:Can't read cookie"))
                     } else {
                         cookie = ""

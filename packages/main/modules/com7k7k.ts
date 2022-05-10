@@ -41,12 +41,23 @@ async function getCookie(): Promise<Result<string, string>> {
         await win.loadURL('http://www.7k7k.com')
 
         //修改标题
-        win.webContents.once('did-stop-loading', async () => {
-            win.setTitle("登录7k7k后关闭窗口")
-            //清空临时cookie
-            let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
-            for (let oldItem of old) {
-                await win.webContents.session.cookies.remove('http://www.7k7k.com', oldItem.name)
+        let init = true
+        win.webContents.on('did-stop-loading', async () => {
+            if (init) {
+                init = false
+                win.setTitle("使用已实名认证的成人账户登录7k7k")
+                //点击登录
+                await win.webContents.executeJavaScript("document.querySelector('#header > div.header_top > div > div.header_top_r > div.login_no > div.h_login.login_btn > span').click()")
+                //清空临时cookie
+                let old = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+                for (let oldItem of old) {
+                    await win.webContents.session.cookies.remove('http://www.7k7k.com', oldItem.name)
+                }
+            } else {
+                let cookie = await win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
+                if (cookie.length >= 3) {
+                    win.close()
+                }
             }
         })
 
@@ -54,7 +65,7 @@ async function getCookie(): Promise<Result<string, string>> {
         win.on('close', async () => {
             win.webContents.session.cookies.get({url: 'http://www.7k7k.com'})
                 .then(cookies => {
-                    if (cookies.length < 2) {
+                    if (cookies.length < 3) {
                         resolve(new Err("Error:Can't read cookie"))
                     } else {
                         cookie = ""
