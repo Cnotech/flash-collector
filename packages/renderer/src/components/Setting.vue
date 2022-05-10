@@ -14,39 +14,57 @@
   </a-card>
   <br/>
   <a-card style="width: 100%" title="游戏服务端口">
+    若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
+    <br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
       <a-button @click="restart">应用</a-button>
     </a-space>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="开发者工具">
-    <a-button @click="devtool">DevTool</a-button>
+  <a-card style="width: 100%" title="安装 4399 源站播放脚本">
+    由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装 4399 源站播放脚本：
+    <br/>
+    （1）在你的默认浏览器安装<a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或<a
+      @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
+    <br/>
+    （2）访问<a
+      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/423836-4399%E6%B8%B8%E6%88%8F%E4%B8%8B%E8%BD%BD/code')">脚本发布页面</a>，安装脚本；
+    <br/>
+    （3）在 Flash Collector 中回到需要手动下载缺失文件的游戏页面，点击标题打开原始页面，点击“开始游戏”，然后点击上方的“下载”按钮进入源站真实页面；
+    <br/>
+    （4）按照剩余步骤手动下载缺失的文件。
   </a-card>
   <br/>
   <a-card style="width: 100%" title="许可与条款">
     此软件免费获取并在 <a @click="shell.openExternal('https://github.com/Cnotech/flash-collector')">Cnotech/flash-collector</a> 以
-    MPL2.0 协议开源，如果您是通过付费的方式获得的请立即申请退款并差评卖家。如果您拥有 GitHub 账号欢迎点个 Star 来表示鼓励。
+    MPL-2.0 协议开源，如果您拥有 GitHub 账号欢迎点个 Star 来表示鼓励；如果您是通过付费的方式获得的请立即申请退款并差评卖家。
     <br/><br/>
     使用此软件及其相关内容即表示您同意下述条款：
     <br/>
-    （1）该仓库的代码以及编译后的可执行文件（即本软件）仅供个人交流学习使用，作者不对以任何形式使用这些代码或可执行文件造成的后果负责；
+    （1）该仓库的代码以及编译后的可执行文件（包括本软件）仅供个人交流学习使用，作者不对以任何形式使用这些代码或可执行文件造成的后果负责；
     <br/>
     （2）禁止任何个人或组织将此软件及其相关内容用作商业用途，使用开源代码时必须严格遵守 MPL2.0 协议；
     <br/>
-    （3）本软件及其仓库是 Flash Collector 字样及下图所示图标（渐变绿底FC字）的最早使用者，任何个人或组织不得未经授权使用相关字样或图标。
+    （3）本软件及其仓库是 Flash Collector 字样及下图所示图标（渐变绿底FC字）的最早使用者，任何个人或组织未经授权不得使用相关字样或图标。
     <br/><br/>
     <img alt="Icon" src="../assets/favicon.ico" style="height: 50px;width: 50px;margin: 10px 0 0 50%"/>
+  </a-card>
+  <br/>
+  <a-card style="width: 100%" title="开发者工具">
+    <a-button @click="devtool">DevTool</a-button>
   </a-card>
 </template>
 
 <script lang="ts" setup>
 import type {SelectProps} from 'ant-design-vue';
+import {message} from "ant-design-vue";
 import {onMounted, onUnmounted, ref, watch} from "vue";
 import bridge from "../bridge";
 import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
 import {shell} from "electron";
+import {router} from "../router";
 
 const siteOptions = ref<SelectProps['options']>([
   {
@@ -93,6 +111,16 @@ watch(site, (a, b) => {
   }
 })
 
+function validPort(): boolean {
+  const p = port.value
+  if (p < 1000 || p > 65535) {
+    port.value = 3000
+    message.error("请保持端口处于1000-65535")
+    return false
+  }
+  return true
+}
+
 onMounted(async () => {
   const config = await getConfig()
 
@@ -120,9 +148,15 @@ const save = async () => {
 
 onUnmounted(save)
 
+router.beforeEach(() => {
+  return validPort()
+})
+
 async function restart() {
-  await save()
-  bridge('restart')
+  if (validPort()) {
+    await save()
+    bridge('restart')
+  }
 }
 
 </script>
