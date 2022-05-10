@@ -242,8 +242,6 @@ const listener = () => {
             recentClip = text
             url.value = text
             parse()
-          } else {
-            recentClip = ""
           }
         }
       }

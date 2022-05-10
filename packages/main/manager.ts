@@ -278,13 +278,20 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                 if (backup) {
                     cp.exec("start " + encodeURI(infoConfig.online.binUrl), () => resolve(true))
                 } else {
-                    const win = new BrowserWindow({width: 1200, height: 800})
-                    await win.loadURL(infoConfig.online.binUrl, {
-                        httpReferrer: infoConfig.online.truePage,
-                        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+                    const win = new BrowserWindow({
+                        width: 1200,
+                        height: 800,
+                        icon: infoConfig.local?.icon ? `./games/${infoConfig.type}/${infoConfig.local.folder}/${infoConfig.local.icon}` : undefined
+                    })
+                    win.webContents.once('did-stop-loading', () => {
+                        win.setTitle(infoConfig.title)
                     })
                     win.on('close', () => {
                         resolve(true)
+                    })
+                    await win.loadURL(infoConfig.online.binUrl, {
+                        httpReferrer: infoConfig.online.truePage,
+                        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
                     })
                 }
                 break
