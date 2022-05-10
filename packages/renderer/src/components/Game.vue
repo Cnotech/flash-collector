@@ -45,9 +45,10 @@
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
               <p>请按照以下步骤手动下载缺失的文件：</p>
-              <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面</p>
-              <p>2. 将网络请求中{{ info?.local?.binFile }}以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到游戏存储目录
-                （<a @click="openFolder">games/flash/{{ info?.local?.folder }}</a>），注意保持相对路径正确</p>
+              <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面；对于 4399 这一类有源站播放 Referer 限制的网页请<a @click="router.push('/setting')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
+              </p>
+              <p>2. 将网络请求中{{ info?.local?.binFile }}以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到
+                （<a @click="openFolder">游戏存储目录</a>），注意保持相对路径正确</p>
               <p>3. 打开兼容模式，按下F12并切换到“控制台”选项卡查看文件是否正确加载，如出现404检查对应文件是否正确放置</p>
             </template>
             <QuestionCircleOutlined/>
@@ -68,7 +69,8 @@
           <a-popover placement="rightBottom" title="这是一个在线游戏" trigger="hover">
             <template #content>
               <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制</p>
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
+              </p>
             </template>
             <QuestionCircleOutlined/>
           </a-popover>
@@ -87,7 +89,8 @@
           </a-dropdown>
           <a-popover placement="rightBottom" title="关于源站播放" trigger="hover">
             <template #content>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制</p>
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
+              </p>
             </template>
             <QuestionCircleOutlined/>
           </a-popover>
