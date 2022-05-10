@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "main": "dist/main/index.cjs",
   "author": "Cno <dsyourshy@qq.com>",
-  "license": "MIT",
+  "license": "MPL-2.0",
   "scripts": {
     "dev": "node scripts/watch.mjs",
     "prebuild": "vue-tsc --noEmit --p packages/renderer/tsconfig.json && node scripts/build.mjs",
