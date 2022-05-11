@@ -38,13 +38,13 @@
           <template #renderItem="{ item }">
             <a-list-item>
               <a-list-item-meta style="cursor: pointer"
-                                @click="router.push(`/game?id=${item.type};${item.local.folder}`)">
+                                @click="router.push(`/game?id=${item.type};${item.local?.folder}`)">
                 <template #title>
                   {{ item.title }}
                 </template>
                 <template #avatar>
-                  <a-avatar v-if="item.local.icon"
-                            :src="`http://localhost:${port}/games/${item.type}/${item.local.folder}/${item.local.icon}`"
+                  <a-avatar v-if="item.local?.icon"
+                            :src="`http://localhost:${port}/games/${item.type}/${item.local?.folder}/${item.local?.icon}`"
                             shape="square"/>
                   <a-avatar v-else shape="square" style="background-color: #4bb117">{{ item.title.slice(0, 2) }}
                   </a-avatar>
@@ -68,9 +68,9 @@
         <br/>
         <a-space style="margin-top: 15px">
           <a-space v-for="item of recentLaunch" align="center" direction="vertical" style="margin: 10px;cursor: pointer"
-                   @click="router.push(`/game?id=${item.info.type};${item.info.local.folder}`)">
-            <a-avatar v-if="item.info.local.icon"
-                      :src="`http://localhost:${port}/games/${item.info.type}/${item.info.local.folder}/${item.info.local.icon}`"
+                   @click="router.push(`/game?id=${item.info.type};${item.info.local?.folder}`)">
+            <a-avatar v-if="item.info.local?.icon"
+                      :src="`http://localhost:${port}/games/${item.info.type}/${item.info.local?.folder}/${item.info.local?.icon}`"
                       shape="square" size="large"/>
             <a-avatar v-else shape="square" size="large" style="background-color: #4bb117">
               {{ item.info.title.slice(0, 2) }}

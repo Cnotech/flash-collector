@@ -4,6 +4,8 @@ import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
 import {restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
+import path from "path";
+import fs from "fs";
 
 const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
@@ -48,8 +50,29 @@ const registry: { [name: string]: (...args: any) => any } = {
     setConfig,
     restart,
     version,
-    localSearch: manager.localSearch
-
+    localSearch: manager.localSearch,
+    //是否需要警告swf可能无法正确播放
+    showFlashAlert: (folder: string, swfName: string): boolean => {
+        let list = fs.readdirSync(path.join("games", "flash", folder))
+        if (list.length > 3) {
+            return false
+        } else {
+            //检查是否无图标且数量为3
+            let existIcon = false
+            for (let name of list) {
+                if (name.indexOf("icon") > -1) {
+                    existIcon = true
+                    break
+                }
+            }
+            if (!existIcon && list.length == 3) return false
+            else {
+                //检查swf文件大小
+                let status = fs.statSync(path.join("games", "flash", folder, swfName))
+                return status.size < 51200;
+            }
+        }
+    }
 }
 
 export default function () {

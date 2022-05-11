@@ -27,8 +27,9 @@
         </template>
         <a-menu-item v-for="i of sidebarList.flash" :key="i.type+';'+i.local?.folder">
           <template #icon>
-            <a-avatar v-if="i.local.icon"
-                      :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+            <a-avatar v-if="i.local?.icon"
+                      :src="`http://localhost:${port}/games/${i.type}/${i.local?.folder}/${i.local?.icon}`"
+                      shape="square"
                       style="margin-top: -3px;margin-left: -5px"/>
             <a-avatar v-else shape="square" style="background-color: #4bb117;margin-top: -3px;margin-left: -5px">
               {{ i.title.slice(0, 2) }}
@@ -46,8 +47,9 @@
         </template>
         <a-menu-item v-for="i of sidebarList.unity" :key="i.type+';'+i.local?.folder">
           <template #icon>
-            <a-avatar v-if="i.local.icon"
-                      :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+            <a-avatar v-if="i.local?.icon"
+                      :src="`http://localhost:${port}/games/${i.type}/${i.local?.folder}/${i.local?.icon}`"
+                      shape="square"
                       style="margin-top: -3px;margin-left: -5px"/>
             <a-avatar v-else shape="square" style="background-color: #4bb117;margin-top: -3px;margin-left: -5px">
               {{ i.title.slice(0, 2) }}
@@ -65,8 +67,9 @@
         </template>
         <a-menu-item v-for="i of sidebarList.h5" :key="i.type+';'+i.local?.folder">
           <template #icon>
-            <a-avatar v-if="i.local.icon"
-                      :src="`http://localhost:${port}/games/${i.type}/${i.local.folder}/${i.local.icon}`" shape="square"
+            <a-avatar v-if="i.local?.icon"
+                      :src="`http://localhost:${port}/games/${i.type}/${i.local?.folder}/${i.local?.icon}`"
+                      shape="square"
                       style="margin-top: -3px;margin-left: -5px"/>
             <a-avatar v-else shape="square" style="background-color: #4bb117;margin-top: -3px;margin-left: -5px">
               {{ i.title.slice(0, 2) }}

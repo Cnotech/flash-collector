@@ -4,8 +4,8 @@
         :sub-title="info.category"
     >
       <template #avatar>
-        <a-avatar v-if="info.local.icon"
-                  :src="`http://localhost:${port}/games/${info.type}/${info.local.folder}/${info.local.icon}`"
+        <a-avatar v-if="info.local?.icon"
+                  :src="`http://localhost:${port}/games/${info.type}/${info.local?.folder}/${info.local?.icon}`"
                   shape="square" size="large"/>
         <a-avatar v-else shape="square" style="background-color: #4bb117">{{ info.title.slice(0, 2) }}</a-avatar>
       </template>
@@ -47,17 +47,24 @@
               <DownOutlined/>
             </a-button>
           </a-dropdown>
-          <a-popover placement="rightBottom" title="无法在本地正确运行游戏？" trigger="hover">
+          <a-popover :title="alertSwf?'此游戏可能无法在本地正确运行！':'无法在本地正确运行游戏？'" placement="rightBottom" trigger="hover">
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
               <p>请按照以下步骤手动下载缺失的文件：</p>
-              <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面；对于 4399 这一类有源站播放 Referer 限制的网页请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
+              <p>1. 点击“源站播放”，按下F12并切换到“网络”选项卡，然后刷新页面；对于 4399 这一类有源站播放 Referer 限制的网页请<a
+                  @click="router.push('/setting#4399')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
               </p>
               <p>2. 将网络请求中{{ info?.local?.binFile }}以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到
                 （<a @click="openFolder">游戏存储目录</a>），注意保持相对路径正确</p>
               <p>3. 打开兼容模式，按下F12并切换到“控制台”选项卡查看文件是否正确加载，如出现404检查对应文件是否正确放置</p>
+              <br/>
+              <p>关于源站播放：</p>
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装油猴脚本并从原始页面进入
+              </p>
             </template>
-            <QuestionCircleOutlined/>
+
+            <WarningFilled v-if="alertSwf" style="color: orange;font-size: larger"/>
+            <QuestionCircleOutlined v-else/>
           </a-popover>
         </template>
         <template v-else-if="info.type==='h5'">
@@ -118,7 +125,7 @@ import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {shell} from "electron";
 import {GameInfo} from "../../../class";
-import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined} from '@ant-design/icons-vue';
+import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined, WarningFilled} from '@ant-design/icons-vue';
 import {message, Modal} from "ant-design-vue";
 import cp from 'child_process'
 import path from "path";
@@ -150,14 +157,14 @@ let status = ref<boolean>(false),
         folder: ""
       }
     }),
-    rename = ref<{ status: boolean, value: string }>({status: false, value: ""})
+    rename = ref<{ status: boolean, value: string }>({status: false, value: ""}),
+    alertSwf = ref(false)
 
 
 let port = ref(3000)
 getConfig().then(c => {
   port.value = c.port
 })
-
 
 //启动游戏
 async function launch(backup: boolean) {
@@ -257,6 +264,11 @@ let recentExtURL = ""
 onMounted(async () => {
   //配置查询
   info.value = await query()
+  //判断是否需要显示swf警告
+  if (info.value.type == 'flash') {
+    alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
+    console.log(alertSwf.value)
+  }
   //动态添加webview
   webview = document.createElement("webview");
   webview.setAttribute('style', "height:100%")
@@ -286,6 +298,12 @@ router.afterEach(async () => {
   if (route.query.id == null) return
   info.value = await query()
   status.value = !!(info.value.local && playingList.includes(info.value.local.folder));
+  //判断是否需要显示swf警告
+  if (info.value.type == 'flash') {
+    alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
+    console.log(alertSwf.value)
+  }
+  //配置webview
   webview.setAttribute('src', info.value.online.originPage)
 })
 

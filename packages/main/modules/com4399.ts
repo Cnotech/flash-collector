@@ -330,9 +330,9 @@ async function detect(trueUrl: string): Promise<Result<string, string>> {
         url = trueUrl.replace(playerName, swfName)
         try {
             let r = await axios.head(url, getAxiosConfig(trueUrl))
-            console.log(`detect ${url}, response status : ${r.status},content length : ${r.headers['content-length']}`)
-            if (r.status < 400 && Number(r.headers['content-length']) > 40960) {
-                console.log('detected ' + swfName)
+            console.log(`exist ${url}, response status : ${r.status},content length : ${r.headers['content-length']}`)
+            if (r.status < 400 && Number(r.headers['content-length']) > 51200) {
+                console.log('use ' + swfName)
                 return new Ok(url)
             }
         } catch (e) {
