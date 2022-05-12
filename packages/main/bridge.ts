@@ -72,7 +72,8 @@ const registry: { [name: string]: (...args: any) => any } = {
                 return status.size < 51200;
             }
         }
-    }
+    },
+    del: manager.del
 }
 
 export default function () {

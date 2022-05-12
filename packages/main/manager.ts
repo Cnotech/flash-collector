@@ -5,11 +5,11 @@ import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {BrowserWindow} from 'electron'
+import {BrowserWindow, shell} from 'electron'
 import express from 'express'
 import {getConfig, setConfig} from "./config";
 
-const shell = require('shelljs')
+const shelljs = require('shelljs')
 
 const LOCAL_GAME_LIBRARY = "./games"
 
@@ -138,7 +138,7 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
     //创建本地目录
     const door = `${info.title}_${info.fromSite}_${randomStr()}`
     const dir = path.join(LOCAL_GAME_LIBRARY, info.type, door)
-    shell.mkdir('-p', dir)
+    shelljs.mkdir('-p', dir)
 
     //下载源文件
     if (info.type != 'h5') {
@@ -371,6 +371,24 @@ function localSearch(text: string): GameInfo[] {
     return res
 }
 
+async function del(type: string, folder: string): Promise<boolean> {
+    //移动至回收站
+    try {
+        await shell.trashItem(path.join(process.cwd(), "games", type, folder))
+    } catch (e) {
+        return false
+    }
+    //从最近启动中删除
+    const id = type + ";" + folder
+    let config = getConfig(), res: Config['recentLaunch'] = []
+    for (let game of config.recentLaunch) {
+        if (game.id != id) res.push(game)
+    }
+    config.recentLaunch = res
+    setConfig(config, false)
+    return true
+}
+
 export default {
     downloader,
     parser,
@@ -382,5 +400,6 @@ export default {
     query,
     rename,
     install,
-    localSearch
+    localSearch,
+    del
 }

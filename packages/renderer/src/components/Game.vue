@@ -227,10 +227,9 @@ function del() {
     okType: 'danger',
     cancelText: '取消',
     onOk() {
-      const p = path.join(process.cwd(), "games", info.value.type, info.value.local?.folder as string)
-      shell.trashItem(p)
-          .then(() => {
-            if (fs.existsSync(p)) {
+      bridge('del', info.value.type, info.value.local?.folder)
+          .then(suc => {
+            if (!suc) {
               message.error("删除失败，请检查文件是否被占用然后手动删除")
             } else {
               message.success(info.value.title + " 已被移动至回收站")
@@ -238,11 +237,6 @@ function del() {
               router.push("/")
             }
           })
-          .catch(e => {
-            console.log(e)
-            message.error("删除失败，请检查文件是否被占用然后手动删除")
-          })
-
     }
   })
 }

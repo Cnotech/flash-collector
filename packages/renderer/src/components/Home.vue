@@ -311,7 +311,6 @@ async function download() {
           router.push(`/game?id=${info.type};${info.local?.folder}`)
         }
       }))
-      //TODO:显示到最近下载，然后提供查看按钮
       bus.emit('refreshSidebar')
     } else {
       message.error(payload.val)
