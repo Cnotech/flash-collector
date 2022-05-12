@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {BrowserWindow, shell} from 'electron'
+import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell} from 'electron'
 import express from 'express'
 import {getConfig, setConfig} from "./config";
 
@@ -249,6 +249,35 @@ function checkDependency(type: 'flash' | 'unity'): boolean {
     }
 }
 
+function menuConstructor(win: BrowserWindow): Menu {
+    let menu = new Menu()
+    const submenu: MenuItemConstructorOptions[] = [
+        {
+            role: 'forceReload',
+            label: '刷新'
+        },
+        {
+            role: 'togglefullscreen',
+            label: '全屏'
+        },
+        {
+            role: 'toggleDevTools',
+            label: '开发者工具'
+        },
+        {
+            label: '退出',
+            click: () => {
+                win.close()
+            }
+        }
+    ]
+    menu.append(new MenuItem({
+        label: '选项',
+        submenu
+    }))
+    return menu
+}
+
 async function launch(type: string, folder: string, backup: boolean): Promise<boolean> {
     return new Promise(async (resolve) => {
         const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo,
@@ -283,6 +312,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                         height: 800,
                         icon: infoConfig.local?.icon ? `./games/${infoConfig.type}/${infoConfig.local.folder}/${infoConfig.local.icon}` : undefined
                     })
+                    win.setMenu(menuConstructor(win))
                     win.webContents.once('did-stop-loading', () => {
                         win.setTitle(infoConfig.title)
                     })
