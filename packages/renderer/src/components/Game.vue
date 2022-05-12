@@ -222,7 +222,7 @@ function del() {
   Modal.confirm({
     title: '是否将此游戏移动至回收站？',
     icon: createVNode(ExclamationCircleOutlined),
-    content: '如果当前此文件正在被占用则可能删除失败，需要手动删除',
+    content: '删除游戏后会丢失游戏进度，仅能从回收站找回原文件夹恢复（重新下载游戏无法恢复进度）',
     okText: '删除',
     okType: 'danger',
     cancelText: '取消',

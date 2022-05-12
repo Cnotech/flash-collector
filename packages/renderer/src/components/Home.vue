@@ -261,7 +261,7 @@ async function parse() {
     gameInfo = result.val
     gameTitle.value = gameInfo.title
     if (result.val.hasOwnProperty('local')) {
-      message.warn(`${result.val.title} 已下载，如果继续则会创建一个副本`)
+      message.warn(`${result.val.title} 已下载，如果继续则会创建一个不共享进度的副本`)
       return
     }
     //处理html5类别
