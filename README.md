@@ -21,10 +21,6 @@
 
 访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面
 
-## 分享
-
-在 `games` 文件夹中将需要分享给他人的小游戏目录压缩并发送，接收方解压至自己的 `games` 目录然后重启客户端
-
 ## 反馈
 
 如果遇到无法解析或解析为 HTML5 的 **Flash 或 Unity3D 游戏**请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，**不接受 HTML5 或页游的反馈请求**
