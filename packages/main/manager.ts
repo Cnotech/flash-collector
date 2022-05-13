@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 })
 app.use('/retinue', express.static('retinue'))
 app.use('/games', express.static('games'))
+app.use('/temp', express.static('UNZIP-TEMP'))
 app.listen(getConfig().port)
 
 //初始化全部解析器，返回配置和登录状态
@@ -226,12 +227,13 @@ function geneNaiveList(p: string): GameInfo[] {
     return res
 }
 
-function readList(): List {
+function readList(dir?: string): List {
+    const target = dir ?? LOCAL_GAME_LIBRARY
     if (!freshList) {
         gameList = {
-            flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
-            unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
-            h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+            flash: geneNaiveList(path.join(target, "flash")),
+            unity: geneNaiveList(path.join(target, "unity")),
+            h5: geneNaiveList(path.join(target, "h5"))
         }
     } else {
         freshList = false

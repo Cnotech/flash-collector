@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "flash",
+        "unity",
+        "h5"
+      ]
+    },
+    "fromSite": {
+      "type": "string"
+    },
+    "online": {
+      "type": "object",
+      "properties": {
+        "originPage": {
+          "type": "string"
+        },
+        "truePage": {
+          "type": "string"
+        },
+        "binUrl": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "originPage",
+        "truePage",
+        "binUrl"
+      ]
+    },
+    "local": {
+      "type": "object",
+      "properties": {
+        "binFile": {
+          "type": "string"
+        },
+        "folder": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "binFile",
+        "folder"
+      ]
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "type",
+    "fromSite",
+    "online"
+  ]
+}

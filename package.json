@@ -45,6 +45,7 @@
     "vue"
   ],
   "dependencies": {
+    "ajv": "^8.11.0",
     "ant-design-vue": "^3.2.2",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",

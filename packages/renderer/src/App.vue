@@ -78,6 +78,10 @@
           {{ i.title }}
         </a-menu-item>
       </a-sub-menu>
+      <a-menu-item key="port">
+        <gold-filled style="height: 20px;width: 20px"/>
+        港口
+      </a-menu-item>
       <a-menu-item key="setting">
         <setting-filled style="height: 20px;width: 20px"/>
         设置
@@ -98,7 +102,7 @@
 </template>
 <script lang="ts" setup>
 import {ref} from 'vue';
-import {HomeFilled, SettingFilled} from '@ant-design/icons-vue';
+import {GoldFilled, HomeFilled, SettingFilled} from '@ant-design/icons-vue';
 import {useRoute, useRouter} from 'vue-router';
 import {bus} from './eventbus'
 import {List} from "../../class";
@@ -128,6 +132,8 @@ function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
     router.push('/')
   } else if (info.keyPath[0] == 'setting') {
     router.push('/setting')
+  } else if (info.keyPath[0] == 'port') {
+    router.push('/port')
   } else {
     router.push(`/game?id=${info.keyPath[1]}`)
   }
@@ -150,6 +156,8 @@ function updateSidebarOpen() {
     state.value.selectedKeys = ['home']
   } else if (p == '/setting') {
     state.value.selectedKeys = ['setting']
+  } else if (p == '/port') {
+    state.value.selectedKeys = ['port']
   } else {
     //说明在Game
     state.value.selectedKeys = [route.query.id]

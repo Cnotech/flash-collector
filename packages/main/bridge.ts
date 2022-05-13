@@ -1,11 +1,19 @@
-import {ipcMain} from "electron";
-import {Reply, Request} from "../class";
+import {dialog, ipcMain} from "electron";
+import {List, Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
 import {restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
 import path from "path";
 import fs from "fs";
+import {release} from "./p7zip";
+import Ajv from "ajv"
+import infoSchema from "./schema/info.json"
+
+const shelljs = require('shelljs')
+
+const ajv = new Ajv()
+const infoValidator = ajv.compile(infoSchema)
 
 const registry: { [name: string]: (...args: any) => any } = {
     launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
@@ -73,7 +81,66 @@ const registry: { [name: string]: (...args: any) => any } = {
             }
         }
     },
-    del: manager.del
+    del: manager.del,
+    initImportPackage: async (): Promise<Result<List, string>> => {
+        //打开文件选择框
+        let r = await dialog.showOpenDialog({
+            title: "选择一个 Flash Collector Games 压缩包",
+            filters: [
+                {
+                    name: "Flash Collector Games 压缩包",
+                    extensions: ['fcg.7z']
+                },
+                {
+                    name: "压缩包",
+                    extensions: ['7z', 'zip', 'rar']
+                },
+            ]
+        })
+        if (r.canceled) return new Err("Error:User didn't select a package")
+
+        //尝试解压
+        let res = await release(r.filePaths[0], "UNZIP-TEMP", true)
+        if (!res) return new Err("Error:Can't unzip package")
+
+        //基础校验
+        const types = ['flash', 'h5', 'unity']
+        let valid = false
+        for (let type of types) {
+            if (fs.existsSync(path.join("UNZIP-TEMP", type))) {
+                valid = true
+                break
+            }
+        }
+        if (!valid) return new Err("Error:Invalid package")
+
+        //info可用性校验
+        let p: string, result
+        for (let type of types) {
+            p = path.join("UNZIP-TEMP", type)
+            if (!fs.existsSync(p)) {
+                continue
+            }
+            let dir = fs.readdirSync(p)
+            for (let folder of dir) {
+                p = path.join("UNZIP-TEMP", type, folder, "info.json")
+                if (fs.existsSync(p)) {
+                    //json schema 校验
+                    result = infoValidator(JSON.parse(fs.readFileSync(p).toString()))
+                    if (!result) {
+                        let errMsg = JSON.stringify(infoValidator.errors, null, 2)
+                        infoValidator.errors = null
+                        return new Err(`Error:Invalid info.config in ${type}/${folder} :\n${errMsg}`)
+                    }
+                } else {
+                    return new Err(`Error:Can't find info.config in ${type}/${folder}`)
+                }
+            }
+        }
+
+        //读取目录
+        return new Ok(manager.readList("UNZIP-TEMP"))
+    }
 }
 
 export default function () {
