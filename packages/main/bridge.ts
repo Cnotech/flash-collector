@@ -1,5 +1,5 @@
 import {dialog, ipcMain} from "electron";
-import {List, Reply, Request} from "../class";
+import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
 import {restart, toggleDevtool, version} from "./index";
@@ -82,7 +82,7 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
     },
     del: manager.del,
-    initImportPackage: async (): Promise<Result<List, string>> => {
+    initImportPackage: async (): Promise<Result<{ info: GameInfo, overwriteAlert: boolean }[], string>> => {
         //打开文件选择框
         let r = await dialog.showOpenDialog({
             title: "选择一个 Flash Collector Games 压缩包",
@@ -128,7 +128,7 @@ const registry: { [name: string]: (...args: any) => any } = {
                     //json schema 校验
                     result = infoValidator(JSON.parse(fs.readFileSync(p).toString()))
                     if (!result) {
-                        let errMsg = JSON.stringify(infoValidator.errors, null, 2)
+                        let errMsg = infoValidator.errors ? infoValidator.errors[0].message : "Unknown error"
                         infoValidator.errors = null
                         return new Err(`Error:Invalid info.config in ${type}/${folder} :\n${errMsg}`)
                     }
@@ -139,7 +139,44 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
 
         //读取目录
-        return new Ok(manager.readList("UNZIP-TEMP"))
+        let list = manager.readList("UNZIP-TEMP")
+
+        //生成列表并校验重复
+        let gameList: { info: GameInfo, overwriteAlert: boolean }[] = []
+        for (let type in list) {
+            for (let info of list[type]) {
+                gameList.push({
+                    info,
+                    overwriteAlert: fs.existsSync(path.join("games", type, info.local?.folder ?? ""))
+                })
+            }
+        }
+        return new Ok(gameList)
+    },
+    confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[]): Promise<Result<string, string>> => {
+        if (direction == 'Import') {
+            //处理导入
+            let source, target
+            for (let game of games) {
+                if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
+                source = path.join("UNZIP-TEMP", game.type, game.local?.folder)
+                target = path.join("games", game.type, game.local?.folder)
+                //检测重复并删除
+                if (fs.existsSync(target)) {
+                    shelljs.rm("-rf", target)
+                }
+                //复制
+                shelljs.cp('-R', source, target)
+                //校验
+                if (!fs.existsSync(target)) {
+                    return new Err(`Error:Import failed : ${game.type}/${game.local.folder}`)
+                }
+            }
+            return new Ok(`成功导入${games.length}个游戏`)
+        } else {
+            //处理导出
+            return new Ok("成功导出至 exports/")
+        }
     }
 }
 

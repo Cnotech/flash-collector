@@ -41,23 +41,26 @@
               <a-list-item>
                 <a-list-item-meta>
                   <template #title>
-                    {{ item.title }}
+                    {{ item.info.title }}
                   </template>
                   <template #avatar>
-                    <a-avatar v-if="item.local?.icon"
-                              :src="`http://localhost:${port}/temp/${item.type}/${item.local?.folder}/${item.local?.icon}`"
+                    <a-avatar v-if="item.info.local?.icon"
+                              :src="`http://localhost:${port}/${state==='Import'?'temp':'games'}/${item.info.type}/${item.info.local?.folder}/${item.info.local?.icon}`"
                               shape="square"/>
-                    <a-avatar v-else shape="square" style="background-color: #4bb117">{{ item.title.slice(0, 2) }}
+                    <a-avatar v-else shape="square" style="background-color: #4bb117">{{ item.info.title.slice(0, 2) }}
                     </a-avatar>
                   </template>
                   <template #description>
-                    <a-tag color="purple">{{ item.category }}</a-tag>
-                    <a-tag color="cyan">{{ item.type }}</a-tag>
-                    <a-tag color="green">{{ item.fromSite }}</a-tag>
+                    <a-tag color="purple">{{ item.info.category }}</a-tag>
+                    <a-tag color="cyan">{{ item.info.type }}</a-tag>
+                    <a-tag color="green">{{ item.info.fromSite }}</a-tag>
                   </template>
                 </a-list-item-meta>
-                <template #extra>
-                  <a-checkbox :value="item" style="margin-left: -20px"></a-checkbox>
+                <template #actions>
+                  <a-tooltip v-if="item.overwriteAlert" title="本地游戏库已存在此游戏，如果继续将会覆盖">
+                    <WarningFilled style="color: orange;font-size: larger"/>
+                  </a-tooltip>
+                  <a-checkbox :value="item.info"></a-checkbox>
                 </template>
               </a-list-item>
             </template>
@@ -75,12 +78,14 @@ import {GameInfo, List} from "../../../class";
 import bridge from "../bridge";
 import {Result} from "ts-results";
 import {message} from "ant-design-vue";
+import {WarningFilled} from '@ant-design/icons-vue';
+import {bus} from "../eventbus";
 
 type State = 'None' | 'Import' | 'Export'
 type SortBy = 'Name' | 'Type' | 'Site'
 
 let port = ref(3000),
-    selectList = ref<GameInfo[]>([]),
+    selectList = ref<{ info: GameInfo, overwriteAlert: boolean }[]>([]),
     selected = ref<GameInfo[]>([]),
     state = ref<State>('None'),
     sortBy = ref<SortBy>('Name')
@@ -89,16 +94,20 @@ getConfig().then(c => port.value = c.port)
 
 async function initImportList() {
   //等待选择文件
-  let res: Result<List, string> = await bridge('initImportPackage')
+  let res: Result<{ info: GameInfo, overwriteAlert: boolean }[], string> = await bridge('initImportPackage')
 
   if (res.err) {
     message.error(res.val)
   } else {
-    let r: GameInfo[] = []
-    for (let type in res.val) {
-      r = r.concat(res.val[type])
+    //填充待选列表
+    selectList.value = res.val
+    //生成已选列表
+    let preSelect: GameInfo[] = []
+    for (let n of res.val) {
+      if (!n.overwriteAlert) preSelect.push(n.info)
     }
-    selectList.value = r
+    selected.value = preSelect
+    //更新DOM
     changeState('Import')
   }
 }
@@ -109,7 +118,14 @@ async function initExportList() {
   for (let type in r) {
     res = res.concat(r[type])
   }
-  selectList.value = res
+  selectList.value = res.map(info => {
+    {
+      return {
+        info,
+        overwriteAlert: false
+      }
+    }
+  })
   changeState('Export')
 }
 
@@ -117,9 +133,15 @@ function changeState(s: State) {
   state.value = s
 }
 
-function confirm() {
-  console.log(selected.value)
-  //注意提示重名文件夹
+async function confirm() {
+  let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)))
+  if (r.ok) {
+    message.success(r.val)
+  } else {
+    message.error(r.val)
+  }
+  changeState('None')
+  bus.emit('refreshSidebar')
 }
 
 function sortList() {
@@ -127,14 +149,14 @@ function sortList() {
   switch (sortBy.value) {
     case "Name":
       r = o.sort((a, b) => {
-        return a.title.localeCompare(b.title, "zh")
+        return a.info.title.localeCompare(b.info.title, "zh")
       })
       break
     case "Site":
-      r = o.sort((a, b) => a.fromSite.localeCompare(b.fromSite, "zh"))
+      r = o.sort((a, b) => a.info.fromSite.localeCompare(b.info.fromSite, "zh"))
       break
     case "Type":
-      r = o.sort((a, b) => a.type.localeCompare(b.type, "zh"))
+      r = o.sort((a, b) => a.info.type.localeCompare(b.info.type, "zh"))
       break
   }
   selectList.value = r

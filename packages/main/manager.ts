@@ -8,10 +8,15 @@ import Downloader from 'nodejs-file-downloader';
 import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell} from 'electron'
 import express from 'express'
 import {getConfig, setConfig} from "./config";
+import Ajv from "ajv";
+import infoSchema from "./schema/info.json"
 
 const shelljs = require('shelljs')
 
 const LOCAL_GAME_LIBRARY = "./games"
+
+const ajv = new Ajv()
+const infoValidator = ajv.compile(infoSchema)
 
 let freshList = true, gameList: List = {
     flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
@@ -213,7 +218,7 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
 //对于某种独立分类生成列表
 function geneNaiveList(p: string): GameInfo[] {
     if (!fs.existsSync(p)) return []
-    let res: GameInfo[] = [], infoFile: string
+    let res: GameInfo[] = [], infoFile: string, infoConfig
     //读取某种目录列表
     let folders = fs.readdirSync(p)
     for (let folder of folders) {
@@ -222,7 +227,13 @@ function geneNaiveList(p: string): GameInfo[] {
             console.log("Warning:Can't find info config : " + infoFile)
             continue
         }
-        res.push(JSON.parse(fs.readFileSync(infoFile).toString()))
+        infoConfig = JSON.parse(fs.readFileSync(infoFile).toString()) as GameInfo
+        if (!infoValidator(infoConfig)) {
+            console.log(`Warning:Can't valid ${infoFile} : ${infoValidator.errors ? infoValidator.errors[0].message : "Unknown error"}`)
+            infoValidator.errors = null
+            continue
+        }
+        res.push(infoConfig)
     }
     return res
 }
