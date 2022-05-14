@@ -1,6 +1,6 @@
 # Flash Collector （小游戏收集器）
 
-小游戏收集器，一键下载、本地运行小游戏，并与你的同伴分享游戏文件
+小游戏收集器，一键下载、本地运行小游戏，希望能帮助你收集到来自童年的一份快乐
 
 ## 特性
 
@@ -13,14 +13,15 @@
 - 自动检测并安装必要的运行库
 - 原生支持 4399 和 7k7k 两大站点
 - 模块化设计，可拓展小游戏站点支持
+- 一键导入导出你的游戏库，与你的同伴共享游戏
+## 下载
 
+访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面
 ## 登录
 
 解析与下载功能需要实名制登录对应的网站，请确保你已经成年并拥有相应网站的实名制认证账号
 
-## 下载
-
-访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面
+登录功能仅用于在爬取游戏时向站点发送有效 cookie，你的游戏进度不能被保存到本地
 
 ## 反馈
 
@@ -28,7 +29,7 @@
 
 ## 拓展小游戏网站支持
 
-定位到 `./packages/main/modules`，编写并在 `_register.ts` 中注册你的模块
+定位到 `./packages/main/modules`，编写一个实现了 `ParserRegister` 接口的站点模块，然后在 `_register.ts` 中注册你的模块
 
 ## 调试
 
