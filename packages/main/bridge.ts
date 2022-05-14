@@ -9,6 +9,7 @@ import fs from "fs";
 import {compress, release} from "./p7zip";
 import Ajv from "ajv"
 import infoSchema from "./schema/info.json"
+import cp from 'child_process'
 
 const shelljs = require('shelljs')
 
@@ -210,10 +211,13 @@ const registry: { [name: string]: (...args: any) => any } = {
             if(!zipRes){
                 return new Err("Error:Can't compress into package")
             }
-            return new Ok("成功导出至 "+dRes.filePath)
+            return new Ok(dRes.filePath)
         }
     },
-    getLoadErrors:manager.getLoadErrors
+    getLoadErrors:manager.getLoadErrors,
+    selectInExplorer:(p:string)=>{
+        cp.execSync(`explorer /select,"${p}"`)
+    }
 }
 
 export default function () {
