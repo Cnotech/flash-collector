@@ -25,14 +25,22 @@
   </a-page-header>
 
   <template v-if="state!=='None'">
-    <strong style="margin-left: 4%;margin-right: 20px">请选择需要{{ state === 'Import' ? '导入' : '导出' }}的游戏</strong>
-    <span>排序：</span>
-    <a-select v-model:value="sortBy" size="small" @change="sortList">
-      <a-select-option value="Name">名称</a-select-option>
-      <a-select-option value="Type">类型</a-select-option>
-      <a-select-option value="Site">来源</a-select-option>
-    </a-select>
-    <a-row style="margin-right: 5%;height: 70%;overflow: auto" type="flex">
+    <a-space style="margin-left: 4%">
+      <strong style="margin-right: 20px">请选择需要{{ state === 'Import' ? '导入' : '导出' }}的游戏</strong>
+      <span>排序：</span>
+      <a-select v-model:value="sortBy" size="small" @change="sortList">
+        <a-select-option value="Name">名称</a-select-option>
+        <a-select-option value="Type">类型</a-select-option>
+        <a-select-option value="Cate">分类</a-select-option>
+        <a-select-option value="Site">来源</a-select-option>
+      </a-select>
+      <div>
+        <a-button type="link" @click="selectHelper('All')">全选</a-button>
+        <a-button type="link" v-if="state==='Import'" @click="selectHelper('Safe')">安全</a-button>
+        <a-button type="link" @click="selectHelper('None')">不选</a-button>
+      </div>
+    </a-space>
+    <a-row style="margin-right: 5%;height: 65%;overflow: auto" type="flex">
       <a-col :span="1"/>
       <a-col :span="22">
         <a-checkbox-group v-model:value="selected" style="width: 100%">
@@ -51,9 +59,9 @@
                     </a-avatar>
                   </template>
                   <template #description>
-                    <a-tag color="purple">{{ item.info.category }}</a-tag>
-                    <a-tag color="cyan">{{ item.info.type }}</a-tag>
-                    <a-tag color="green">{{ item.info.fromSite }}</a-tag>
+                    <a-tag color="purple" style="cursor: default" @click="selectHelper('Closure',n=>n.info.category===item.info.category)">{{ item.info.category }}</a-tag>
+                    <a-tag color="cyan" style="cursor: default" @click="selectHelper('Closure',n=>n.info.type===item.info.type)">{{ item.info.type }}</a-tag>
+                    <a-tag color="green" style="cursor: default" @click="selectHelper('Closure',n=>n.info.fromSite===item.info.fromSite)">{{ item.info.fromSite }}</a-tag>
                   </template>
                 </a-list-item-meta>
                 <template #actions>
@@ -82,7 +90,7 @@ import {WarningFilled} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 
 type State = 'None' | 'Import' | 'Export'
-type SortBy = 'Name' | 'Type' | 'Site'
+type SortBy = 'Name' | 'Type' | 'Site'|'Cate'
 
 let port = ref(3000),
     selectList = ref<{ info: GameInfo, overwriteAlert: boolean }[]>([]),
@@ -113,6 +121,7 @@ async function initImportList() {
 }
 
 async function initExportList() {
+  selected.value=[]
   let r: List = await bridge('refresh')
   let res: GameInfo[] = []
   for (let type in r) {
@@ -134,13 +143,14 @@ function changeState(s: State) {
 }
 
 async function confirm() {
+  message.loading({ content: '正在处理中...', key:"Confirm",duration:0 })
   let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)))
   if (r.ok) {
-    message.success(r.val)
+    message.success({ content: r.val, key:"Confirm",duration:3 })
+    changeState('None')
   } else {
-    message.error(r.val)
+    message.error({ content: r.val, key:"Confirm",duration:3 })
   }
-  changeState('None')
   bus.emit('refreshSidebar')
 }
 
@@ -158,10 +168,31 @@ function sortList() {
     case "Type":
       r = o.sort((a, b) => a.info.type.localeCompare(b.info.type, "zh"))
       break
+    case "Cate":
+      r = o.sort((a, b) => a.info.category.localeCompare(b.info.category, "zh"))
+      break
   }
   selectList.value = r
 }
 
+function selectHelper(method:'All'|'Safe'|'None'|'Closure',closure?:(n:{ info: GameInfo, overwriteAlert: boolean }) => boolean) {
+  switch (method) {
+    case "All":
+      selected.value=selectList.value.map(n=>n.info)
+      break
+    case "None":
+      selected.value=[]
+      break
+    case "Safe":
+      selected.value = selectList.value.filter(n=>!n.overwriteAlert).map(n=>n.info)
+      break
+    case "Closure":
+      if(closure!=undefined){
+        selected.value = selectList.value.filter(closure).map(n=>n.info)
+      }
+      break
+  }
+}
 </script>
 
 <style scoped>

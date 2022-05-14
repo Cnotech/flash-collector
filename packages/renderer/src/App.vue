@@ -101,13 +101,16 @@
   </a-layout>
 </template>
 <script lang="ts" setup>
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import {GoldFilled, HomeFilled, SettingFilled} from '@ant-design/icons-vue';
 import {useRoute, useRouter} from 'vue-router';
 import {bus} from './eventbus'
 import {List} from "../../class";
 import bridge from "./bridge";
 import {getConfig} from "./config";
+import {ipcRenderer} from "electron"
+import {message, notification} from 'ant-design-vue';
+import {Option} from "ts-results";
 
 const router = useRouter(), route = useRoute()
 
@@ -145,9 +148,15 @@ bus.on('refreshSidebar', refreshSidebar)
 
 async function refreshSidebar() {
   sidebarList.value = await bridge('refresh')
+  //获取载入错误
+  let err:Option<string>=await bridge('getLoadErrors')
+  if(err.some){
+    notification.error({
+      message:"读取游戏配置出错",
+      description:err.val
+    })
+  }
 }
-
-refreshSidebar()
 
 //响应式侧边栏高亮
 function updateSidebarOpen() {
@@ -164,8 +173,12 @@ function updateSidebarOpen() {
   }
 }
 
-updateSidebarOpen()
 router.afterEach(updateSidebarOpen)
+
+onMounted(()=>{
+  refreshSidebar()
+  updateSidebarOpen()
+})
 
 </script>
 <style>

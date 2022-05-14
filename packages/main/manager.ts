@@ -1,15 +1,16 @@
 import {register} from "./modules/_register";
-import {Err, Ok, Result} from "ts-results";
+import {Err, None, Ok, Option, Result,Some} from "ts-results";
 import {Config, GameInfo, List, LoginStatus, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell} from 'electron'
+import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell,ipcMain} from 'electron'
 import express from 'express'
 import {getConfig, setConfig} from "./config";
 import Ajv from "ajv";
 import infoSchema from "./schema/info.json"
+import {load} from "cheerio";
 
 const shelljs = require('shelljs')
 
@@ -18,11 +19,12 @@ const LOCAL_GAME_LIBRARY = "./games"
 const ajv = new Ajv()
 const infoValidator = ajv.compile(infoSchema)
 
-let freshList = true, gameList: List = {
-    flash: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "flash")),
-    unity: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "unity")),
-    h5: geneNaiveList(path.join(LOCAL_GAME_LIBRARY, "h5"))
+let gameList: List = {
+    flash: [],
+    unity: [],
+    h5: []
 }
+let loadErrors:string[]=[]
 
 //建立静态服务器
 const app = express()
@@ -224,12 +226,12 @@ function geneNaiveList(p: string): GameInfo[] {
     for (let folder of folders) {
         infoFile = path.join(p, folder, "info.json")
         if (!fs.existsSync(infoFile)) {
-            console.log("Warning:Can't find info config : " + infoFile)
+            loadErrors.push("Can't find info config : " + infoFile)
             continue
         }
         infoConfig = JSON.parse(fs.readFileSync(infoFile).toString()) as GameInfo
         if (!infoValidator(infoConfig)) {
-            console.log(`Warning:Can't valid ${infoFile} : ${infoValidator.errors ? infoValidator.errors[0].message : "Unknown error"}`)
+            loadErrors.push(`Can't valid ${infoFile} : ${infoValidator.errors ? infoValidator.errors[0].message : "Unknown error"}`)
             infoValidator.errors = null
             continue
         }
@@ -240,14 +242,10 @@ function geneNaiveList(p: string): GameInfo[] {
 
 function readList(dir?: string): List {
     const target = dir ?? LOCAL_GAME_LIBRARY
-    if (!freshList) {
-        gameList = {
-            flash: geneNaiveList(path.join(target, "flash")),
-            unity: geneNaiveList(path.join(target, "unity")),
-            h5: geneNaiveList(path.join(target, "h5"))
-        }
-    } else {
-        freshList = false
+    gameList= {
+        flash: geneNaiveList(path.join(target, "flash")),
+        unity: geneNaiveList(path.join(target, "unity")),
+        h5: geneNaiveList(path.join(target, "h5"))
     }
     return gameList
 }
@@ -259,6 +257,18 @@ function checkDependency(type: 'flash' | 'unity'): boolean {
             return fs.existsSync("C:\\Windows\\System32\\Macromed\\Flash\\pepflashplayer.dll") || fs.existsSync("C:\\Windows\\SysWOW64\\Macromed\\Flash\\pepflashplayer.dll")
         case "unity":
             return fs.existsSync("C:\\Program Files\\Unity\\WebPlayer64\\Uninstall.exe") || fs.existsSync("C:\\Program Files\\Unity\\WebPlayer\\Uninstall.exe") || fs.existsSync("C:\\Program Files (x86)\\Unity\\WebPlayer\\Uninstall.exe")
+    }
+}
+
+function getLoadErrors():Option<string> {
+    if(loadErrors.length==0) return None
+    else {
+        let msg=""
+        for(let m of loadErrors){
+            msg+=m+'\n'
+        }
+        loadErrors=[]
+        return new Some(msg)
     }
 }
 
@@ -444,5 +454,6 @@ export default {
     rename,
     install,
     localSearch,
-    del
+    del,
+    getLoadErrors
 }

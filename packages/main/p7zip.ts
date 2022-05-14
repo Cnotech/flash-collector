@@ -33,13 +33,20 @@ async function compress(choosePlainDir: string, file: string, compressLevel: num
 		}
 		shell.rm('-f', path.join(cwd ?? '', file));
 		try {
-			cp.execSync(`${p7zip} a -mx${compressLevel} ../"${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)});
+			cp.exec(`${path.join("..",p7zip)} a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)},(err)=>{
+				if(err){
+					console.log('Error:Compress command failed\n' + e);
+					resolve(false);
+					return;
+				}else{
+					resolve(fs.existsSync(path.join(cwd ?? '', file)));
+				}
+			});
 		} catch (e) {
 			console.log('Error:Compress command failed\n' + e);
 			resolve(false);
 			return;
 		}
-		resolve(fs.existsSync(path.join(cwd ?? '', file)));
 	}));
 }
 

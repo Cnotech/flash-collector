@@ -14,3 +14,5 @@ config.json
 *.7z
 test.*
 UNZIP-TEMP
+exports
+ZIP-TEMP

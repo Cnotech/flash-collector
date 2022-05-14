@@ -6,7 +6,7 @@ import {restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
 import path from "path";
 import fs from "fs";
-import {release} from "./p7zip";
+import {compress, release} from "./p7zip";
 import Ajv from "ajv"
 import infoSchema from "./schema/info.json"
 
@@ -159,8 +159,8 @@ const registry: { [name: string]: (...args: any) => any } = {
             let source, target
             for (let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
-                source = path.join("UNZIP-TEMP", game.type, game.local?.folder)
-                target = path.join("games", game.type, game.local?.folder)
+                source = path.join("UNZIP-TEMP", game.type, game.local.folder)
+                target = path.join("games", game.type, game.local.folder)
                 //检测重复并删除
                 if (fs.existsSync(target)) {
                     shelljs.rm("-rf", target)
@@ -175,9 +175,45 @@ const registry: { [name: string]: (...args: any) => any } = {
             return new Ok(`成功导入${games.length}个游戏`)
         } else {
             //处理导出
-            return new Ok("成功导出至 exports/")
+            //清理临时目录
+            if(fs.existsSync("ZIP-TEMP")){
+                shelljs.rm("-rf","ZIP-TEMP")
+            }
+            shelljs.mkdir("ZIP-TEMP")
+            //弹出选择对话框
+            const d=new Date()
+            let dRes=await dialog.showSaveDialog({
+                title:"导出 Flash Collector Games 压缩包",
+                defaultPath:d.getFullYear().toString()+(d.getMonth()+1)+d.getDate()+"-"+d.getHours()+d.getMinutes()+d.getSeconds(),
+                filters:[
+                    {
+                        name: "Flash Collector Games 压缩包",
+                        extensions: ['fcg.7z']
+                    }
+                ]
+            })
+            if(dRes.canceled||dRes.filePath==null){
+                return new Err("Error:User didn't select a location")
+            }
+            //复制文件
+            let source, target
+            for(let game of games){
+                if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
+                source = path.join("games", game.type, game.local.folder)
+                target = path.join("ZIP-TEMP", game.type, game.local.folder)
+                shelljs.mkdir("-p",path.join("ZIP-TEMP", game.type))
+                shelljs.cp('-R', source, target)
+            }
+            //压缩
+            if(!fs.existsSync("exports")) shelljs.mkdir("exports")
+            let zipRes=await compress("ZIP-TEMP",dRes.filePath,5)
+            if(!zipRes){
+                return new Err("Error:Can't compress into package")
+            }
+            return new Ok("成功导出至 "+dRes.filePath)
         }
-    }
+    },
+    getLoadErrors:manager.getLoadErrors
 }
 
 export default function () {
