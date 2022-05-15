@@ -17,7 +17,14 @@
 ## 下载
 
 访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面
-## 登录
+
+## 4399 源站播放限制解除脚本
+由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，需要配合油猴或暴力猴插件安装 4399 源站播放解除限制脚本
+
+GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399
+
+如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `userscript` 目录获取脚本
+## 关于登录
 
 解析与下载功能需要实名制登录对应的网站，请确保你已经成年并拥有相应网站的实名制认证账号
 
