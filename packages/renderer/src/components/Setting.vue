@@ -29,8 +29,11 @@
     （1）在你的默认浏览器安装<a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或<a
       @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
     <br/>
-    （2）访问<a
-      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">脚本发布页面</a>，安装脚本。
+    （2）访问 <a
+      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">GreasyFork
+    脚本页面</a> 或 <a
+      @click="shell.openExternal('https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-4399.user.js')">GitHub
+    仓库脚本直链</a>，安装脚本。
   </a-card>
   <br/>
   <a-card style="width: 100%" title="许可与条款">
