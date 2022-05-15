@@ -41,6 +41,8 @@ GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-439
 
 定位到 `./packages/main/modules`，编写一个实现了 `ParserRegister` 接口的站点模块，然后在 `_register.ts` 中注册你的模块
 
+`ParserRegister` 接口的相关注释位于 `packages/class.ts`，尽量参考现有模块的实现
+
 ## 调试
 
 执行 `yarn dev`
