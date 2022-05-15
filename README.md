@@ -25,7 +25,9 @@
 
 ## 反馈
 
-如果遇到无法解析或解析为 HTML5 的 **Flash 或 Unity3D 游戏**请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，**不接受 HTML5 或页游的反馈请求**
+如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5 或页游的反馈请求
+
+如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**；如果你看了还是不清楚怎么做需要详细教程，那么说明你的相关基础知识无法支撑你完成这一步骤，建议放弃这一功能的使用
 
 ## 拓展小游戏网站支持
 
