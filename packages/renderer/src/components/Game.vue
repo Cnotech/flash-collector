@@ -261,7 +261,6 @@ onMounted(async () => {
   //判断是否需要显示swf警告
   if (info.value.type == 'flash') {
     alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
-    console.log(alertSwf.value)
   }
   //动态添加webview
   webview = document.createElement("webview");

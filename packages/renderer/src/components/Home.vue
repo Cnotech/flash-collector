@@ -250,14 +250,14 @@ async function parse() {
   if (Date.now() - recentSubmit < 500) return
   recentSubmit = Date.now()
 
-  //提交搜索请求
+  //提交解析请求
   loading.value = true
   let result: Result<GameInfo, string> = await bridge('parse', url.value.split("#")[0])
   console.log(result)
+  loading.value = false
 
   //处理返回结果
   if (result.ok) {
-    loading.value = false
     gameInfo = result.val
     gameTitle.value = gameInfo.title
     if (result.val.hasOwnProperty('local')) {
@@ -291,7 +291,6 @@ async function parse() {
     //清空gameInfo
     gameInfo = null
   }
-  loading.value = false
 }
 
 async function download() {
