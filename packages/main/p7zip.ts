@@ -35,7 +35,7 @@ async function compress(choosePlainDir: string, file: string, compressLevel: num
 		try {
 			cp.exec(`${path.join("..",p7zip)} a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)},(err)=>{
 				if(err){
-					console.log('Error:Compress command failed\n' + e);
+					console.log('Error:Compress command failed\n' + err);
 					resolve(false);
 					return;
 				}else{

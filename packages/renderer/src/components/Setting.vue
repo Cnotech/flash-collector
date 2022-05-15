@@ -23,18 +23,14 @@
     </a-space>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="安装 4399 源站播放脚本" id="4399">
-    由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装 4399 源站播放脚本：
+  <a-card style="width: 100%" title="安装 4399 源站播放解除限制脚本" id="4399">
+    由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装 4399 源站播放解除限制脚本：
     <br/>
     （1）在你的默认浏览器安装<a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或<a
       @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
     <br/>
     （2）访问<a
-      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/423836-4399%E6%B8%B8%E6%88%8F%E4%B8%8B%E8%BD%BD/code')">脚本发布页面</a>，安装脚本；
-    <br/>
-    （3）在 Flash Collector 中回到需要手动下载缺失文件的游戏页面，点击标题打开原始页面，点击“开始游戏”，然后点击上方的“下载”按钮进入源站真实页面；
-    <br/>
-    （4）按照剩余步骤手动下载缺失的文件。
+      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">脚本发布页面</a>，安装脚本。
   </a-card>
   <br/>
   <a-card style="width: 100%" title="许可与条款">
