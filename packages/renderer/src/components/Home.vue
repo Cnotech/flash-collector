@@ -248,9 +248,9 @@ async function parse() {
 
   //防抖
   if (Date.now() - recentSubmit < 500) return
+  recentSubmit = Date.now()
 
   //提交搜索请求
-  recentSubmit = Date.now()
   loading.value = true
   let result: Result<GameInfo, string> = await bridge('parse', url.value.split("#")[0])
   console.log(result)
@@ -268,7 +268,7 @@ async function parse() {
     if (result.val.type == 'h5') {
       Modal.confirm({
         title: "这似乎是一个HTML5游戏",
-        content: "目前尚没有效果好的爬取HTML5游戏的开源解决方案，因此若继续则只会保存解析到的真实游戏页面而不会下载",
+        content: "目前尚没有效果好的爬取HTML5游戏的开源解决方案，若继续则每次启动时需要联网在线游玩",
         okText: "继续",
         cancelText: "取消",
         onCancel() {
@@ -282,20 +282,29 @@ async function parse() {
     if (!result.val.online.icon) {
       let tip = "无法匹配图标"
       if (result.val.fromSite == "4399") {
-        tip += "，这是因为游戏标题有敏感词被4399屏蔽了"
+        tip += "，因为游戏标题有敏感词被屏蔽"
       }
       message.warning(tip)
     }
   } else {
     message.error(result.val)
+    //清空gameInfo
+    gameInfo = null
   }
   loading.value = false
 }
 
 async function download() {
   if (buttonDisabled.value) {
+    //在线搜索
     await shell.openExternal(searchPattern.replace("%s", url.value))
   } else {
+    //判断gameInfo是否就绪
+    if (gameInfo == null) {
+      await parse()
+      if (gameInfo == null) return
+    }
+    //下载
     loading.value = true
     buttonText.value = "下载中"
     let payload: Result<GameInfo, string> = await bridge('download', gameInfo)
