@@ -221,7 +221,7 @@ function parseID(url: string): Result<string, string> {
 function getNickName(cookie: string): Result<string, string> {
     let m = cookie.match(/nickname=.+;/)
     if (m == null) return new Err("Error:Can't match nick name")
-    return new Ok(m[0].split(/[=;]/)[1])
+    return new Ok(decodeURI(m[0].split(/[=;]/)[1].replace(/\+/g, "%20")))
 }
 
 export default {
