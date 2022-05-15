@@ -23,7 +23,8 @@
 
 GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399
 
-如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `userscript` 目录获取脚本
+如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `userscript`
+目录获取脚本或直接[点击此链接安装](https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-4399.user.js)
 ## 关于登录
 
 解析与下载功能需要实名制登录对应的网站，请确保你已经成年并拥有相应网站的实名制认证账号
