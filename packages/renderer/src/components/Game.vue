@@ -256,12 +256,12 @@ function openExt(url: string, unityAlert?: boolean) {
       okText: "继续",
       cancelText: "取消",
       onOk() {
-        shell.openExternal(url)
+        shell.openExternal(encodeURI(url))
       },
       closable: true,
       maskClosable: true
     })
-  } else shell.openExternal(url)
+  } else shell.openExternal(encodeURI(url))
 }
 
 function openFolder() {
