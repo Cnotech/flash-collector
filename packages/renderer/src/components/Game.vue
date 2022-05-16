@@ -39,7 +39,9 @@
             <template #overlay>
               <a-menu>
                 <a-menu-item key="1" @click="launch(true)">兼容模式</a-menu-item>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0')">源站播放</a-menu-item>
+                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title)">
+                  源站播放
+                </a-menu-item>
               </a-menu>
             </template>
             <a-button :disabled="status" type="primary" @click="launch(false)">
@@ -71,7 +73,9 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0')">源站播放</a-menu-item>
+                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title)">
+                  源站播放
+                </a-menu-item>
               </a-menu>
             </template>
             <a-button :disabled="status" type="primary" @click="launch(false)">
@@ -92,7 +96,9 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0')">源站播放</a-menu-item>
+                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title,true)">
+                  源站播放
+                </a-menu-item>
               </a-menu>
             </template>
             <a-button :disabled="status" type="primary" @click="launch(false)">
@@ -242,8 +248,20 @@ function del() {
 }
 
 //打开外部
-function openExt(url: string) {
-  shell.openExternal(url)
+function openExt(url: string, unityAlert?: boolean) {
+  if (unityAlert) {
+    Modal.warning({
+      title: "Unity3D 源站播放异常警告",
+      content: "由于源站点代码结构专为嵌入式页面适配，直接在源站播放 Unity3D 游戏可能会出现窗口点按漂移、无法关闭等问题，建议仅在本地启动；如果你仍然继续且遇到了此问题，请通过任务栏关闭浏览器窗口",
+      okText: "继续",
+      cancelText: "取消",
+      onOk() {
+        shell.openExternal(url)
+      },
+      closable: true,
+      maskClosable: true
+    })
+  } else shell.openExternal(url)
 }
 
 function openFolder() {
