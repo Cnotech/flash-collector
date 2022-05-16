@@ -17,42 +17,73 @@
 
 ## 下载
 
-访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面
+访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面。
 
 ## 配套用户脚本
 
-由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，需要配合油猴或暴力猴插件安装配套用户脚本；此脚本还可以修改源站播放的网页标题
+由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，需要配合油猴或暴力猴插件安装配套用户脚本；此脚本还可以修改源站播放的网页标题。
 
 GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399
 
 如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `userscript`
-目录获取脚本或直接[点击此链接安装](https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-script.user.js)
+目录获取脚本或直接[点击此链接安装](https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-script.user.js)。
+
+## 浏览器兼容性
+
+目前国际主流的浏览器基本都取消了对 Flash 插件的支持，也顺便误伤了 Unity3D Web 插件，仅有国内的几家浏览器厂商会增加对这两种插件的支持。
+
+下面给出浏览器兼容性测试表（按照推荐顺序排序），测试时间为 2022-05-17，测试环境运行 Windows 10 企业版 64位，浏览器安装包均从官网下载最新稳定版。
+
+几款主流国际浏览器因为全军覆没因此没有出现在表格中：`Chrome` `Edge (Chromium)` `Firefox` `傲游浏览器` `Opera` `IE11`
+；2345加速浏览器等则因为其过于恶臭的名声（捏鼻）没有被加入测试名单。如果你知晓其他**最新版本**支持这两种插件的浏览器请新建 PR。
+
+| 浏览器                | Flash纯净版 | Flash毒瘤版 | Unity64位 | Unity32位       |
+|--------------------|----------|----------|----------|----------------|
+| 360极速浏览器X 64位      | √        | √        | √        | x              |
+| 360极速浏览器 32位（停止维护） | √        | √        | x        | √              |
+| 搜狗高速浏览器            | √        | √        | x        | ○ 能显示logo，无法加载 |
+| 360安全浏览器           | x        | √        | x        | √              |
+| 百分浏览器              | √        | √        | x        | x              |
+| QQ浏览器              | √        | √        | x        | x              |
+| 星愿浏览器              | x        | x        | x        | x              |
+
+可以看到 360极速浏览器X 64位是测试的浏览器中唯一支持 Unity 64位的，并且同时支持 Flash 纯净版，这个浏览器也没有自带流氓捆绑，因此还是比较推荐的（真没收钱xdm）；
+
+搜狗高速浏览器是 4399 官方推荐的两大浏览器之一，不过在测试加载《忍者斩铁剑1.9》时一直卡在 unity logo 无法进入游戏，暂不清楚是通病还是个例；
+
+360安全浏览器应该是只能检查 Flash 毒瘤版的安装目录然后询问用户是否使用沙箱，而且这个浏览器本身捆绑比较多，不怎么推荐；
+
+百分浏览器、QQ浏览器不支持 Unity 不太推荐，除非你只玩 Flash 小游戏。
+
+综上所述，Flash Collector 仅增加前四名的浏览器的识别（因为这些浏览器至少同时支持了一种 Flash 和 Unity），你也可以使用旧版的 Chrome 或 Firefox，Flash Collector
+会自动帮你安装纯净版的 Flash 运行库插件。
 
 ## 关于登录
 
-解析与下载功能需要实名制登录对应的网站，请确保你已经成年并拥有相应网站的实名制认证账号
+解析与下载功能需要实名制登录对应的网站，请确保你已经成年并拥有相应网站的实名制认证账号。
 
-登录功能仅用于在爬取游戏时向站点发送有效 cookie，你的游戏进度不能被保存到本地
+登录功能仅用于在爬取游戏时向站点发送有效 cookie，你的游戏进度不能被保存到本地。
 
 ## 反馈
 
-如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5 或页游的反馈请求
+如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5
+或页游的反馈请求。
 
-如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**；如果你看了还是不清楚怎么做需要详细教程，那么说明你的相关基础知识无法支撑你完成这一步骤，建议放弃这一功能的使用
+如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**；如果你看了还是不清楚怎么做需要详细教程，那么说明你的相关基础知识无法支撑你完成这一步骤，建议放弃这一功能的使用。
 
 ## 拓展小游戏网站支持
 
-定位到 `./packages/main/modules`，编写一个实现了 `ParserRegister` 接口的站点模块，然后在 `_register.ts` 中注册你的模块
+定位到 `./packages/main/modules`，编写一个实现了 `ParserRegister` 接口的站点模块，然后在 `_register.ts` 中注册你的模块。
 
-`ParserRegister` 接口的相关注释位于 `packages/class.ts`，尽量参考现有模块的实现
+`ParserRegister` 接口的相关注释位于 `packages/class.ts`，尽量参考现有模块的实现。
 
 ## 调试
 
-执行 `yarn dev`
+执行 `yarn dev`。
 
 ## 编译
 
-执行 `yarn build`
+执行 `yarn build`。
 
 ## 条款
 
