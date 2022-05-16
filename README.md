@@ -49,7 +49,7 @@ GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-439
 
 ## 编译
 
-执行 `yarn build`，如果你在默认路径安装了 7-Zip 则会将压缩包生成至 `release` 目录
+执行 `yarn build`
 
 ## 条款
 
