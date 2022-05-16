@@ -27,9 +27,23 @@
 
 </body>
 <script>
+    function query(key) {
+        let m = window.location.href.match(new RegExp(`(\\?|&)${key}=[^&]*`))
+
+        if (m == null) return null
+        else return m[0].split("=")[1]
+    }
+
+    let q
+    // 读取标题
+    q = query("title")
+    if (q) {
+        document.title = decodeURI(q)
+    }
     // 从URL参数读取游戏名
-    if (window.location.search.indexOf("load=") != -1) {
-        document.getElementById("player").setAttribute("src", window.location.search.split("load=")[1])
+    q = query("load")
+    if (q) {
+        document.getElementById("player").setAttribute("src", q)
     }
 </script>
 </html>

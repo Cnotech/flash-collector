@@ -25,16 +25,22 @@
         }
     </style>
     <script type="text/javascript">
+        function query(key) {
+            let m = window.location.href.match(new RegExp(`[?|&]${key}=[^&]*`))
+
+            if (m == null) return null
+            else return m[0].split("=")[1]
+        }
+
+        // 读取标题
+        let q = query("title")
+        if (q) {
+            document.title = decodeURI(q)
+        }
+        // 配置播放器
         var Iframe_Ver = "1.0";
         var FlashPlayer_Ver = "unity3d 3.5";
-        /********************************
-         可编辑区
-         ********************************/
-        var _src_ = 'game.unity3d'; //更改此处游戏名
-        // 从URL参数读取游戏名
-        if (window.location.search.indexOf("load=") != -1) {
-            _src_ = window.location.search.split("load=")[1]
-        }
+        let _src_ = query("load") ?? 'game.unity3d'; //默认游戏名
         var _wid_ = 640;
         var _hei_ = 480;
         var _spt_ = 0;
@@ -44,9 +50,7 @@
             width: _wid_,
             height: _hei_
         };
-        // flashvars extend
         var swfPars = {};
-        // flashvars extend
         var swfVars = {};
         if (!_spt_) swfPars.allowScriptAccess = "never";
         if (_net_) swfPars.allowNetworking = "all";

@@ -1,16 +1,15 @@
 import {register} from "./modules/_register";
-import {Err, None, Ok, Option, Result,Some} from "ts-results";
+import {Err, None, Ok, Option, Result, Some} from "ts-results";
 import {Config, GameInfo, List, LoginStatus, ParserRegister} from "../class";
 import path from "path";
 import fs from "fs";
 import cp from 'child_process'
 import Downloader from 'nodejs-file-downloader';
-import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell,ipcMain} from 'electron'
+import {BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, shell} from 'electron'
 import express from 'express'
 import {getConfig, setConfig} from "./config";
 import Ajv from "ajv";
 import infoSchema from "./schema/info.json"
-import {load} from "cheerio";
 
 const shelljs = require('shelljs')
 
@@ -311,7 +310,8 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                     if (!checkDependency('flash')) {
                         resolve(false)
                     } else {
-                        cp.exec("start " + encodeURI(`http://localhost:${config.port}/games/flash/${folder}/Player.html?load=${infoConfig.local?.binFile}`), () => resolve(true))
+                        await shell.openExternal(`http://localhost:${config.port}/games/flash/${folder}/Player.html?title=${infoConfig.title}&load=${infoConfig.local?.binFile}`)
+                        resolve(true)
                     }
                 } else {
                     cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
@@ -323,12 +323,14 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                 if (!checkDependency('unity')) {
                     resolve(false)
                 } else {
-                    cp.exec("start " + encodeURI(`http://localhost:${config.port}/retinue/Unity3D_Web_Player/Player.html?load=/games/unity/${folder}/${infoConfig.local?.binFile}`), () => resolve(true))
+                    await shell.openExternal(`http://localhost:${config.port}/retinue/Unity3D_Web_Player/Player.html?title=${infoConfig.title}&load=/games/unity/${folder}/${infoConfig.local?.binFile}`)
+                    resolve(true)
                 }
                 break
             case "h5":
                 if (backup) {
-                    cp.exec("start " + encodeURI(infoConfig.online.binUrl), () => resolve(true))
+                    await shell.openExternal(infoConfig.online.binUrl)
+                    resolve(true)
                 } else {
                     const win = new BrowserWindow({
                         width: 1200,
