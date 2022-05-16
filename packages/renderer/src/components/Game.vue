@@ -200,7 +200,16 @@ async function launch(backup: boolean) {
       okText: "安装",
       cancelText: "取消",
       onOk() {
-        bridge('install', info.value.type).then(tip => message.success(tip))
+        message.info({
+          content: `正在安装运行库...`,
+          key: "bin",
+          duration: 0
+        })
+        bridge('install', info.value.type).then(content => message.success({
+          content,
+          key: "bin",
+          duration: 3
+        }))
       }
     })
   }
