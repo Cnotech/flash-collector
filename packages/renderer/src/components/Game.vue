@@ -53,15 +53,17 @@
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
               <p>请按照以下步骤手动下载缺失的文件：</p>
-              <p>1. 点击“源站播放”，按下 F12 并切换到“网络”选项卡，然后刷新页面；对于 4399 这一类有源站播放 Referer 限制的网页请<a
-                  @click="router.push('/setting#4399')">前往“设置”界面</a>安装解除限制脚本
+              <p>0. 确保你的默认浏览器支持 Flash 插件，如果不支持推荐使用360极速浏览器X；对于 4399 这一类有源站播放 Referer 限制的网页请先<a
+                  @click="router.push('/setting')">前往“设置”界面</a>安装配套用户脚本</p>
+              <p>1. 点击“源站播放”，按下 F12 并切换到“网络”选项卡，然后刷新页面并正常玩一会游戏（至少要通过在本地被卡住的位置）
               </p>
               <p>2. 将网络请求中 {{ info?.local?.binFile }} 以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到
                 <a @click="openFolder">游戏存储目录</a>，<b>注意保持相对路径正确</b></p>
               <p>3. 打开兼容模式，按下 F12 并切换到“控制台”选项卡查看文件是否正确加载，如出现 404 则检查对应文件是否正确放置</p>
+              <p>如果按照此方法做了之后游戏还是无法在本地正确运行，那可能是此 Flash 的异步加载逻辑过于复杂，我也不清楚咋办，建议直接在线玩（确信）</p>
               <br/>
               <p>关于源站播放：</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装解除限制脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
 
@@ -86,7 +88,7 @@
           <a-popover placement="rightBottom" title="这是一个在线游戏" trigger="hover">
             <template #content>
               <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装解除限制脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
             <QuestionCircleOutlined/>
@@ -108,7 +110,7 @@
           </a-dropdown>
           <a-popover placement="rightBottom" title="关于源站播放" trigger="hover">
             <template #content>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装解除限制脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
             <QuestionCircleOutlined/>

@@ -10,6 +10,18 @@
     </a-space>
   </a-card>
   <br/>
+  <a-card id="4399" style="width: 100%" title="安装配套用户脚本">
+    由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装配套用户脚本：
+    （1）在你的默认浏览器安装 <a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或 <a
+      @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
+    <br/>
+    （2）访问 <a
+      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">GreasyFork
+    脚本页面</a> 或 <a
+      @click="shell.openExternal('https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-script.user.js')">GitHub
+    仓库脚本直链</a>，安装脚本。
+  </a-card>
+  <br/>
   <a-card style="width: 100%" title="运行库检查">
     <a-switch v-model:checked="libCheck" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
@@ -21,19 +33,6 @@
       <a-input v-model:value="port" style="width: 100%"/>
       <a-button @click="restart" :type="oldPort==port?'default':'primary'">应用</a-button>
     </a-space>
-  </a-card>
-  <br/>
-  <a-card style="width: 100%" title="安装 4399 源站播放解除限制脚本" id="4399">
-    由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装 4399 源站播放解除限制脚本：
-    <br/>
-    （1）在你的默认浏览器安装 <a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或 <a
-      @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
-    <br/>
-    （2）访问 <a
-      @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">GreasyFork
-    脚本页面</a> 或 <a
-      @click="shell.openExternal('https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-4399.user.js')">GitHub
-    仓库脚本直链</a>，安装脚本。
   </a-card>
   <br/>
   <a-card style="width: 100%" title="许可与条款">
