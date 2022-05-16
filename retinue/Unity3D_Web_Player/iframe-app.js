@@ -160,24 +160,7 @@ function swf_onload() {
                 swf_onload();
                 p.resize();
             } else {
-                player = document.getElementById("player");
-                downloadUrl = player.childNodes[0].childNodes[0].getAttribute("href");
-                clickFuncStr =
-                    player.childNodes[0].childNodes[0].getAttribute("onclick");
-                player.style.backgroundColor = "";
-                player.style.border = "";
-                player.innerHTML =
-                    '<div style="width: 100%;height: 100%;vertical-align: center;"><span style="display: inline-block;height: 100%;vertical-align: middle;"></span><span style="display: inline-block;width: 640px;height: 480px;background: url(./img/unity-guide.jpg) 0 0 no-repeat;line-height: ' +
-                    _hei_ +
-                    'px;vertical-align: middle;position: relative;"><a style="position: absolute;width: 190px;height: 60px;top: 102px;left: 225px;cursor: pointer;" href="' +
-                    downloadUrl +
-                    '" onclick="' +
-                    clickFuncStr +
-                    '" title="点击安装Unity3D插件"></a><a style="position: absolute;width: 120px;height: 35px;top: 228px;left: 58px;cursor: pointer;" href="' +
-                    downloadUrl +
-                    '" onclick="' +
-                    clickFuncStr +
-                    '" title="点击安装Unity3D插件"></a></span></div>';
+                alert("Unity3D Web 小游戏无法加载，可能需要更换启动浏览器或是安装运行库")
             }
         },
         init: function () {
