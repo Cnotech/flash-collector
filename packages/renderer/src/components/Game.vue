@@ -16,7 +16,7 @@
             <a-button size="middle" type="primary" @click="confirmRen">完成</a-button>
           </a-space>
         </template>
-        <a v-else @click="openExt(info.online.originPage)">{{ info.title }}</a>
+        <a v-else @click="shell.openExternal(info.online.originPage)">{{ info.title }}</a>
       </template>
       <template #tags>
         <a-tag color="green">{{ info.fromSite }}</a-tag>
@@ -141,6 +141,7 @@ import {Option, Result} from "ts-results";
 import fs from "fs";
 import {bus} from "../eventbus";
 import {getConfig} from "../config";
+import {shell} from "electron"
 
 const route = useRoute(), router = useRouter()
 const banScript = fs.readFileSync("retinue/banScript.js").toString()
