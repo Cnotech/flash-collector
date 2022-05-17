@@ -22,6 +22,25 @@
     仓库脚本直链</a>，安装脚本。
   </a-card>
   <br/>
+  <a-card style="width: 100%" title="启动浏览器">
+    <a-space direction="vertical">
+      <p>Flash Collector 在本地运行游戏可能需要浏览器的支持，请参考我们提供的<a
+          @click="shell.openExternal('https://github.com/Cnotech/flash-collector#浏览器兼容性')">浏览器兼容性表格</a>选择游戏的启动浏览器</p>
+      <a-space>
+        Flash：
+        <a-select v-model:value="browser.flash.name" :options="browserList" style="width: 140px"
+                  @change="onChangeBrowser('flash')"></a-select>
+        <span>{{ browser.flash.p }}</span>
+      </a-space>
+      <a-space>
+        Unity：
+        <a-select v-model:value="browser.unity.name" :options="browserList" style="width: 140px"
+                  @change="onChangeBrowser('unity')"></a-select>
+        <span>{{ browser.unity.p }}</span>
+      </a-space>
+    </a-space>
+  </a-card>
+  <br/>
   <a-card style="width: 100%" title="运行库检查">
     <a-switch v-model:checked="libCheck" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
@@ -31,7 +50,7 @@
     <br/><br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
-      <a-button :type="oldPort===port?'default':'primary'" @click="restart">应用</a-button>
+      <a-button :type="oldPort===port?'default':'primary'" @click="restart">立即应用</a-button>
     </a-space>
   </a-card>
   <br/>
@@ -64,9 +83,11 @@ import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
 import {shell} from "electron";
 import {useRoute, useRouter} from "vue-router";
+import {Browser} from "../../../class";
+import {Option} from "ts-results";
 
-const router=useRouter(),
-    route=useRoute()
+const router = useRouter(),
+    route = useRoute()
 
 const siteOptions = ref<SelectProps['options']>([
   {
@@ -92,14 +113,62 @@ let methodOptions = ref([
     label: "谷歌高级搜索"
   },
 ])
+
+interface ExactBrowser {
+  name: string,
+  p: string
+}
+
 let site = ref<string>("4399"),
     method = ref<string>("baidu"),
     libCheck = ref<boolean>(true),
     port = ref<number>(3000),
-    oldPort=ref(3000)
+    oldPort = ref(3000),
+    browser = ref<{ flash: ExactBrowser, unity: ExactBrowser }>({
+      flash: {
+        name: "默认浏览器",
+        p: ""
+      },
+      unity: {
+        name: "默认浏览器",
+        p: ""
+      }
+    }),
+    browserList = ref<{ label: string, value: string }[]>([])
 
 function devtool() {
   bridge('devtool')
+}
+
+async function onChangeBrowser(type: 'flash' | 'unity') {
+  let name = "", q: Option<string>
+  if (type == 'flash') {
+    name = browser.value.flash.name
+    if (name == "自定义浏览器") {
+      q = await bridge('chooseBrowser') as Option<string>
+    } else {
+      q = await bridge('parseBrowserPath', name) as Option<string>
+    }
+    if (q.some) {
+      browser.value.flash.p = q.val
+    } else {
+      browser.value.flash.name = "默认浏览器"
+      browser.value.flash.p = ""
+    }
+  } else {
+    name = browser.value.unity.name
+    if (name == "自定义浏览器") {
+      q = await bridge('chooseBrowser') as Option<string>
+    } else {
+      q = await bridge('parseBrowserPath', name) as Option<string>
+    }
+    if (q.some) {
+      browser.value.unity.p = q.val
+    } else {
+      browser.value.unity.name = "默认浏览器"
+      browser.value.unity.p = ""
+    }
+  }
 }
 
 watch(site, (a, b) => {
@@ -133,7 +202,34 @@ onMounted(async () => {
   libCheck.value = config.libCheck
 
   port.value = config.port
-  oldPort.value=config.port
+  oldPort.value = config.port
+
+  browser.value = {
+    flash: {
+      name: await bridge('getBrowserNickName', config.browser.flash),
+      p: config.browser.flash
+    },
+    unity: {
+      name: await bridge('getBrowserNickName', config.browser.unity),
+      p: config.browser.unity
+    }
+  }
+
+  //获取本地可用浏览器列表
+  let bList: Browser[] = [{
+    name: "默认浏览器",
+    allowedPaths: []
+  }].concat(await bridge('getAvailableBrowsers'))
+  bList.push({
+    name: "自定义浏览器",
+    allowedPaths: []
+  })
+  browserList.value = bList.map(n => {
+    return {
+      label: n.name,
+      value: n.name
+    }
+  })
 })
 
 const save = async () => {
@@ -145,6 +241,11 @@ const save = async () => {
   config.libCheck = libCheck.value
 
   config.port = port.value
+
+  config.browser = {
+    flash: browser.value.flash.p,
+    unity: browser.value.unity.p
+  }
 
   setConfig(config, true)
   bus.emit('update-search-pattern')

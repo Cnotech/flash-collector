@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from "path";
 import {Browser} from "../class";
+import {None, Option, Some} from "ts-results";
+import {dialog} from "electron";
 
 const LOCAL_APPDATA = process.env['LOCALAPPDATA'] ?? "",
     ROAMING_APPDATA = process.env['APPDATA'] ?? ""
@@ -47,11 +49,16 @@ function getAvailableBrowsers(): Browser[] {
 }
 
 //解析出一个可用路径
-function parseBrowserPath(availableBrowser: Browser): string {
-    for (let p of availableBrowser.allowedPaths) {
-        if (fs.existsSync(p)) return p
+function parseBrowserPath(availableBrowser: string): Option<string> {
+    if (availableBrowser == "") return new Some("")
+    for (let n of browserList) {
+        if (n.name == availableBrowser) {
+            for (let p of n.allowedPaths) {
+                if (fs.existsSync(p)) return new Some(p)
+            }
+        }
     }
-    return ""
+    return None
 }
 
 //由路径查找浏览器昵称
@@ -67,8 +74,24 @@ function getBrowserNickName(inputPath: string): string {
     return "自定义浏览器"
 }
 
+//自定义浏览器路径
+async function chooseBrowser(): Promise<Option<string>> {
+    let r = await dialog.showOpenDialog({
+        title: "选择自定义浏览器",
+        filters: [
+            {
+                name: "可执行程序",
+                extensions: ['exe']
+            }
+        ]
+    })
+    if (r.canceled) return None
+    else return new Some(r.filePaths[0])
+}
+
 export {
     getAvailableBrowsers,
     parseBrowserPath,
-    getBrowserNickName
+    getBrowserNickName,
+    chooseBrowser
 }

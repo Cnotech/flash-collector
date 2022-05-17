@@ -489,7 +489,8 @@ async function openWithBrowser(browser: string, url: string): Promise<void> {
         return shell.openExternal(encodeURI(url))
     } else {
         return new Promise((res) => {
-            cp.exec(`"${browser}" "${encodeURI(url)}"`, () => res())
+            cp.exec(`"${browser}" "${encodeURI(url)}"`)
+            setTimeout(res, 2000)
         })
     }
 }

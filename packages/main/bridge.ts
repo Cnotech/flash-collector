@@ -10,7 +10,7 @@ import {compress, release} from "./p7zip";
 import Ajv from "ajv"
 import infoSchema from "./schema/info.json"
 import cp from 'child_process'
-import {getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
+import {chooseBrowser, getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
 
 const shelljs = require('shelljs')
 
@@ -228,7 +228,8 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     getBrowserNickName,
     parseBrowserPath,
-    getAvailableBrowsers
+    getAvailableBrowsers,
+    chooseBrowser
 }
 
 export default function () {
