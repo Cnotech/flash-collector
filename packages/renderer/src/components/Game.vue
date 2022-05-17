@@ -38,8 +38,8 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="1" @click="launch('backup')">兼容模式</a-menu-item>
-                <a-menu-item key="2" @click="launch('origin')">
+                <a-menu-item key="1" @click="browserAlert('backup')">兼容模式</a-menu-item>
+                <a-menu-item key="2" @click="browserAlert('origin')">
                   源站播放
                 </a-menu-item>
               </a-menu>
@@ -103,7 +103,7 @@
                 </a-menu-item>
               </a-menu>
             </template>
-            <a-button :disabled="status" type="primary" @click="launch('normal')">
+            <a-button :disabled="status" type="primary" @click="browserAlert('normal')">
               {{ status ? "正在运行" : "开始游戏" }}
               <DownOutlined/>
             </a-button>
@@ -131,7 +131,7 @@
 <script lang="ts" setup>
 import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {GameInfo} from "../../../class";
+import {Config, GameInfo} from "../../../class";
 import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined, WarningFilled} from '@ant-design/icons-vue';
 import {message, Modal, notification} from "ant-design-vue";
 import cp from 'child_process'
@@ -140,7 +140,7 @@ import bridge from "../bridge";
 import {Option, Result} from "ts-results";
 import fs from "fs";
 import {bus} from "../eventbus";
-import {getConfig} from "../config";
+import {getConfig, setConfig} from "../config";
 import {shell} from "electron"
 
 const route = useRoute(), router = useRouter()
@@ -166,12 +166,17 @@ let status = ref<boolean>(false),
       }
     }),
     rename = ref<{ status: boolean, value: string }>({status: false, value: ""}),
-    alertSwf = ref(false)
+    alertSwf = ref(false),
+    port = ref(3000)
 
-
-let port = ref(3000)
+let browser: Config['browser'] = {
+  flash: "",
+  unity: "",
+  ignoreAlert: false
+}
 getConfig().then(c => {
   port.value = c.port
+  browser = c.browser
 })
 
 //启动游戏
@@ -264,7 +269,6 @@ function del() {
   })
 }
 
-//打开外部
 function unityAlert() {
   Modal.warning({
     title: "Unity3D 源站播放异常警告",
@@ -272,11 +276,40 @@ function unityAlert() {
     okText: "继续",
     cancelText: "取消",
     onOk() {
-      launch('origin')
+      browserAlert('origin')
     },
     closable: true,
     maskClosable: true
-    })
+  })
+}
+
+function browserAlert(method: 'normal' | 'backup' | 'origin') {
+  launch(method).then(() => {
+    let defaultAlert = false
+    if (info.value.type == 'flash' && browser.flash == "") {
+      defaultAlert = true
+    } else if (info.value.type == 'unity' && browser.unity == "") {
+      defaultAlert = true
+    }
+    if (!browser.ignoreAlert && defaultAlert) {
+      Modal.confirm({
+        title: "浏览器兼容性提示",
+        content: "如果浏览器提示不支持插件，请前往设置页面配置启动浏览器",
+        okText: "前往",
+        cancelText: "不再提示",
+        onOk() {
+          router.push('/setting')
+        },
+        onCancel() {
+          browser.ignoreAlert = true
+          getConfig().then(config => {
+            config.browser.ignoreAlert = true
+            setConfig(config, true)
+          })
+        }
+      })
+    }
+  })
 }
 
 function openFolder() {

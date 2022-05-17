@@ -75,7 +75,8 @@ interface Config {
     recentLaunch: { id: string, freq: number }[],
     browser: {
         flash: string,
-        unity: string
+        unity: string,
+        ignoreAlert: boolean
     }
 }
 

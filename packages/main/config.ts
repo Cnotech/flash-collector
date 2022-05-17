@@ -24,7 +24,8 @@ function geneInitConfig(): Config {
         recentLaunch: [],
         browser: {
             flash: "",
-            unity: ""
+            unity: "",
+            ignoreAlert: false
         }
     }
 }
@@ -38,7 +39,7 @@ function getConfig(): Config {
             if (!configValidator(config)) {
                 let msg = 'Config validation failed, use initial one'
                 if (configValidator.errors) {
-                    msg += '.Error message : ' + configValidator.errors[0].message
+                    msg += '.Error message : ' + configValidator.errors[0].propertyName + " " + configValidator.errors[0].message
                 }
                 addLoadErrors(msg)
                 config = geneInitConfig()

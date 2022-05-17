@@ -244,7 +244,8 @@ const save = async () => {
 
   config.browser = {
     flash: browser.value.flash.p,
-    unity: browser.value.unity.p
+    unity: browser.value.unity.p,
+    ignoreAlert: config.browser.ignoreAlert
   }
 
   setConfig(config, true)
