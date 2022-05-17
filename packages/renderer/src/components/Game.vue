@@ -298,27 +298,32 @@ onMounted(async () => {
     alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
   }
   //动态添加webview
-  webview = document.createElement("webview");
-  webview.setAttribute('style', "height:100%")
-  webview.setAttribute('src', info.value.online.originPage);
-  (document.getElementById('webview-container') as HTMLElement).appendChild(webview);
+  let webviewQuery = document.getElementsByTagName("webview")
+  if (webviewQuery.length > 0) {
+    webview = webviewQuery[0]
+  } else {
+    webview = document.createElement("webview");
+    webview.setAttribute('style', "height:100%")
+    webview.setAttribute('src', info.value.online.originPage);
+    (document.getElementById('webview-container') as HTMLElement).appendChild(webview);
 
-  //监听webview加载完成事件，执行脚本
-  webview.addEventListener('did-stop-loading', () => {
-    webview.executeJavaScript(banScript)
-  })
-  //监听webview新窗口事件
-  // webview.addEventListener('new-window', async (e:any) => {
-  //   if((e.url as string).slice(0,4)=="http"){
-  //     if(recentExtURL==e.url){
-  //       message.success("已打开外部链接")
-  //       recentExtURL=""
-  //       await shell.openExternal(e.url)
-  //     }else{
-  //       message.info("双击以打开外部链接")
-  //     }
-  //   }
-  // })
+    //监听webview加载完成事件，执行脚本
+    webview.addEventListener('did-stop-loading', () => {
+      webview.executeJavaScript(banScript)
+    })
+    //监听webview新窗口事件
+    // webview.addEventListener('new-window', async (e:any) => {
+    //   if((e.url as string).slice(0,4)=="http"){
+    //     if(recentExtURL==e.url){
+    //       message.success("已打开外部链接")
+    //       recentExtURL=""
+    //       await shell.openExternal(e.url)
+    //     }else{
+    //       message.info("双击以打开外部链接")
+    //     }
+    //   }
+    // })
+  }
 })
 
 //配置更新查询
