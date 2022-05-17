@@ -31,7 +31,7 @@
     <br/><br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
-      <a-button @click="restart" :type="oldPort==port?'default':'primary'">应用</a-button>
+      <a-button :type="oldPort===port?'default':'primary'" @click="restart">应用</a-button>
     </a-space>
   </a-card>
   <br/>

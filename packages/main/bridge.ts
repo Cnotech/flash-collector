@@ -10,6 +10,7 @@ import {compress, release} from "./p7zip";
 import Ajv from "ajv"
 import infoSchema from "./schema/info.json"
 import cp from 'child_process'
+import {getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
 
 const shelljs = require('shelljs')
 
@@ -17,10 +18,17 @@ const ajv = new Ajv()
 const infoValidator = ajv.compile(infoSchema)
 
 const registry: { [name: string]: (...args: any) => any } = {
-    launch: async (payload: { type: string, folder: string, backup: boolean }): Promise<Result<{ type: string, folder: string, backup: boolean }, string>> => {
-        let status = await manager.launch(payload.type, payload.folder, payload.backup)
-        if (status) return new Ok(payload)
-        else return new Err("Error:Install dependency first")
+    launch: async (type: string, folder: string, method: 'normal' | 'backup' | 'origin'): Promise<Result<{ type: string, folder: string, method: 'normal' | 'backup' | 'origin' }, string>> => {
+        let res = await manager.launch(type, folder, method)
+        if (res) {
+            return new Ok({
+                type,
+                folder,
+                method
+            })
+        } else {
+            return new Err("Error:Install library first")
+        }
     },
     query: async (payload: { type: string, folder: string }) => {
         return manager.query(payload.type, payload.folder)
@@ -207,17 +215,20 @@ const registry: { [name: string]: (...args: any) => any } = {
             }
             //压缩
             if(!fs.existsSync("exports")) shelljs.mkdir("exports")
-            let zipRes=await compress("ZIP-TEMP",dRes.filePath,5)
-            if(!zipRes){
+            let zipRes = await compress("ZIP-TEMP", dRes.filePath, 5)
+            if (!zipRes) {
                 return new Err("Error:Can't compress into package")
             }
             return new Ok(dRes.filePath)
         }
     },
-    getLoadErrors:manager.getLoadErrors,
-    selectInExplorer:(p:string)=>{
+    getLoadErrors: manager.getLoadErrors,
+    selectInExplorer: (p: string) => {
         cp.execSync(`explorer /select,"${p}"`)
-    }
+    },
+    getBrowserNickName,
+    parseBrowserPath,
+    getAvailableBrowsers
 }
 
 export default function () {

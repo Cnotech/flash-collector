@@ -72,13 +72,22 @@ interface Config {
     },
     libCheck: boolean,
     port: number,
-    recentLaunch: { id: string, freq: number }[]
+    recentLaunch: { id: string, freq: number }[],
+    browser: {
+        flash: string,
+        unity: string
+    }
 }
 
 interface LoginStatus {
     name: string,
     login: boolean,
     nickName: string
+}
+
+interface Browser {
+    name: string,
+    allowedPaths: string[]
 }
 
 export {
@@ -88,5 +97,6 @@ export {
     Request,
     Reply,
     LoginStatus,
-    Config
+    Config,
+    Browser
 }

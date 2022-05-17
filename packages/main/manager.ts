@@ -324,38 +324,46 @@ function menuConstructor(win: BrowserWindow): Menu {
     return menu
 }
 
-async function launch(type: string, folder: string, backup: boolean): Promise<boolean> {
+async function launch(type: string, folder: string, method: 'normal' | 'backup' | 'origin'): Promise<boolean> {
     return new Promise(async (resolve) => {
         const infoConfig = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString()) as GameInfo,
             config = getConfig()
         switch (infoConfig.type) {
             case "flash":
-                if (backup) {
+                if (method == 'backup') {
                     if (!checkDependency('flash')) {
                         resolve(false)
                     } else {
-                        await shell.openExternal(`http://localhost:${config.port}/play/flash/${folder}`)
+                        await openWithBrowser(config.browser.flash, `http://localhost:${config.port}/play/flash/${folder}`)
                         resolve(true)
                     }
-                } else {
+                } else if (method == 'normal') {
                     cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join(LOCAL_GAME_LIBRARY, type, folder, infoConfig.local?.binFile ?? '')}"`, () => {
                         resolve(true)
                     })
+                } else if (method == 'origin') {
+                    await openWithBrowser(config.browser.flash, infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
+                    resolve(true)
                 }
                 break
             case "unity":
                 if (!checkDependency('unity')) {
                     resolve(false)
                 } else {
-                    await shell.openExternal(`http://localhost:${config.port}/play/unity/${folder}`)
-                    resolve(true)
+                    if (method == 'normal') {
+                        await openWithBrowser(config.browser.unity, `http://localhost:${config.port}/play/unity/${folder}`)
+                        resolve(true)
+                    } else if (method == 'origin') {
+                        await openWithBrowser(config.browser.unity, infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
+                        resolve(true)
+                    }
                 }
                 break
             case "h5":
-                if (backup) {
-                    await shell.openExternal(infoConfig.online.binUrl)
+                if (method == 'origin') {
+                    await openWithBrowser("", infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
                     resolve(true)
-                } else {
+                } else if (method == 'normal') {
                     const win = new BrowserWindow({
                         width: 1200,
                         height: 800,
@@ -475,6 +483,17 @@ async function del(type: string, folder: string): Promise<boolean> {
     return true
 }
 
+async function openWithBrowser(browser: string, url: string): Promise<void> {
+    if (browser == "") {
+        //使用默认方式打开
+        return shell.openExternal(encodeURI(url))
+    } else {
+        return new Promise((res) => {
+            cp.exec(`"${browser}" "${encodeURI(url)}"`, () => res())
+        })
+    }
+}
+
 export default {
     downloader,
     parser,
@@ -488,5 +507,6 @@ export default {
     install,
     localSearch,
     del,
-    getLoadErrors
+    getLoadErrors,
+    openWithBrowser
 }

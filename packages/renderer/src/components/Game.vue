@@ -38,13 +38,13 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="1" @click="launch(true)">兼容模式</a-menu-item>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title)">
+                <a-menu-item key="1" @click="launch('backup')">兼容模式</a-menu-item>
+                <a-menu-item key="2" @click="launch('origin')">
                   源站播放
                 </a-menu-item>
               </a-menu>
             </template>
-            <a-button :disabled="status" type="primary" @click="launch(false)">
+            <a-button :disabled="status" type="primary" @click="launch('normal')">
               {{ status ? "正在运行" : "开始游戏" }}
               <DownOutlined/>
             </a-button>
@@ -75,12 +75,12 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title)">
+                <a-menu-item key="2" @click="launch('origin')">
                   源站播放
                 </a-menu-item>
               </a-menu>
             </template>
-            <a-button :disabled="status" type="primary" @click="launch(false)">
+            <a-button :disabled="status" type="primary" @click="launch('normal')">
               {{ status ? "正在运行" : "开始游戏" }}
               <DownOutlined/>
             </a-button>
@@ -98,12 +98,12 @@
           <a-dropdown>
             <template #overlay>
               <a-menu>
-                <a-menu-item key="2" @click="openExt(info.online.truePage+'#flash-collector-0?title='+info.title,true)">
+                <a-menu-item key="2" @click="unityAlert">
                   源站播放
                 </a-menu-item>
               </a-menu>
             </template>
-            <a-button :disabled="status" type="primary" @click="launch(false)">
+            <a-button :disabled="status" type="primary" @click="launch('normal')">
               {{ status ? "正在运行" : "开始游戏" }}
               <DownOutlined/>
             </a-button>
@@ -131,7 +131,6 @@
 <script lang="ts" setup>
 import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {shell} from "electron";
 import {GameInfo} from "../../../class";
 import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined, WarningFilled} from '@ant-design/icons-vue';
 import {message, Modal, notification} from "ant-design-vue";
@@ -175,14 +174,14 @@ getConfig().then(c => {
 })
 
 //启动游戏
-async function launch(backup: boolean) {
+async function launch(method: 'normal' | 'backup' | 'origin') {
   playingList.push(info.value.local?.folder as string)
   status.value = true
-  let res: Result<{ type: string, folder: string, backup: boolean }, string> = await bridge('launch', {
-    type: info.value.type,
-    folder: info.value.local?.folder,
-    backup
-  })
+  let res: Result<{ type: string, folder: string, method: 'normal' | 'backup' | 'origin' }, string> = await bridge('launch',
+      info.value.type,
+      info.value.local?.folder,
+      method
+  )
   if (res.ok) {
     const payload = res.val
     playingList = playingList.filter(val => val != payload.folder)
@@ -265,20 +264,18 @@ function del() {
 }
 
 //打开外部
-function openExt(url: string, unityAlert?: boolean) {
-  if (unityAlert) {
-    Modal.warning({
-      title: "Unity3D 源站播放异常警告",
-      content: "由于源站点代码结构专为嵌入式页面适配，直接在源站播放 Unity3D 游戏可能会出现窗口点按漂移、无法关闭等问题，建议仅在本地启动；如果你仍然继续且遇到了此问题，请通过任务栏关闭浏览器窗口",
-      okText: "继续",
-      cancelText: "取消",
-      onOk() {
-        shell.openExternal(encodeURI(url))
-      },
-      closable: true,
-      maskClosable: true
+function unityAlert() {
+  Modal.warning({
+    title: "Unity3D 源站播放异常警告",
+    content: "由于源站点代码结构专为嵌入式页面适配，直接在源站播放 Unity3D 游戏可能会出现窗口点按漂移、无法关闭等问题，建议仅在本地启动；如果你仍然继续且遇到了此问题，请通过任务栏关闭浏览器窗口",
+    okText: "继续",
+    cancelText: "取消",
+    onOk() {
+      launch('origin')
+    },
+    closable: true,
+    maskClosable: true
     })
-  } else shell.openExternal(encodeURI(url))
 }
 
 function openFolder() {
