@@ -173,7 +173,11 @@ async function confirm() {
         }
       })
     } else {
-      message.success(r.val)
+      message.success({
+        content: r.val,
+        key: "Confirm",
+        duration: 3
+      })
     }
     changeState('None')
   } else {
