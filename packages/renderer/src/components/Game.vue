@@ -287,7 +287,6 @@ function openFolder() {
   }
 }
 
-let recentExtURL = ""
 onMounted(async () => {
   //配置查询
   const qRes = await query()

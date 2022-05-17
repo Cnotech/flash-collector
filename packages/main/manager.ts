@@ -489,8 +489,11 @@ async function openWithBrowser(browser: string, url: string): Promise<void> {
         return shell.openExternal(encodeURI(url))
     } else {
         return new Promise((res) => {
-            cp.exec(`"${browser}" "${encodeURI(url)}"`)
-            setTimeout(res, 2000)
+            let proc = cp.exec(`"${browser}" "${encodeURI(url)}"`)
+            setTimeout(() => {
+                proc.kill() //此处是为了兼容傻逼搜狗浏览器而设计的杀进程，写的什么狗屁玩意(o_ _)ﾉ
+                res()
+            }, 2000)
         })
     }
 }
