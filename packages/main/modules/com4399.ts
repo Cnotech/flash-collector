@@ -349,8 +349,15 @@ function parseID(url: string): Result<string, string> {
 }
 
 function getNickName(cookie: string): Result<string, string> {
-    let m = cookie.match(/Qnick=.+;/)
-    if (m == null) return new Err("Error:Can't match nick name")
+    let m = cookie.match(/[PQ]nick=[^;]{2,};/)
+    if (m == null) {
+        m = cookie.match(/Puser=[^;]{2,};/)
+        if (m == null) {
+            return new Err("Error:Can't match nick name")
+        } else {
+            return new Ok(decodeURI(m[0].split(/[=;]/)[1]))
+        }
+    }
     return new Ok(decodeURI(m[0].split(/[=;]/)[1]))
 }
 
