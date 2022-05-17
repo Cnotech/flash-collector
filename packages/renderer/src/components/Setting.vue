@@ -50,7 +50,7 @@
     <br/><br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
-      <a-button :type="oldPort===port?'default':'primary'" @click="restart">立即应用</a-button>
+      <a-button :type="oldPort==port?'default':'primary'" @click="restart">立即应用</a-button>
     </a-space>
   </a-card>
   <br/>
@@ -76,7 +76,7 @@
 
 <script lang="ts" setup>
 import type {SelectProps} from 'ant-design-vue';
-import {message} from "ant-design-vue";
+import {message, Modal} from "ant-design-vue";
 import {onMounted, onUnmounted, ref, watch} from "vue";
 import bridge from "../bridge";
 import {getConfig, setConfig} from "../config";
@@ -240,7 +240,7 @@ const save = async () => {
 
   config.libCheck = libCheck.value
 
-  config.port = port.value
+  config.port = Number(port.value)
 
   config.browser = {
     flash: browser.value.flash.p,
@@ -254,10 +254,27 @@ const save = async () => {
 onUnmounted(save)
 
 router.beforeEach(() => {
-  if(route.path=='/setting'&&oldPort.value!=port.value){
-    message.info("更改的游戏服务端口将会在应用重启后生效")
+  //检查端口号
+  if (!validPort()) {
+    return false
   }
-  return validPort()
+  //检查端口是否被修改
+  if (route.path == '/setting' && oldPort.value != port.value) {
+    Modal.confirm({
+      title: "需要重启应用",
+      content: "您更改了游戏服务端口，在访问其他页面之前需要重启应用",
+      okText: "重启",
+      cancelText: "取消",
+      onOk() {
+        restart()
+      },
+      onCancel() {
+        port.value = oldPort.value
+      }
+    })
+    return false
+  }
+  return true
 })
 
 async function restart() {
