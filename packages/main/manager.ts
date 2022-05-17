@@ -23,22 +23,46 @@ let gameList: List = {
     unity: [],
     h5: []
 }
-let loadErrors:string[]=[]
+let loadErrors: string[] = []
 
-//建立静态服务器
-const app = express()
-app.use((req, res, next) => {
-    if (req.path.indexOf('Player.html') != -1 && req.path.indexOf('flash') != -1) {
-        //请求Flash的Player页面
-        res.sendFile(path.join(process.cwd(), "retinue", "Flash_Web_Player", "Player.html"))
-    } else {
-        next()
-    }
-})
-app.use('/retinue', express.static('retinue'))
-app.use('/games', express.static('games'))
-app.use('/temp', express.static('UNZIP-TEMP'))
-app.listen(getConfig().port)
+spawnServer()
+
+//启动服务器
+function spawnServer() {
+    const app = express()
+    app.use((req, res, next) => {
+        if (req.path.indexOf('Player.html') != -1 && req.path.indexOf('flash') != -1) {
+            //请求Flash的Player页面
+            res.sendFile(path.join(process.cwd(), "retinue", "Flash_Web_Player", "Player.html"))
+        } else {
+            next()
+        }
+    })
+    app.use('/retinue', express.static('retinue'))
+    app.use('/games', express.static('games'))
+    app.use('/temp', express.static('UNZIP-TEMP'))
+    app.get('/play/:type/:folder', (req, res) => {
+        const {type, folder} = req.params, config = getConfig()
+        //查询信息
+        const info = query(type, folder)
+        //若不存在，返回404
+        if (!info.some) {
+            res.sendStatus(404)
+            return
+        }
+        const infoConfig = info.val
+        //重定向到真实路径
+        switch (type) {
+            case 'flash':
+                res.redirect(`http://localhost:${config.port}/games/flash/${folder}/Player.html?title=${infoConfig.title}&load=${infoConfig.local?.binFile}`)
+                break
+            case 'unity':
+                res.redirect(`http://localhost:${config.port}/retinue/Unity3D_Web_Player/Player.html?title=${infoConfig.title}&load=/games/unity/${folder}/${infoConfig.local?.binFile}`)
+                break
+        }
+    })
+    app.listen(getConfig().port)
+}
 
 //初始化全部解析器，返回配置和登录状态
 function init(): { config: Config, status: LoginStatus[] } {
@@ -310,7 +334,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                     if (!checkDependency('flash')) {
                         resolve(false)
                     } else {
-                        await shell.openExternal(`http://localhost:${config.port}/games/flash/${folder}/Player.html?title=${infoConfig.title}&load=${infoConfig.local?.binFile}`)
+                        await shell.openExternal(`http://localhost:${config.port}/play/flash/${folder}`)
                         resolve(true)
                     }
                 } else {
@@ -323,7 +347,7 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
                 if (!checkDependency('unity')) {
                     resolve(false)
                 } else {
-                    await shell.openExternal(`http://localhost:${config.port}/retinue/Unity3D_Web_Player/Player.html?title=${infoConfig.title}&load=/games/unity/${folder}/${infoConfig.local?.binFile}`)
+                    await shell.openExternal(`http://localhost:${config.port}/play/unity/${folder}`)
                     resolve(true)
                 }
                 break
@@ -379,15 +403,24 @@ async function launch(type: string, folder: string, backup: boolean): Promise<bo
 
 const infoCache = new Map<string, GameInfo>()
 
-function query(type: string, folder: string): GameInfo {
+function query(type: string, folder: string): Option<GameInfo> {
     const key = type + folder
     let q = infoCache.get(key)
     if (q != undefined) {
-        return q
+        return new Some(q)
     } else {
-        let info = JSON.parse(fs.readFileSync(path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")).toString())
-        infoCache.set(key, info)
-        return info
+        const p = path.join(LOCAL_GAME_LIBRARY, type, folder, "info.json")
+        if (!fs.existsSync(p)) {
+            return None
+        }
+        let info = JSON.parse(fs.readFileSync(p).toString()) as GameInfo
+        if (infoValidator(info)) {
+            infoCache.set(key, info)
+            return new Some(info)
+        } else {
+            infoValidator.errors = null
+            return None
+        }
     }
 }
 
@@ -405,11 +438,9 @@ async function install(type: 'flash' | 'unity'): Promise<string> {
                 })
             })
         } else {
-            if (process.arch == "x64") {
-                cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer64.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
-            } else {
+            cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer64.exe')}" /S`, () => {
                 cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
-            }
+            })
         }
     })
 }

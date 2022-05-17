@@ -134,11 +134,11 @@ import {useRoute, useRouter} from 'vue-router';
 import {shell} from "electron";
 import {GameInfo} from "../../../class";
 import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined, WarningFilled} from '@ant-design/icons-vue';
-import {message, Modal} from "ant-design-vue";
+import {message, Modal, notification} from "ant-design-vue";
 import cp from 'child_process'
 import path from "path";
 import bridge from "../bridge";
-import {Result} from "ts-results";
+import {Option, Result} from "ts-results";
 import fs from "fs";
 import {bus} from "../eventbus";
 import {getConfig} from "../config";
@@ -205,6 +205,12 @@ async function launch(backup: boolean) {
           key: "bin",
           duration: 0
         })
+        if (info.value.type == 'flash') {
+          notification.info({
+            message: "正在为您安装纯净版 Flash Player",
+            description: "此版本与毒瘤版相互冲突，如果需要安装毒瘤版需要提前卸载纯净版"
+          })
+        }
         bridge('install', info.value.type).then(content => message.success({
           content,
           key: "bin",
@@ -216,7 +222,7 @@ async function launch(backup: boolean) {
 }
 
 //查询信息
-async function query(): Promise<GameInfo> {
+async function query(): Promise<Option<GameInfo>> {
   let s = (route.query.id as string).split(";")
   return bridge('query', {type: s[0], folder: s[1]})
 }
@@ -286,7 +292,9 @@ function openFolder() {
 let recentExtURL = ""
 onMounted(async () => {
   //配置查询
-  info.value = await query()
+  const qRes = await query()
+  if (!qRes.some) return
+  info.value = qRes.val
   //判断是否需要显示swf警告
   if (info.value.type == 'flash') {
     alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
@@ -318,7 +326,9 @@ onMounted(async () => {
 //配置更新查询
 router.afterEach(async () => {
   if (route.query.id == null) return
-  info.value = await query()
+  const qRes = await query()
+  if (!qRes.some) return
+  info.value = qRes.val
   status.value = !!(info.value.local && playingList.includes(info.value.local.folder));
   //判断是否需要显示swf警告
   if (info.value.type == 'flash') {

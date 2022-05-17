@@ -105,7 +105,7 @@
 <script lang="ts" setup>
 import {createVNode, onMounted, onUnmounted, ref} from 'vue';
 import {clipboard, shell} from "electron";
-import {Result} from "ts-results";
+import {Option, Result} from "ts-results";
 import {Config, GameInfo, LoginStatus} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
 import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
@@ -135,11 +135,13 @@ getConfig().then(async (c) => {
   //配置端口
   port.value = c.port
   //配置最近启动
-  let s, res: { info: GameInfo, freq: number }[] = [], count = 0
+  let s, res: { info: GameInfo, freq: number }[] = [], count = 0, qRes
   for (let n of c.recentLaunch) {
     s = n.id.split(';')
+    qRes = await bridge('query', {type: s[0], folder: s[1]}) as Option<GameInfo>
+    if (!qRes.some) continue
     res.push({
-      info: await bridge('query', {type: s[0], folder: s[1]}),
+      info: qRes.val,
       freq: n.freq
     })
     count++
