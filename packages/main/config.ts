@@ -3,6 +3,7 @@ import path from "path";
 import type {Config} from "../class";
 import configSchema from "./schema/config.json"
 import Ajv from "ajv";
+import {addLoadErrors} from "./manager"
 
 const ajv = new Ajv()
 const configValidator = ajv.compile(configSchema)
@@ -35,8 +36,11 @@ function getConfig(): Config {
 
             //校验
             if (!configValidator(config)) {
-                console.log('Warning:Config validation failed, use initial one')
-                if (configValidator.errors) console.log(configValidator.errors)
+                let msg = 'Config validation failed, use initial one'
+                if (configValidator.errors) {
+                    msg += '.Error message : ' + configValidator.errors[0].message
+                }
+                addLoadErrors(msg)
                 config = geneInitConfig()
             }
 
@@ -74,6 +78,5 @@ setInterval(() => {
 
 export {
     getConfig,
-    setConfig,
-    config
+    setConfig
 }

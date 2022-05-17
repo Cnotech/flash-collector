@@ -108,8 +108,7 @@ import {bus} from './eventbus'
 import {List} from "../../class";
 import bridge from "./bridge";
 import {getConfig} from "./config";
-import {ipcRenderer} from "electron"
-import {message, notification} from 'ant-design-vue';
+import {notification} from 'ant-design-vue';
 import {Option} from "ts-results";
 
 const router = useRouter(), route = useRoute()
@@ -152,8 +151,8 @@ async function refreshSidebar() {
   let err:Option<string>=await bridge('getLoadErrors')
   if(err.some){
     notification.error({
-      message:"读取游戏配置出错",
-      description:err.val
+      message: "读取配置出错",
+      description: err.val
     })
   }
 }

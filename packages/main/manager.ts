@@ -284,15 +284,19 @@ function checkDependency(type: 'flash' | 'unity'): boolean {
 }
 
 function getLoadErrors():Option<string> {
-    if(loadErrors.length==0) return None
+    if (loadErrors.length == 0) return None
     else {
-        let msg=""
-        for(let m of loadErrors){
-            msg+=m+'\n'
+        let msg = ""
+        for (let m of loadErrors) {
+            msg += m + '\n'
         }
-        loadErrors=[]
+        loadErrors = []
         return new Some(msg)
     }
+}
+
+export function addLoadErrors(msg: string) {
+    loadErrors.push(msg)
 }
 
 function menuConstructor(win: BrowserWindow): Menu {
@@ -497,6 +501,7 @@ async function openWithBrowser(browser: string, url: string): Promise<void> {
         })
     }
 }
+
 
 export default {
     downloader,
