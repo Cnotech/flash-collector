@@ -161,16 +161,20 @@ async function confirm() {
   let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)))
   loading.value=false
   if (r.ok) {
-    message.success({
-      content: createVNode(`span`, {
-        innerHTML: `成功导出至 ${r.val}，<a>点击查看</a>`
-      }),
-      key: "Confirm",
-      duration: 3,
-      onClick() {
-        bridge('selectInExplorer', r.val)
-      }
-    })
+    if (state.value == 'Export') {
+      message.success({
+        content: createVNode(`span`, {
+          innerHTML: `成功导出至 ${r.val}，<a>点击查看</a>`
+        }),
+        key: "Confirm",
+        duration: 3,
+        onClick() {
+          bridge('selectInExplorer', r.val)
+        }
+      })
+    } else {
+      message.success(r.val)
+    }
     changeState('None')
   } else {
     message.error({content: r.val, key: "Confirm", duration: 3})
