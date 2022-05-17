@@ -175,6 +175,7 @@ const registry: { [name: string]: (...args: any) => any } = {
                     shelljs.rm("-rf", target)
                 }
                 //复制
+                shelljs.mkdir("-p", path.join("games", game.type))
                 shelljs.cp('-R', source, target)
                 //校验
                 if (!fs.existsSync(target)) {
@@ -224,7 +225,11 @@ const registry: { [name: string]: (...args: any) => any } = {
     },
     getLoadErrors: manager.getLoadErrors,
     selectInExplorer: (p: string) => {
-        cp.execSync(`explorer /select,"${p}"`)
+        try {
+            cp.execSync(`explorer /select,"${p}"`)
+        } catch (e) {
+
+        }
     },
     getBrowserNickName,
     parseBrowserPath,
