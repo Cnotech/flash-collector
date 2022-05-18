@@ -341,10 +341,6 @@ onMounted(async () => {
   }
 
   //监听webview加载完成事件，执行脚本
-  webview.addEventListener('click', (e: any) => {
-    e.preventDefault()
-    console.log('click')
-  })
   webview.addEventListener('did-stop-loading', () => {
     webview.executeJavaScript(banScript).catch(() => {
     })
