@@ -45,7 +45,7 @@ async function getCookie(): Promise<Result<string, string>> {
         win.webContents.on('did-stop-loading', async () => {
             if (init) {
                 init = false
-                win.setTitle("使用已实名认证的成人账户登录7k7k")
+                win.setTitle("请登录7k7k以继续")
                 //点击登录
                 await win.webContents.executeJavaScript("document.querySelector('#header > div.header_top > div > div.header_top_r > div.login_no > div.h_login.login_btn > span').click()")
                 //清空临时cookie
