@@ -5,7 +5,7 @@
 // @match       *://*.7k7k.com/*
 // @grant       none
 // @license MPL-2.0
-// @version     1.1
+// @version     1.2
 // @author      Cnotech
 // @description Flash Collector 用户脚本，用于解除 4399.com 的源站播放 Referer 限制、增加源站播放标题
 // ==/UserScript==
@@ -15,11 +15,6 @@ function query(key) {
 
     if (m == null) return null
     else return m[0].split("=")[1]
-}
-
-function jump(url) {
-    console.log(`Jump to ${url}`)
-    document.location.href = url
 }
 
 function setTitle() {
@@ -39,29 +34,14 @@ function setTitle() {
 }
 
 function com4399() {
-    //读取hash
-    const hash = document.location.hash
-
-    //匹配标记
-    let m = hash.match(/#flash-collector-\d/)
-    if (m == null) return
-    let step = Number(m[0].slice(-1))
-
-    //状态机
-    const cur = document.location.href.split("#")[0]
-    switch (step) {
-        case 0:
-            //跳转到 4399 首页
-            jump(`http://www.4399.com/#flash-collector-1?next=${cur}&title=${query("title")}`)
-            break
-        case 1:
-            //跳回真实页面
-            let n = query("next")
-            if (n) jump(n + `#flash-collector-2?title=${query("title")}`)
-            break
-        case 2:
-            //配置标题
-            setTitle()
+    //判断状态
+    const url = document.location.href
+    if (url.indexOf("#flash-collector-0") !== -1) {
+        //重载页面
+        document.location.href = url.replace("#flash-collector-0", "")
+    } else {
+        //配置标题
+        setTitle()
     }
 }
 
