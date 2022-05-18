@@ -205,7 +205,7 @@ async function launch(method: 'normal' | 'backup' | 'origin') {
       okText: "安装",
       cancelText: "取消",
       onOk() {
-        message.info({
+        message.loading({
           content: `正在安装运行库...`,
           key: "bin",
           duration: 0
@@ -213,7 +213,7 @@ async function launch(method: 'normal' | 'backup' | 'origin') {
         if (info.value.type == 'flash') {
           notification.info({
             message: "正在为您安装纯净版 Flash Player",
-            description: "此版本与毒瘤版相互冲突，如果需要安装毒瘤版需要提前卸载纯净版"
+            description: "此版本与毒瘤版互不兼容，如果需要安装毒瘤版需要提前卸载纯净版"
           })
         }
         bridge('install', info.value.type).then(content => message.success({
@@ -338,24 +338,29 @@ onMounted(async () => {
     webview.setAttribute('style', "height:100%")
     webview.setAttribute('src', info.value.online.originPage);
     (document.getElementById('webview-container') as HTMLElement).appendChild(webview);
-
-    //监听webview加载完成事件，执行脚本
-    webview.addEventListener('did-stop-loading', () => {
-      webview.executeJavaScript(banScript)
-    })
-    //监听webview新窗口事件
-    // webview.addEventListener('new-window', async (e:any) => {
-    //   if((e.url as string).slice(0,4)=="http"){
-    //     if(recentExtURL==e.url){
-    //       message.success("已打开外部链接")
-    //       recentExtURL=""
-    //       await shell.openExternal(e.url)
-    //     }else{
-    //       message.info("双击以打开外部链接")
-    //     }
-    //   }
-    // })
   }
+
+  //监听webview加载完成事件，执行脚本
+  webview.addEventListener('click', (e: any) => {
+    e.preventDefault()
+    console.log('click')
+  })
+  webview.addEventListener('did-stop-loading', () => {
+    webview.executeJavaScript(banScript).catch(() => {
+    })
+  })
+  //监听webview新窗口事件
+  // webview.addEventListener('new-window', async (e:any) => {
+  //   if((e.url as string).slice(0,4)=="http"){
+  //     if(recentExtURL==e.url){
+  //       message.success("已打开外部链接")
+  //       recentExtURL=""
+  //       await shell.openExternal(e.url)
+  //     }else{
+  //       message.info("双击以打开外部链接")
+  //     }
+  //   }
+  // })
 })
 
 //配置更新查询

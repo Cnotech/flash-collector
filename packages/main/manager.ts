@@ -450,8 +450,10 @@ async function install(type: 'flash' | 'unity'): Promise<string> {
                 })
             })
         } else {
-            cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer64.exe')}" /S`, () => {
-                cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
+            cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer.exe')}" /S`, () => {
+                if (process.arch == "x64") {
+                    cp.exec(`"${path.join('retinue', 'Unity3D_Web_Player', 'installer', 'UnityWebPlayer64.exe')}" /S`, () => resolve("Unity3D Web Player 安装完成"))
+                } else resolve("Unity3D Web Player 安装完成")
             })
         }
     })
