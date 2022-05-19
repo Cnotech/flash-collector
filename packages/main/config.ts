@@ -12,6 +12,12 @@ const CONFIG_FILE = "config.json"
 let config: Config | null = null,
     clear = true
 
+const configPatch = {
+    browser: {
+        ignoreAlert: true
+    }
+}
+
 function geneInitConfig(): Config {
     return {
         cookies: {},
@@ -30,16 +36,34 @@ function geneInitConfig(): Config {
     }
 }
 
+function fixConfig(config: any, patch: any): any {
+    if (typeof config != "object") return config
+    for (let key in patch) {
+        if (!config.hasOwnProperty(key)) {
+            //补充
+            config[key] = patch[key]
+            console.log(`Fix missing key ${key}`)
+        } else if (typeof patch[key] == "object" && !Array.isArray(patch[key])) {
+            //递归地补充object
+            config[key] = fixConfig(config[key], patch[key])
+        }
+    }
+    return config
+}
+
 function getConfig(): Config {
     if (config == null) {
         if (fs.existsSync(CONFIG_FILE)) {
             config = JSON.parse(fs.readFileSync(CONFIG_FILE).toString()) as Config
 
+            //修补
+            config = fixConfig(config, configPatch)
             //校验
             if (!configValidator(config)) {
                 let msg = 'Config validation failed, use initial one'
                 if (configValidator.errors) {
-                    msg += '.Error message : ' + configValidator.errors[0].propertyName + " " + configValidator.errors[0].message
+                    msg += '.Error message : ' + JSON.stringify(configValidator.errors[0])
+                    // msg += '.Error message : ' + configValidator.errors[0].propertyName + " " + configValidator.errors[0].message
                 }
                 addLoadErrors(msg)
                 config = geneInitConfig()
