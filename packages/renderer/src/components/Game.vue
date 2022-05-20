@@ -52,15 +52,8 @@
           <a-popover :title="alertSwf?'此游戏可能无法在本地正确运行！':'无法在本地正确运行游戏？'" placement="rightBottom" trigger="hover">
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
-              <p>请按照以下步骤手动下载缺失的文件：</p>
-              <p>0. 确保你的默认浏览器支持 Flash 插件，如果不支持推荐使用360极速浏览器X；对于 4399 这一类有源站播放 Referer 限制的网页请先<a
-                  @click="router.push('/setting')">前往“设置”界面</a>安装配套用户脚本</p>
-              <p>1. 点击“源站播放”，按下 F12 并切换到“网络”选项卡，然后刷新页面并正常玩一会游戏（至少要通过在本地被卡住的位置）
-              </p>
-              <p>2. 将网络请求中 {{ info?.local?.binFile }} 以外的其他.swf文件（也可能会有非.swf文件需要加载）下载到
-                <a @click="openFolder">游戏存储目录</a>，<b>注意保持相对路径正确</b></p>
-              <p>3. 打开兼容模式，按下 F12 并切换到“控制台”选项卡查看文件是否正确加载，如出现 404 则检查对应文件是否正确放置</p>
-              <p>如果按照此方法做了之后游戏还是无法在本地正确运行，那可能是此 Flash 的异步加载逻辑过于复杂，我也不清楚咋办，建议直接在线玩（确信）</p>
+              <p>请<a @click="router.push('/setting')">前往“设置”界面</a>启用智能嗅探功能下载缺失的文件</p>
+
               <br/>
               <p>关于源站播放：</p>
               <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
@@ -289,11 +282,11 @@ function browserAlert(method: 'normal' | 'backup' | 'origin') {
     const config = await getConfig()
     if (info.value.type == 'flash' && method == 'origin' && config.smartSniffing.enable) {
       message.loading({
-        content: "正在嗅探异步加载的 Flash 资源，关闭浏览器以结束嗅探",
+        content: "正在嗅探异步加载的 Flash 资源，嗅探过程中浏览器可能会卡顿，关闭浏览器以结束嗅探",
         key: "sniffing",
         duration: 0
       })
-      let sniffingRes = await bridge('sniffing', info.value.online.truePage + '#flash-collector-0?title=' + info.value.title) as Result<string[], string>
+      let sniffingRes = await bridge('sniffing', info.value.online.truePage + '#flash-collector-0?title=' + info.value.title, JSON.parse(JSON.stringify(info.value))) as Result<string[], string>
       if (sniffingRes.err) {
         message.error({
           content: "资源嗅探失败，请先关闭启动浏览器再点击“源站播放”：" + sniffingRes.val,
@@ -303,14 +296,14 @@ function browserAlert(method: 'normal' | 'backup' | 'origin') {
       } else {
         if (sniffingRes.val.length > 0) {
           message.success({
-            content: `嗅探到${sniffingRes.val.length}个新资源`,
+            content: `资源嗅探成功：嗅探到${sniffingRes.val.length}个新资源`,
             key: "sniffing",
             duration: 3
           })
           console.log(sniffingRes.val)
         } else {
           message.info({
-            content: "没有嗅探到新的资源，再多玩几关试试？",
+            content: "没有嗅探到新的资源，玩的关卡越多嗅探的资源越全面哦",
             key: "sniffing",
             duration: 3
           })

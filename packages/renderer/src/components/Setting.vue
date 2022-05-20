@@ -36,7 +36,9 @@
   <br/>
   <a-card title="智能嗅探">
     <a-space direction="vertical">
-      <p>此功能可以帮助下载异步加载的在线小游戏，当您使用“源站播放”功能时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地；此功能需要浏览器支持</p>
+      <p>此功能可以帮助下载异步加载的在线小游戏，当您使用“源站播放”功能时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地</p>
+      <p>需要浏览器支持 Chrome DevTools Protocol 才能进行嗅探，嗅探过程中浏览器可能会卡顿</p>
+      <p>注意：嗅探过程中请尽可能玩一遍全部关卡以保证缺失的文件被嗅探全面；如果嗅探结束后仍不能在本地正确播放说明这个 Flash 可能过于复杂，建议还是在线玩</p>
       <a-switch v-model:checked="smartSniffing.enable" checked-children="启用" un-checked-children="关闭"
                 @change="checkSmartSniffing"/>
       <a-space v-if="smartSniffing.enable" size="large">
