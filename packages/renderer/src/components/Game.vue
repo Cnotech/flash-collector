@@ -284,7 +284,41 @@ function unityAlert() {
 }
 
 function browserAlert(method: 'normal' | 'backup' | 'origin') {
-  launch(method).then(() => {
+  launch(method).then(async () => {
+    //配置嗅探
+    const config = await getConfig()
+    if (info.value.type == 'flash' && method == 'origin' && config.smartSniffing.enable) {
+      message.loading({
+        content: "正在嗅探异步加载的 Flash 资源，关闭浏览器以结束嗅探",
+        key: "sniffing",
+        duration: 0
+      })
+      let sniffingRes = await bridge('sniffing', info.value.online.truePage + '#flash-collector-0?title=' + info.value.title) as Result<string[], string>
+      if (sniffingRes.err) {
+        message.error({
+          content: "资源嗅探失败，请先关闭启动浏览器再点击“源站播放”：" + sniffingRes.val,
+          key: "sniffing",
+          duration: 3
+        })
+      } else {
+        if (sniffingRes.val.length > 0) {
+          message.success({
+            content: `嗅探到${sniffingRes.val.length}个新资源`,
+            key: "sniffing",
+            duration: 3
+          })
+          console.log(sniffingRes.val)
+        } else {
+          message.info({
+            content: "没有嗅探到新的资源，再多玩几关试试？",
+            key: "sniffing",
+            duration: 3
+          })
+        }
+      }
+      return
+    }
+    //配置兼容性提示
     let defaultAlert = false
     if (info.value.type == 'flash' && browser.flash == "") {
       defaultAlert = true

@@ -346,7 +346,11 @@ async function launch(type: string, folder: string, method: 'normal' | 'backup' 
                         resolve(true)
                     })
                 } else if (method == 'origin') {
-                    await openWithBrowser(config.browser.flash, infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
+                    if (config.smartSniffing.enable) {
+                        await openWithBrowser(config.browser.flash, "", config.smartSniffing.arg + config.smartSniffing.port.toString())
+                    } else {
+                        await openWithBrowser(config.browser.flash, infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
+                    }
                     resolve(true)
                 }
                 break
@@ -489,13 +493,17 @@ async function del(type: string, folder: string): Promise<boolean> {
     return true
 }
 
-async function openWithBrowser(browser: string, url: string): Promise<void> {
+async function openWithBrowser(browser: string, url: string, arg?: string): Promise<void> {
     if (browser == "") {
         //使用默认方式打开
         return shell.openExternal(encodeURI(url))
     } else {
         return new Promise((res) => {
-            let proc = cp.exec(`"${browser}" "${encodeURI(url)}"`)
+            let cmd = `"${browser}"`
+            if (url != "") cmd += ` "${encodeURI(url)}"`
+            if (arg) cmd += " " + arg
+            console.log(cmd)
+            let proc = cp.exec(cmd)
             setTimeout(() => {
                 proc.kill() //此处是为了兼容傻逼搜狗浏览器而设计的杀进程，写的什么狗屁玩意(o_ _)ﾉ
                 res()

@@ -36,7 +36,7 @@
   <br/>
   <a-card title="智能嗅探">
     <a-space direction="vertical">
-      <p>此功能可以帮助下载异步的在线小游戏，当您使用“源站播放”功能时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地；此功能需要浏览器支持</p>
+      <p>此功能可以帮助下载异步加载的在线小游戏，当您使用“源站播放”功能时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地；此功能需要浏览器支持</p>
       <a-switch v-model:checked="smartSniffing.enable" checked-children="启用" un-checked-children="关闭"
                 @change="checkSmartSniffing"/>
       <a-space v-if="smartSniffing.enable" size="large">
