@@ -12,25 +12,45 @@ const browserList: Browser[] = [
         name: "360极速浏览器X",
         allowedPaths: [
             path.join(LOCAL_APPDATA, '360ChromeX\\Chrome\\Application\\360ChromeX.exe')
-        ]
+        ],
+        trait: {
+            flash: true,
+            unity: true,
+            debug: "--remote-debugging-port="
+        }
     },
     {
         name: "360极速浏览器",
         allowedPaths: [
             path.join(LOCAL_APPDATA, '360Chrome\\Chrome\\Application\\360chrome.exe')
-        ]
+        ],
+        trait: {
+            flash: true,
+            unity: true,
+            debug: "--remote-debugging-port="
+        }
     },
     {
         name: "搜狗高速浏览器",
         allowedPaths: [
             path.join(LOCAL_APPDATA, 'SogouExplorer\\SogouExplorer.exe')
-        ]
+        ],
+        trait: {
+            flash: true,
+            unity: false,
+            debug: "disable"
+        }
     },
     {
         name: "360安全浏览器",
         allowedPaths: [
             path.join(ROAMING_APPDATA, '360se6\\Application\\360se.exe')
-        ]
+        ],
+        trait: {
+            flash: true,
+            unity: true,
+            debug: "--remote-debugging-port="
+        }
     }
 ]
 

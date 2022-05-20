@@ -15,6 +15,11 @@ let config: Config | null = null,
 const configPatch = {
     browser: {
         ignoreAlert: true
+    },
+    smartSniffing: {
+        enable: false,
+        port: 9222,
+        arg: "--remote-debugging-port="
     }
 }
 
@@ -32,6 +37,11 @@ function geneInitConfig(): Config {
             flash: "",
             unity: "",
             ignoreAlert: false
+        },
+        smartSniffing: {
+            enable: false,
+            port: 9222,
+            arg: "--remote-debugging-port="
         }
     }
 }

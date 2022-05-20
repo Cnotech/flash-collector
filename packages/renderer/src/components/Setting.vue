@@ -3,14 +3,7 @@
       title="设置"
       @back="router.back()"
   />
-  <a-card style="width: 100%" title="搜索方式">
-    <a-space>
-      <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
-      <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
-    </a-space>
-  </a-card>
-  <br/>
-  <a-card id="4399" style="width: 100%" title="安装配套用户脚本">
+  <a-card id="4399" title="配套用户脚本">
     由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装配套用户脚本：
     （1）在你的默认浏览器安装 <a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或 <a
       @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
@@ -22,30 +15,57 @@
     仓库脚本直链</a>，安装脚本。
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="启动浏览器">
+  <a-card title="启动浏览器">
     <a-space direction="vertical">
       <p>Flash Collector 在本地运行游戏可能需要浏览器的支持，请参考我们提供的<a
           @click="shell.openExternal('https://github.com/Cnotech/flash-collector#浏览器兼容性')">浏览器兼容性表格</a>选择游戏的启动浏览器</p>
       <a-space>
         Flash：
-        <a-select v-model:value="browser.flash.name" :options="browserList" style="width: 140px"
+        <a-select v-model:value="browser.flash.name" :options="flashBrowserList" style="width: 140px"
                   @change="onChangeBrowser('flash')"></a-select>
         <span>{{ browser.flash.p }}</span>
       </a-space>
       <a-space>
         Unity：
-        <a-select v-model:value="browser.unity.name" :options="browserList" style="width: 140px"
+        <a-select v-model:value="browser.unity.name" :options="unityBrowserList" style="width: 140px"
                   @change="onChangeBrowser('unity')"></a-select>
         <span>{{ browser.unity.p }}</span>
       </a-space>
     </a-space>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="运行库检查">
+  <a-card title="智能嗅探">
+    <a-space direction="vertical">
+      <p>此功能可以帮助下载异步的在线小游戏，当您使用“源站播放”功能时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地；此功能需要浏览器支持</p>
+      <a-switch v-model:checked="smartSniffing.enable" checked-children="启用" un-checked-children="关闭"
+                @change="checkSmartSniffing"/>
+      <a-space v-if="smartSniffing.enable" size="large">
+        调试端口：
+        <a-input v-model:value="smartSniffing.port" style="width: 140px"></a-input>
+      </a-space>
+      <template v-if="smartSniffing.enable&&browser.flash.node.trait.debug==='unknown'">
+        启动参数：
+        <a-input v-model:value="smartSniffing.arg"
+                 :placeholder="`输入${browser.flash.name}不带端口号的 Chrome DevTools Protocol 启动参数，例如 --remote-debugging-port=`"></a-input>
+        <a-button type="link"
+                  @click="shell.openExternal('https://www.npmjs.com/package/chrome-remote-interface#Setup')">CDP参数参考
+        </a-button>
+      </template>
+    </a-space>
+  </a-card>
+  <br/>
+  <a-card title="搜索方式">
+    <a-space>
+      <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
+      <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
+    </a-space>
+  </a-card>
+  <br/>
+  <a-card title="运行库检查">
     <a-switch v-model:checked="libCheck" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="游戏服务端口">
+  <a-card title="游戏服务端口">
     若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
     <br/><br/>
     <a-space>
@@ -54,7 +74,7 @@
     </a-space>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="许可与条款">
+  <a-card title="许可与条款">
     此软件免费获取并在 <a @click="shell.openExternal('https://github.com/Cnotech/flash-collector')">Cnotech/flash-collector</a> 以
     MPL-2.0 协议开源，如果您拥有 GitHub 账号欢迎点个 Star 来表示鼓励；如果您是通过付费的方式获得的请立即申请退款并差评卖家。
     <br/><br/>
@@ -69,7 +89,7 @@
     <img alt="Icon" src="../assets/favicon.ico" style="height: 50px;width: 50px;margin: 10px 0 0 50%"/>
   </a-card>
   <br/>
-  <a-card style="width: 100%" title="开发者工具">
+  <a-card title="开发者工具">
     <a-button @click="devtool">DevTool</a-button>
   </a-card>
 </template>
@@ -83,7 +103,7 @@ import {getConfig, setConfig} from "../config";
 import {bus} from "../eventbus";
 import {shell} from "electron";
 import {useRoute, useRouter} from "vue-router";
-import {Browser} from "../../../class";
+import {Browser, Config} from "../../../class";
 import {Option} from "ts-results";
 
 const router = useRouter(),
@@ -116,7 +136,8 @@ let methodOptions = ref([
 
 interface ExactBrowser {
   name: string,
-  p: string
+  p: string,
+  node: Browser
 }
 
 let site = ref<string>("4399"),
@@ -127,17 +148,62 @@ let site = ref<string>("4399"),
     browser = ref<{ flash: ExactBrowser, unity: ExactBrowser }>({
       flash: {
         name: "默认浏览器",
-        p: ""
+        p: "",
+        node: {
+          name: "默认浏览器",
+          allowedPaths: [],
+          trait: {
+            flash: true,
+            unity: true,
+            debug: "disable"
+          }
+        }
       },
       unity: {
         name: "默认浏览器",
-        p: ""
+        p: "",
+        node: {
+          name: "默认浏览器",
+          allowedPaths: [],
+          trait: {
+            flash: true,
+            unity: true,
+            debug: "disable"
+          }
+        }
       }
     }),
-    browserList = ref<{ label: string, value: string }[]>([])
+    flashBrowserList = ref<{ label: string, value: string, node: Browser }[]>([]),
+    unityBrowserList = ref<{ label: string, value: string, node: Browser }[]>([]),
+    smartSniffing = ref<Config['smartSniffing']>({
+      enable: false,
+      port: 9222,
+      arg: "--remote-debugging-port="
+    })
+
+let config: Config
 
 function devtool() {
   bridge('devtool')
+}
+
+function getBrowserNode(name: string, list: { label: string, value: string, node: Browser }[]): Browser {
+  let b: Browser = {
+    name: "默认浏览器",
+    allowedPaths: [],
+    trait: {
+      flash: true,
+      unity: true,
+      debug: "disable"
+    }
+  }
+  for (let n of list) {
+    if (n.value == name) {
+      b = n.node
+      break
+    }
+  }
+  return b
 }
 
 async function onChangeBrowser(type: 'flash' | 'unity') {
@@ -155,6 +221,7 @@ async function onChangeBrowser(type: 'flash' | 'unity') {
       browser.value.flash.name = "默认浏览器"
       browser.value.flash.p = ""
     }
+    browser.value.flash.node = getBrowserNode(name, flashBrowserList.value)
   } else {
     name = browser.value.unity.name
     if (name == "自定义浏览器") {
@@ -168,6 +235,7 @@ async function onChangeBrowser(type: 'flash' | 'unity') {
       browser.value.unity.name = "默认浏览器"
       browser.value.unity.p = ""
     }
+    browser.value.unity.node = getBrowserNode(name, unityBrowserList.value)
   }
 }
 
@@ -193,8 +261,54 @@ function validPort(): boolean {
   return true
 }
 
+function checkSmartSniffing(): boolean {
+  if (!smartSniffing.value) return true
+  //定义最终变量
+  let arg
+  //检查Flash浏览器
+  const flashDebug = browser.value.flash.node.trait.debug
+  //处理不可用
+  if (flashDebug == "disable") {
+    smartSniffing.value.enable = false
+    Modal.error({
+      title: browser.value.flash.name + "不可用于智能嗅探",
+      content: "您当前选择的 Flash 启动浏览器没有实现 Chrome DevTools Protocol，请重新选择一个启动浏览器"
+    })
+    return false
+  }
+  //处理未知
+  if (flashDebug == 'unknown') {
+    arg = smartSniffing.value.arg
+    if (arg.length < 3 || arg[arg.length - 1] != "=" || arg.match(/\s/)) {
+      Modal.error({
+        title: "自定义CDP参数格式不规范",
+        content: `请输入${browser.value.flash.name}不带端口号的 Chrome DevTools Protocol 启动参数，例如 --remote-debugging-port=`
+      })
+      smartSniffing.value.arg = "--remote-debugging-port="
+      return false
+    }
+  } else {
+    arg = browser.value.flash.node.trait.debug
+  }
+  //处理端口范围
+  let port = Number(smartSniffing.value.port)
+  if (port < 1000 || port > 65535) {
+    Modal.error({
+      title: "端口范围错误",
+      content: `请输入范围在1000-65535的端口，默认为9222`
+    })
+    smartSniffing.value.port = 9222
+    return false
+  }
+  //写启动参数
+  smartSniffing.value.arg = arg
+  smartSniffing.value.port = port
+  return true
+}
+
 onMounted(async () => {
-  const config = await getConfig()
+  config = await getConfig()
+
 
   site.value = config.search.site
   method.value = config.search.method
@@ -204,32 +318,64 @@ onMounted(async () => {
   port.value = config.port
   oldPort.value = config.port
 
-  browser.value = {
-    flash: {
-      name: await bridge('getBrowserNickName', config.browser.flash),
-      p: config.browser.flash
-    },
-    unity: {
-      name: await bridge('getBrowserNickName', config.browser.unity),
-      p: config.browser.unity
-    }
-  }
+  smartSniffing.value = config.smartSniffing
 
   //获取本地可用浏览器列表
   let bList: Browser[] = [{
     name: "默认浏览器",
-    allowedPaths: []
+    allowedPaths: [],
+    trait: {
+      flash: true,
+      unity: true,
+      debug: 'disable'
+    }
   }].concat(await bridge('getAvailableBrowsers'))
   bList.push({
     name: "自定义浏览器",
-    allowedPaths: []
-  })
-  browserList.value = bList.map(n => {
-    return {
-      label: n.name,
-      value: n.name
+    allowedPaths: [],
+    trait: {
+      flash: true,
+      unity: true,
+      debug: 'unknown'
     }
   })
+  flashBrowserList.value = bList
+      .filter(n => {
+        return n.trait.flash
+      })
+      .map(n => {
+        return {
+          label: n.name,
+          value: n.name,
+          node: n
+        }
+      })
+  unityBrowserList.value = bList
+      .filter(n => {
+        return n.trait.unity
+      })
+      .map(n => {
+        return {
+          label: n.name,
+          value: n.name,
+          node: n
+        }
+      })
+  //配置当前浏览器
+  const flashBN = await bridge('getBrowserNickName', config.browser.flash),
+      unityBN = await bridge('getBrowserNickName', config.browser.unity)
+  browser.value = {
+    flash: {
+      name: flashBN,
+      p: config.browser.flash,
+      node: getBrowserNode(flashBN, flashBrowserList.value)
+    },
+    unity: {
+      name: unityBN,
+      p: config.browser.unity,
+      node: getBrowserNode(unityBN, unityBrowserList.value)
+    }
+  }
 })
 
 const save = async () => {
@@ -247,6 +393,8 @@ const save = async () => {
     unity: browser.value.unity.p,
     ignoreAlert: config.browser.ignoreAlert
   }
+
+  config.smartSniffing = JSON.parse(JSON.stringify(smartSniffing.value))
 
   setConfig(config, true)
   bus.emit('update-search-pattern')
@@ -275,6 +423,11 @@ router.beforeEach(() => {
     })
     return false
   }
+  //检查智能嗅探参数是否有效
+  if (smartSniffing.value.enable && !checkSmartSniffing()) {
+    return false
+  }
+  //放行路由
   return true
 })
 
@@ -288,5 +441,7 @@ async function restart() {
 </script>
 
 <style scoped>
-
+a-card {
+  width: 100%;
+}
 </style>

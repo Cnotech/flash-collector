@@ -77,6 +77,11 @@ interface Config {
         flash: string,
         unity: string,
         ignoreAlert: boolean
+    },
+    smartSniffing: {
+        enable: boolean,
+        port: number,
+        arg: string
     }
 }
 
@@ -88,7 +93,12 @@ interface LoginStatus {
 
 interface Browser {
     name: string,
-    allowedPaths: string[]
+    allowedPaths: string[],
+    trait: {
+        flash: boolean,
+        unity: boolean,
+        debug: string | 'disable' | 'unknown'
+    }
 }
 
 export {
