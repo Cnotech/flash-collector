@@ -467,7 +467,7 @@ function localSearch(text: string): GameInfo[] {
     let res: GameInfo[] = []
     for (let type in gameList) {
         for (let game of gameList[type]) {
-            if (game.title.indexOf(text) >= 0) {
+            if (game.title.toLocaleLowerCase().indexOf(text.toLocaleLowerCase()) >= 0) {
                 res.push(game)
             }
         }
