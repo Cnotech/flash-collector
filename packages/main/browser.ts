@@ -5,7 +5,8 @@ import {None, Option, Some} from "ts-results";
 import {dialog} from "electron";
 
 const LOCAL_APPDATA = process.env['LOCALAPPDATA'] ?? "",
-    ROAMING_APPDATA = process.env['APPDATA'] ?? ""
+    ROAMING_APPDATA = process.env['APPDATA'] ?? "",
+    SYSTEM_DRIVE=process.env['SystemDrive']??""
 
 const browserList: Browser[] = [
     {
@@ -49,6 +50,29 @@ const browserList: Browser[] = [
         trait: {
             flash: true,
             unity: true,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "百分浏览器",
+        allowedPaths: [
+            path.join(LOCAL_APPDATA, 'CentBrowser\\Application\\chrome.exe')
+        ],
+        trait: {
+            flash: true,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "QQ浏览器",
+        allowedPaths: [
+            path.join(SYSTEM_DRIVE,"Program Files (x86)\\Tencent\\QQBrowser\\QQBrowser.exe"),
+            path.join(SYSTEM_DRIVE,"Program Files\\Tencent\\QQBrowser\\QQBrowser.exe"),
+        ],
+        trait: {
+            flash: true,
+            unity: false,
             debug: "--remote-debugging-port="
         }
     }
