@@ -14,9 +14,9 @@ async fn hello() -> impl Responder {
     let r = get_reply();
     if let Err(msg) = r {
         HttpResponse::Ok()
-        .status(StatusCode::INTERNAL_SERVER_ERROR)
-        .body(format!("{}",msg))
-    }else{
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body(format!("{}", msg))
+    } else {
         HttpResponse::Ok().json(r.unwrap())
     }
 }
@@ -34,15 +34,15 @@ async fn main() -> std::io::Result<()> {
             )
             .service(hello)
     })
-    .bind(("127.0.0.1", 8080))?
-    .run()
-    .await
+        .bind(("127.0.0.1", 8080))?
+        .run()
+        .await
 }
 
-fn get_reply()->Result<Reply,String>{
-    let mut config=get_config()?;
-    let latest_file=get_latest_file(config.path.local.clone())?;
-    let latest_version=parse_version(&latest_file)?;
+fn get_reply() -> Result<Reply, String> {
+    let mut config = get_config()?;
+    let latest_file = get_latest_file(config.path.local.clone())?;
+    let latest_version = parse_version(&latest_file)?;
     config.latest.change_version(&latest_version);
     Ok(Reply::new(config, latest_file))
 }

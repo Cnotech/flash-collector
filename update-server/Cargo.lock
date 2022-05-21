@@ -9,14 +9,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57a7559404a7f3573127aab53c08ce37a6c6a315c374a31070f3c91cd1b4a7fe"
 dependencies = [
  "bitflags",
-    "bytes",
-    "futures-core",
-    "futures-sink",
-    "log",
-    "memchr",
-    "pin-project-lite",
-    "tokio",
-    "tokio-util",
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "memchr",
+ "pin-project-lite",
+ "tokio",
+ "tokio-util",
 ]
 
 [[package]]
@@ -25,13 +25,13 @@ version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "414360eed71ba2d5435b185ba43ecbe281dfab5df3898286d6b7be8074372c92"
 dependencies = [
-    "actix-utils",
-    "actix-web",
-    "derive_more",
-    "futures-util",
-    "log",
-    "once_cell",
-    "smallvec",
+ "actix-utils",
+ "actix-web",
+ "derive_more",
+ "futures-util",
+ "log",
+ "once_cell",
+ "smallvec",
 ]
 
 [[package]]
@@ -40,9 +40,9 @@ version = "3.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a5885cb81a0d4d0d322864bea1bb6c2a8144626b4fdc625d4c51eba197e7797a"
 dependencies = [
-    "actix-codec",
-    "actix-rt",
-    "actix-service",
+ "actix-codec",
+ "actix-rt",
+ "actix-service",
  "actix-utils",
  "ahash",
  "base64",
@@ -1266,12 +1266,12 @@ dependencies = [
 name = "update-server"
 version = "0.1.0"
 dependencies = [
-    "actix-cors",
-    "actix-web",
-    "cached",
-    "regex",
-    "serde",
-    "serde_json",
+ "actix-cors",
+ "actix-web",
+ "cached",
+ "regex",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
