@@ -1,16 +1,18 @@
+use actix_cors::Cors;
+use actix_web::{App, get, http::StatusCode, HttpResponse, HttpServer, Responder};
+
+use crate::class::Reply;
+use crate::reader::{get_config, get_latest_file};
+use crate::utils::parse_version;
+
 mod class;
 mod reader;
 mod utils;
 
-use actix_web::{get, App, HttpResponse, HttpServer, Responder,http::StatusCode};
-use crate::reader::{get_config,get_latest_file};
-use crate::class::{Reply,Config};
-use crate::utils::{parse_version};
-
 #[get("/hello")]
 async fn hello() -> impl Responder {
-    let r=get_reply();
-    if let Err(msg)=r{
+    let r = get_reply();
+    if let Err(msg) = r {
         HttpResponse::Ok()
         .status(StatusCode::INTERNAL_SERVER_ERROR)
         .body(format!("{}",msg))
@@ -23,6 +25,13 @@ async fn hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
+            .wrap(
+                Cors::default()
+                    .allowed_origin("http://localhost:*")
+                    .allowed_origin("https://fc.edgeless.top")
+                    .allowed_origin("app://.")
+                    .allowed_methods(vec!["GET"])
+            )
             .service(hello)
     })
     .bind(("127.0.0.1", 8080))?

@@ -60,9 +60,9 @@ impl Latest{
 impl Reply{
     pub fn new(config:Config,latest_file:String)->Self{
         let package=Package{
-            full:config.path.url.clone()+"/"+&latest_file,
-            update:config.path.url.clone()+"/update.7z",
-            extended_update:config.path.url.clone()+"/extended_update.7z"
+            full: config.path.url.clone() + "/" + &latest_file,
+            update: config.path.url.clone() + "/update/update.7z",
+            extended_update: config.path.url.clone() + "/update/extended_update.7z",
         };
         Self{
             latest:config.latest,
