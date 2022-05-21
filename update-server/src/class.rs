@@ -1,23 +1,24 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Latest {
-    page:String
+pub struct Latest {
+    pub page:String,
+    pub version:String
 }
 #[derive(Serialize, Deserialize, Clone)]
-struct Update {
-    allow_mini_since:String,
-    force_update_until:String,
-    wide_gaps:Vec<String>
+pub struct Update {
+    pub allow_mini_since:String,
+    pub force_update_until:String,
+    pub wide_gaps:Vec<String>
 }
 #[derive(Serialize, Deserialize, Clone)]
-struct Path {
-    local:String,
-    url:String
+pub struct Path {
+    pub local:String,
+    pub url:String
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-struct Notice{
+pub struct Notice{
     id:String,
     lower_than:Option<String>,
     level:String,
@@ -28,9 +29,46 @@ struct Notice{
 }
 
 #[derive(Serialize, Deserialize, Clone)]
+pub struct Package{
+    pub full:String,
+    pub update:String,
+    pub extended_update:String
+}
+
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Config{
-    latest:Latest,
-    update:Update,
-    path:Path,
-    notice:Vec<Notice>
+    pub latest:Latest,
+    pub update:Update,
+    pub path:Path,
+    pub notice:Vec<Notice>
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Reply{
+    pub package:Package,
+    pub latest:Latest,
+    pub update:Update,
+    pub notice:Vec<Notice>
+}
+
+impl Latest{
+    pub fn change_version(&mut self,new_version:&String){
+        self.version=new_version.clone();
+    }
+}
+
+impl Reply{
+    pub fn new(config:Config,latest_file:String)->Self{
+        let package=Package{
+            full:config.path.url.clone()+"/"+&latest_file,
+            update:config.path.url.clone()+"/update.7z",
+            extended_update:config.path.url.clone()+"/extended_update.7z"
+        };
+        Self{
+            latest:config.latest,
+            update:config.update,
+            notice:config.notice,
+            package
+        }
+    }
 }

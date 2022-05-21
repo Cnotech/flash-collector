@@ -1,15 +1,22 @@
 mod class;
+mod reader;
+mod utils;
 
-use std::fs::File;
-use std::io::Read;
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-use crate::class::Config;
-
-const CONFIG_PATH: &str ="./config.json";
+use actix_web::{get, App, HttpResponse, HttpServer, Responder,http::StatusCode};
+use crate::reader::{get_config,get_latest_file};
+use crate::class::{Reply,Config};
+use crate::utils::{parse_version};
 
 #[get("/hello")]
 async fn hello() -> impl Responder {
-    HttpResponse::Ok().json(get_config())
+    let r=get_reply();
+    if let Err(msg)=r{
+        HttpResponse::Ok()
+        .status(StatusCode::INTERNAL_SERVER_ERROR)
+        .body(format!("{}",msg))
+    }else{
+        HttpResponse::Ok().json(r.unwrap())
+    }
 }
 
 #[actix_web::main]
@@ -23,17 +30,10 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
-fn get_config() -> Result<Config,&'static str>{
-    let file=File::open(CONFIG_PATH);
-    if let Err(_)=file {
-        return Err("Can't read config");
-    }
-    let mut text=String::new();
-    file.unwrap().read_to_string(&mut text).unwrap();
-    let r: serde_json::Result<Config>=serde_json::from_str(&text);
-    if let Err(_)=r{
-        return Err("Can't parse config");
-    }
-    Ok(r.unwrap())
+fn get_reply()->Result<Reply,String>{
+    let mut config=get_config()?;
+    let latest_file=get_latest_file(config.path.local.clone())?;
+    let latest_version=parse_version(&latest_file)?;
+    config.latest.change_version(&latest_version);
+    Ok(Reply::new(config, latest_file))
 }
-
