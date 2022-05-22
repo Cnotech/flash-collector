@@ -1,5 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{App, get, http::StatusCode, HttpResponse, HttpServer, Responder};
+use cached::proc_macro::cached;
 
 use crate::class::Reply;
 use crate::reader::{get_config, get_latest_file};
@@ -28,7 +29,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(
                 Cors::default()
                     .allowed_origin("http://127.0.0.1:3344")
-                    .allowed_origin("https://fc.edgeless.top")
+                    .allowed_origin("https://pineapple.edgeless.top")
                     .allowed_origin("app://.")
                     .allowed_methods(vec!["GET"])
             )
@@ -39,6 +40,7 @@ async fn main() -> std::io::Result<()> {
         .await
 }
 
+#[cached(time = 600)]
 fn get_reply() -> Result<Reply, String> {
     let mut config = get_config()?;
     let latest_file = get_latest_file(config.path.local.clone())?;
