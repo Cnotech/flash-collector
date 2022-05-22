@@ -12,6 +12,7 @@ import infoSchema from "./schema/info.json"
 import cp from 'child_process'
 import {chooseBrowser, getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
 import {sniffing} from "./sniffing";
+import {update} from "./update";
 
 const shelljs = require('shelljs')
 
@@ -236,7 +237,8 @@ const registry: { [name: string]: (...args: any) => any } = {
     parseBrowserPath,
     getAvailableBrowsers,
     chooseBrowser,
-    sniffing
+    sniffing,
+    update
 }
 
 export default function () {

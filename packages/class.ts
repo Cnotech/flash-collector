@@ -82,6 +82,9 @@ interface Config {
         enable: boolean,
         port: number,
         arg: string
+    },
+    notice: {
+        ignore: string[]
     }
 }
 
@@ -101,6 +104,34 @@ interface Browser {
     }
 }
 
+interface Notice {
+    id: string,
+    lower_than: string,
+    level: string,
+    message: string,
+    description: string,
+    close_text: string,
+    allow_ignore: boolean,
+}
+
+interface UpdateReply {
+    package: {
+        full: string,
+        update: string,
+        extended_update: string
+    },
+    latest: {
+        page: string,
+        version: string
+    },
+    update: {
+        allow_normal_since: string,
+        force_update_until: string,
+        wide_gaps: string[]
+    },
+    notice: Notice[]
+}
+
 export {
     GameInfo,
     ParserRegister,
@@ -109,5 +140,7 @@ export {
     Reply,
     LoginStatus,
     Config,
-    Browser
+    Browser,
+    UpdateReply,
+    Notice
 }

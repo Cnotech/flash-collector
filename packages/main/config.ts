@@ -20,6 +20,9 @@ const configPatch = {
         enable: false,
         port: 9222,
         arg: "--remote-debugging-port="
+    },
+    notice: {
+        ignore: []
     }
 }
 
@@ -42,6 +45,9 @@ function geneInitConfig(): Config {
             enable: false,
             port: 9222,
             arg: "--remote-debugging-port="
+        },
+        notice: {
+            ignore: []
         }
     }
 }

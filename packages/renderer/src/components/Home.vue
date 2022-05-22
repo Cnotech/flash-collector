@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <HotUpdate/>
     <img alt="Icon" src="../assets/favicon.ico" style="height: 64px;width: 64px;margin: 10% 55% 5% 45%"/>
     <a-row type="flex">
       <a-col :span="2"/>
@@ -114,6 +115,7 @@ import bridge from "../bridge";
 import {getConfig} from "../config";
 import {useRouter} from 'vue-router';
 import {query} from "express";
+import HotUpdate from "./HotUpdate.vue"
 
 const router = useRouter()
 

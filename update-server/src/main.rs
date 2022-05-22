@@ -27,7 +27,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(
                 Cors::default()
-                    .allowed_origin("http://localhost:*")
+                    .allowed_origin("http://127.0.0.1:3344")
                     .allowed_origin("https://fc.edgeless.top")
                     .allowed_origin("app://.")
                     .allowed_methods(vec!["GET"])

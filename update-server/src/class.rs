@@ -8,7 +8,7 @@ pub struct Latest {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Update {
-    pub allow_mini_since: String,
+    pub allow_normal_since: String,
     pub force_update_until: String,
     pub wide_gaps: Vec<String>,
 }
@@ -22,7 +22,7 @@ pub struct Path {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Notice {
     id: String,
-    lower_than: Option<String>,
+    lower_than: String,
     level: String,
     message: String,
     description: String,

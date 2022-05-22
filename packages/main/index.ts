@@ -1,6 +1,6 @@
 import {app, BrowserWindow, shell} from 'electron'
 import {release} from 'os'
-import {join} from 'path'
+import path from 'path'
 import bridge from "./bridge";
 import cp from "child_process"
 
@@ -16,7 +16,8 @@ if (!app.requestSingleInstanceLock()) {
 }
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
-let win: BrowserWindow | null = null
+let win: BrowserWindow | null = null,
+    updateOnExit = false
 
 async function createWindow() {
     win = new BrowserWindow({
@@ -24,7 +25,7 @@ async function createWindow() {
         width: 1400,
         height: 800,
         webPreferences: {
-            preload: join(__dirname, '../preload/index.cjs'),
+            preload: path.join(__dirname, '../preload/index.cjs'),
             nodeIntegration: true,
             contextIsolation: false,
             webviewTag: true,
@@ -35,7 +36,7 @@ async function createWindow() {
     win.removeMenu()
 
     if (app.isPackaged) {
-        await win.loadFile(join(__dirname, '../renderer/index.html'))
+        await win.loadFile(path.join(__dirname, '../renderer/index.html'))
     } else {
         // 🚧 Use ['ENV_NAME'] avoid vite:define plugin
         const url = `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_DEV_SERVER_PORT']}`
@@ -60,7 +61,10 @@ app.whenReady().then(createWindow)
 
 app.on('window-all-closed', () => {
     win = null
-    if (process.platform !== 'darwin') app.quit()
+    if (process.platform !== 'darwin') {
+        if (updateOnExit) update()
+        app.quit()
+    }
 })
 
 app.on('second-instance', () => {
@@ -94,9 +98,18 @@ function version() {
     return app.getVersion()
 }
 
+function enableUpdate() {
+    updateOnExit = true
+}
+
+function update() {
+    cp.exec('start cmd /c main.cmd')
+}
+
 bridge()
 export {
     toggleDevtool,
     restart,
-    version
+    version,
+    enableUpdate
 }

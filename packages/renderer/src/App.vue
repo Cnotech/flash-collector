@@ -124,11 +124,6 @@ getConfig().then(c => {
   port.value = c.port
 })
 
-//设置标题
-bridge('version').then(ver => {
-  document.title = `Flash Collector - 小游戏收集器 v${ver}`
-})
-
 function onChangeMenu(info: { item: string, key: string, keyPath: string[] }) {
   if (info.keyPath[0] == 'home') {
     router.push('/')

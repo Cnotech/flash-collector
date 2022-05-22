@@ -15,10 +15,11 @@ if "%1" == "" (
 )
 
 echo Waiting for main program evacuation...
+pause
 @ping 127.0.0.1 -n 2 >nul
 TASKKILL /F /IM flash-collector.exe /T >nul
 
-xcopy /s /r /y .\UPDATE-TEMP\* .\
+xcopy /s /r /y .\UPDATE-TEMP\update\* .\
 .\retinue\update\rcedit-x64.exe flash-collector.exe --set-file-version "%1%"
 .\retinue\update\rcedit-x64.exe flash-collector.exe --set-product-version "%1%"
 
