@@ -5,7 +5,8 @@
   />
   <a-card id="4399" title="配套用户脚本">
     由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，请按照以下步骤安装配套用户脚本：
-    （1）在你的默认浏览器安装 <a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或 <a
+    <br/>
+    （1）在浏览器中安装 <a @click="shell.openExternal('https://www.tampermonkey.net/')">油猴（TamperMonkey）</a>或 <a
       @click="shell.openExternal('https://violentmonkey.github.io/get-it/')">暴力猴（ViolentMonkey）</a>拓展；
     <br/>
     （2）访问 <a
