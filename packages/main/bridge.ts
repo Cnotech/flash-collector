@@ -111,14 +111,14 @@ const registry: { [name: string]: (...args: any) => any } = {
         if (r.canceled) return new Err("Error:User didn't select a package")
 
         //尝试解压
-        let res = await release(r.filePaths[0], "UNZIP-TEMP", true)
+        let res = await release(r.filePaths[0], "TEMP/UNZIP-TEMP", true)
         if (!res) return new Err("Error:Can't unzip package")
 
         //基础校验
         const types = ['flash', 'h5', 'unity']
         let valid = false
         for (let type of types) {
-            if (fs.existsSync(path.join("UNZIP-TEMP", type))) {
+            if (fs.existsSync(path.join("TEMP/UNZIP-TEMP", type))) {
                 valid = true
                 break
             }
@@ -128,13 +128,13 @@ const registry: { [name: string]: (...args: any) => any } = {
         //info可用性校验
         let p: string, result
         for (let type of types) {
-            p = path.join("UNZIP-TEMP", type)
+            p = path.join("TEMP/UNZIP-TEMP", type)
             if (!fs.existsSync(p)) {
                 continue
             }
             let dir = fs.readdirSync(p)
             for (let folder of dir) {
-                p = path.join("UNZIP-TEMP", type, folder, "info.json")
+                p = path.join("TEMP/UNZIP-TEMP", type, folder, "info.json")
                 if (fs.existsSync(p)) {
                     //json schema 校验
                     result = infoValidator(JSON.parse(fs.readFileSync(p).toString()))
@@ -150,7 +150,7 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
 
         //读取目录
-        let list = manager.readList("UNZIP-TEMP")
+        let list = manager.readList("TEMP/UNZIP-TEMP")
 
         //生成列表并校验重复
         let gameList: { info: GameInfo, overwriteAlert: boolean }[] = []
@@ -170,7 +170,7 @@ const registry: { [name: string]: (...args: any) => any } = {
             let source, target
             for (let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
-                source = path.join("UNZIP-TEMP", game.type, game.local.folder)
+                source = path.join("TEMP/UNZIP-TEMP", game.type, game.local.folder)
                 target = path.join("games", game.type, game.local.folder)
                 //检测重复并删除
                 if (fs.existsSync(target)) {
@@ -188,16 +188,16 @@ const registry: { [name: string]: (...args: any) => any } = {
         } else {
             //处理导出
             //清理临时目录
-            if(fs.existsSync("ZIP-TEMP")){
-                shelljs.rm("-rf","ZIP-TEMP")
+            if (fs.existsSync("TEMP/ZIP-TEMP")) {
+                shelljs.rm("-rf", "TEMP/ZIP-TEMP")
             }
-            shelljs.mkdir("ZIP-TEMP")
+            shelljs.mkdir("-p", "TEMP/ZIP-TEMP")
             //弹出选择对话框
-            const d=new Date()
-            let dRes=await dialog.showSaveDialog({
-                title:"导出 Flash Collector Games 压缩包",
-                defaultPath:d.getFullYear().toString()+(d.getMonth()+1)+d.getDate()+"-"+d.getHours()+d.getMinutes()+d.getSeconds(),
-                filters:[
+            const d = new Date()
+            let dRes = await dialog.showSaveDialog({
+                title: "导出 Flash Collector Games 压缩包",
+                defaultPath: d.getFullYear().toString() + (d.getMonth() + 1) + d.getDate() + "-" + d.getHours() + d.getMinutes() + d.getSeconds(),
+                filters: [
                     {
                         name: "Flash Collector Games 压缩包",
                         extensions: ['fcg.7z']
@@ -209,16 +209,16 @@ const registry: { [name: string]: (...args: any) => any } = {
             }
             //复制文件
             let source, target
-            for(let game of games){
+            for(let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
                 source = path.join("games", game.type, game.local.folder)
-                target = path.join("ZIP-TEMP", game.type, game.local.folder)
-                shelljs.mkdir("-p",path.join("ZIP-TEMP", game.type))
+                target = path.join("TEMP/ZIP-TEMP", game.type, game.local.folder)
+                shelljs.mkdir("-p", path.join("TEMP/ZIP-TEMP", game.type))
                 shelljs.cp('-R', source, target)
             }
             //压缩
             if(!fs.existsSync("exports")) shelljs.mkdir("exports")
-            let zipRes = await compress("ZIP-TEMP", dRes.filePath, 5)
+            let zipRes = await compress("ZIP-TEMP", dRes.filePath, 5, "TEMP")
             if (!zipRes) {
                 return new Err("Error:Can't compress into package")
             }

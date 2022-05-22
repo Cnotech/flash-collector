@@ -100,8 +100,12 @@ function version() {
 }
 
 function enableUpdate(v: string) {
-    updateOnExit = true
-    latestVersion = v
+    if (app.isPackaged) {
+        updateOnExit = true
+        latestVersion = v
+    } else {
+        console.log('Reject update due to develop mode')
+    }
 }
 
 function update() {

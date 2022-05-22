@@ -4,7 +4,7 @@ import path from 'path';
 
 const shell = require('shelljs');
 
-const p7zip = path.join("retinue", "7zip", "7z.exe")
+const p7zip = path.join(process.cwd(), "retinue", "7zip", "7z.exe")
 
 async function release(file: string, intoDir: string, overwrite?: boolean, cwd?: string): Promise<boolean> {
 	return new Promise((resolve => {
@@ -33,13 +33,13 @@ async function compress(choosePlainDir: string, file: string, compressLevel: num
 		}
 		shell.rm('-f', path.join(cwd ?? '', file));
 		try {
-			cp.exec(`${path.join("..",p7zip)} a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)},(err)=>{
-				if(err){
+			cp.exec(`${p7zip} a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)}, (err) => {
+				if (err) {
 					console.log('Error:Compress command failed\n' + err);
 					resolve(false);
 					return;
-				}else{
-					resolve(fs.existsSync(path.join(cwd ?? '', file)));
+				} else {
+					resolve(fs.existsSync(file));
 				}
 			});
 		} catch (e) {

@@ -9,15 +9,15 @@ const shelljs = require('shelljs')
 
 async function update(pkg: string, latestVersion: string): Promise<Result<null, string>> {
     //清空更新文件夹
-    if (fs.existsSync("UPDATE-TEMP")) shelljs.rm("-rf", "UPDATE-TEMP")
-    shelljs.mkdir("UPDATE-TEMP")
+    if (fs.existsSync("TEMP/UPDATE-TEMP")) shelljs.rm("-rf", "TEMP/UPDATE-TEMP")
+    shelljs.mkdir("-p", "TEMP/UPDATE-TEMP")
 
     //下载更新压缩包
     const sp = pkg.split("/")
     let downloadedFileName = sp[sp.length - 1]
     const d = new Downloader({
         url: pkg,
-        directory: "UPDATE-TEMP",
+        directory: "TEMP/UPDATE-TEMP",
         onBeforeSave(finalName: string) {
             downloadedFileName = finalName
         }
@@ -30,7 +30,7 @@ async function update(pkg: string, latestVersion: string): Promise<Result<null, 
     }
 
     //解压
-    let r = await release("UPDATE-TEMP/" + downloadedFileName, "UPDATE-TEMP/release")
+    let r = await release("TEMP/UPDATE-TEMP/" + downloadedFileName, "TEMP/UPDATE-TEMP/release")
     if (!r) {
         return new Err("Error:Can't release patch")
     }

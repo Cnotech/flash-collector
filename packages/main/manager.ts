@@ -40,7 +40,7 @@ function spawnServer() {
     })
     app.use('/retinue', express.static('retinue'))
     app.use('/games', express.static('games'))
-    app.use('/temp', express.static('UNZIP-TEMP'))
+    app.use('/temp', express.static('TEMP/UNZIP-TEMP'))
     app.get('/play/:type/:folder', (req, res) => {
         const {type, folder} = req.params, config = getConfig()
         //查询信息
