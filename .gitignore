@@ -18,3 +18,4 @@ exports
 ZIP-TEMP
 .bak
 .log
+/yarn-error.log
