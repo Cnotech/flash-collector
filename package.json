@@ -1,17 +1,18 @@
 {
   "name": "flash-collector",
-  "version": "1.5.0",
+  "version": "1.4.0",
   "main": "dist/main/index.cjs",
   "author": "Cno <dsyourshy@qq.com>",
   "license": "MPL-2.0",
   "scripts": {
     "dev": "node scripts/watch.mjs",
     "prebuild": "vue-tsc --noEmit --p packages/renderer/tsconfig.json && node scripts/build.mjs",
-    "build": "electron-builder && node scripts/copy.js",
+    "build": "electron-builder && node scripts/afterbuild.js",
     "init": "git config core.hooksPath .git/hooks/ && rm -rf .git/hooks && npx simple-git-hooks",
     "test:e2e": "npx playwright test",
     "test:e2e:headless": "npx playwright test --headed",
-    "test": "ts-node test/test.ts"
+    "test": "ts-node test/test.ts",
+    "push": "node ./scripts/publish.js"
   },
   "engines": {
     "node": ">=14.17.0"

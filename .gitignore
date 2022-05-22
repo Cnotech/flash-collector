@@ -16,3 +16,5 @@ test.*
 UNZIP-TEMP
 exports
 ZIP-TEMP
+.bak
+.log

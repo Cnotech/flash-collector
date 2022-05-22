@@ -7,7 +7,7 @@ import Downloader from "nodejs-file-downloader";
 
 const shelljs = require('shelljs')
 
-async function update(pkg: string): Promise<Result<null, string>> {
+async function update(pkg: string, latestVersion: string): Promise<Result<null, string>> {
     //清空更新文件夹
     if (fs.existsSync("UPDATE-TEMP")) shelljs.rm("-rf", "UPDATE-TEMP")
     shelljs.mkdir("UPDATE-TEMP")
@@ -39,7 +39,7 @@ async function update(pkg: string): Promise<Result<null, string>> {
     shelljs.cp(path.join("retinue", "update", "main.cmd"), "main.cmd")
 
     //使能热更新
-    enableUpdate()
+    enableUpdate(latestVersion)
 
     return new Ok(null)
 }

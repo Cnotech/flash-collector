@@ -37,7 +37,7 @@ import {message} from "ant-design-vue";
 import {shell} from "electron";
 import {Result} from "ts-results";
 
-const updateApi = "http://localhost:8080/hello"
+const updateApi = "https://pineapple.edgeless.top/api/fc/hello"
 
 let notices = ref<Notice[]>([]),
     latestVersion = ref(""),
@@ -151,7 +151,7 @@ async function update() {
       key: "HotUpdate",
       duration: 0
     })
-    let r = await bridge('update', updateMethod == "update" ? data.package.update : data.package.extended_update) as Result<null, string>
+    let r = await bridge('update', updateMethod == "update" ? data.package.update : data.package.extended_update, data.latest.version) as Result<null, string>
     if (r.ok) {
       message.success({
         content: "热更新准备就绪，当您关闭程序时会执行热更新",

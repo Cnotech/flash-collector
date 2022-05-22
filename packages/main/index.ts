@@ -17,7 +17,8 @@ if (!app.requestSingleInstanceLock()) {
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win: BrowserWindow | null = null,
-    updateOnExit = false
+    updateOnExit = false,
+    latestVersion = version()
 
 async function createWindow() {
     win = new BrowserWindow({
@@ -98,12 +99,13 @@ function version() {
     return app.getVersion()
 }
 
-function enableUpdate() {
+function enableUpdate(v: string) {
     updateOnExit = true
+    latestVersion = v
 }
 
 function update() {
-    cp.exec('start cmd /c main.cmd')
+    cp.exec(`start cmd /c main.cmd ${latestVersion}`)
 }
 
 bridge()

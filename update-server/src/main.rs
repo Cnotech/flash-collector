@@ -9,7 +9,7 @@ mod class;
 mod reader;
 mod utils;
 
-#[get("/hello")]
+#[get("/api/fc/hello")]
 async fn hello() -> impl Responder {
     let r = get_reply();
     if let Err(msg) = r {
@@ -34,7 +34,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(hello)
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind(("127.0.0.1", 3080))?
         .run()
         .await
 }
