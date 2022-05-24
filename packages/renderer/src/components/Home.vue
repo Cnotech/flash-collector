@@ -300,7 +300,7 @@ async function parse() {
 async function download() {
   if (buttonDisabled.value) {
     //在线搜索
-    await shell.openExternal(searchPattern.replace("%s", url.value))
+    if (url.value != "") await shell.openExternal(searchPattern.replace("%s", url.value))
   } else {
     //判断gameInfo是否就绪
     if (gameInfo == null) {
