@@ -31,6 +31,7 @@ async function sniffing(url: string, info: GameInfo): Promise<Result<string[], s
             client.on('disconnect', () => {
                 working = false
                 if (resource.length > 0) showNotification("资源嗅探成功", `嗅探到${resource.length}个新资源`)
+                else showNotification("没有嗅探到新的资源", `玩的关卡越多嗅探的资源越全面哦`)
                 res(new Ok(resource))
             })
             await Page.enable();
@@ -39,7 +40,7 @@ async function sniffing(url: string, info: GameInfo): Promise<Result<string[], s
             showNotification("正在嗅探异步加载的 Flash 资源", "嗅探过程中浏览器可能会卡顿，关闭浏览器以结束嗅探")
             await Page.disable()
         } catch (err) {
-            showNotification("资源嗅探失败", "请先关闭启动浏览器再点击“源站播放”")
+            showNotification("资源嗅探失败", "关闭所有浏览器窗口后重试，或查看“设置”页面的CDP启动参数是否配置正确")
             res(new Err(JSON.stringify(err)))
         }
     })
@@ -55,7 +56,7 @@ function getBase(url: string): string {
 }
 
 async function fetchResource(url: string, base: string, info: GameInfo): Promise<boolean> {
-    if (url.indexOf(base) == -1 || info.local == null) {
+    if (url.indexOf(base) != 0 || info.local == null) {
         return false
     } else {
         //解析本地路径
