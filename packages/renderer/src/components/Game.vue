@@ -369,7 +369,7 @@ onMounted(async () => {
 
   //监听webview加载完成事件，执行脚本
   webview.addEventListener('did-stop-loading', () => {
-    webview.executeJavaScript(banScript).catch(() => {
+    if (route.path == "/game") webview.executeJavaScript(banScript).catch(() => {
     })
   })
   //监听webview新窗口事件
