@@ -6,8 +6,12 @@
         description="你可以在这里导入或导出你的游戏库用于备份或是分享，请注意港口无法保存或恢复你的游戏进度"
         message="欢迎来到港口"
         show-icon
-        type="info"
-    />
+        type="success"
+    >
+      <template #icon>
+        <bulb-outlined/>
+      </template>
+    </a-alert>
     <template #extra>
       <a-space v-if="state==='None'">
         <a-button :disabled="loading" @click="initImportList">导入</a-button>
@@ -94,7 +98,7 @@ import {GameInfo, List} from "../../../class";
 import bridge from "../bridge";
 import {Result} from "ts-results";
 import {message} from "ant-design-vue";
-import {WarningFilled} from '@ant-design/icons-vue';
+import {BulbOutlined, WarningFilled} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 
 type State = 'None' | 'Import' | 'Export'
