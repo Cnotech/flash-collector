@@ -10,7 +10,6 @@ tmp
 release
 .idea
 games
-./config.json
 *.7z
 test.*
 UNZIP-TEMP
@@ -20,3 +19,4 @@ ZIP-TEMP
 .log
 /yarn-error.log
 TEMP
+/config.json
