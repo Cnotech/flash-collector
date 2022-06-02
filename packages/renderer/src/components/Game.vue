@@ -41,6 +41,7 @@
                 <a-menu-item key="1" @click="browserAlert('backup')">兼容模式</a-menu-item>
                 <a-menu-item key="2" @click="browserAlert('origin')">
                   源站播放
+                  <radar-chart-outlined v-if="sniffingStatue" style="color: #42b983"/>
                 </a-menu-item>
               </a-menu>
             </template>
@@ -52,11 +53,13 @@
           <a-popover :title="alertSwf?'此游戏可能无法在本地正确运行！':'无法在本地正确运行游戏？'" placement="rightBottom" trigger="hover">
             <template #content>
               <p>这个小游戏可能是多文件游戏，但是爬虫只能获取到入口.swf文件</p>
-              <p>请<a @click="router.push('/setting')">前往“设置”界面</a>启用智能嗅探功能下载缺失的文件</p>
+              <p v-if="!sniffingStatue">请<a @click="router.push('/setting')">前往“设置”界面</a>启用智能嗅探功能，然后点击本页面的“源站播放”嗅探缺失的文件
+              </p>
+              <p v-else>请点击“源站播放”并尽可能游玩全部关卡以嗅探缺失的文件</p>
 
               <br/>
               <p>关于源站播放：</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
 
@@ -81,7 +84,7 @@
           <a-popover placement="rightBottom" title="这是一个在线游戏" trigger="hover">
             <template #content>
               <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
             <QuestionCircleOutlined/>
@@ -103,7 +106,7 @@
           </a-dropdown>
           <a-popover placement="rightBottom" title="关于源站播放" trigger="hover">
             <template #content>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制；对于 4399 请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
             <QuestionCircleOutlined/>
@@ -125,7 +128,13 @@
 import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {Config, GameInfo} from "../../../class";
-import {DownOutlined, ExclamationCircleOutlined, QuestionCircleOutlined, WarningFilled} from '@ant-design/icons-vue';
+import {
+  DownOutlined,
+  ExclamationCircleOutlined,
+  QuestionCircleOutlined,
+  RadarChartOutlined,
+  WarningFilled
+} from '@ant-design/icons-vue';
 import {message, Modal, notification} from "ant-design-vue";
 import cp from 'child_process'
 import path from "path";
@@ -160,7 +169,8 @@ let status = ref<boolean>(false),
     }),
     rename = ref<{ status: boolean, value: string }>({status: false, value: ""}),
     alertSwf = ref(false),
-    port = ref(3000)
+    port = ref(3000),
+    sniffingStatue = ref(false)
 
 let browser: Config['browser'] = {
   flash: "",
@@ -170,6 +180,7 @@ let browser: Config['browser'] = {
 getConfig().then(c => {
   port.value = c.port
   browser = c.browser
+  sniffingStatue.value = c.smartSniffing.enable
 })
 
 //启动游戏
