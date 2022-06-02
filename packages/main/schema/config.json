@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "cookies": {
+      "type": "object"
+    },
+    "search": {
+      "type": "object",
+      "properties": {
+        "site": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "site",
+        "method"
+      ]
+    },
+    "libCheck": {
+      "type": "boolean"
+    },
+    "port": {
+      "type": "number",
+      "maximum": 65535,
+      "minimum": 1000
+    },
+    "recentLaunch": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "freq": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "freq"
+        ]
+      }
+    },
+    "browser": {
+      "type": "object",
+      "properties": {
+        "flash": {
+          "type": "string"
+        },
+        "unity": {
+          "type": "string"
+        },
+        "ignoreAlert": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "flash",
+        "unity",
+        "ignoreAlert"
+      ]
+    }
+  },
+  "required": [
+    "cookies",
+    "search",
+    "libCheck",
+    "port",
+    "recentLaunch",
+    "browser"
+  ]
+}

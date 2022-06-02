@@ -10,7 +10,7 @@ tmp
 release
 .idea
 games
-config.json
+./config.json
 *.7z
 test.*
 UNZIP-TEMP

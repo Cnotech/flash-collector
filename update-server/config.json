@@ -1,0 +1,26 @@
+{
+  "latest": {
+    "page": "https://github.com/Cnotech/flash-collector",
+    "version": ""
+  },
+  "update": {
+    "allow_normal_since": "1.5",
+    "force_update_until": "1.5",
+    "wide_gaps": []
+  },
+  "path": {
+    "local": "./FC",
+    "url": "https://pineapple.edgeless.top/FC"
+  },
+  "notice": [
+    {
+      "id": "220522",
+      "lower_than": "1.4",
+      "level": "info",
+      "message": "Test title",
+      "description": "Test content",
+      "close_text": "不再提示",
+      "allow_ignore": true
+    }
+  ]
+}
