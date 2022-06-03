@@ -502,6 +502,7 @@ async function openWithBrowser(browser: string, url: string, arg?: string): Prom
             let cmd = `"${browser}"`
             if (url != "") cmd += ` "${encodeURI(url)}"`
             if (arg) cmd += " " + arg
+            console.log(cmd)
             let proc = cp.exec(cmd)
             setTimeout(() => {
                 proc.kill() //此处是为了兼容傻逼搜狗浏览器而设计的杀进程，写的什么狗屁玩意(o_ _)ﾉ

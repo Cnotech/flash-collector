@@ -55,6 +55,9 @@
         "unity": {
           "type": "string"
         },
+        "h5": {
+          "type": "string"
+        },
         "ignoreAlert": {
           "type": "boolean"
         }
@@ -62,6 +65,7 @@
       "required": [
         "flash",
         "unity",
+        "h5",
         "ignoreAlert"
       ]
     }

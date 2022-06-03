@@ -14,7 +14,8 @@ let config: Config | null = null,
 
 const configPatch = {
     browser: {
-        ignoreAlert: true
+        ignoreAlert: true,
+        h5: ""
     },
     smartSniffing: {
         enable: false,

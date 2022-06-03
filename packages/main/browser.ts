@@ -67,8 +67,78 @@ const browserList: Browser[] = [
     {
         name: "QQ浏览器",
         allowedPaths: [
-            path.join(SYSTEM_DRIVE,"Program Files (x86)\\Tencent\\QQBrowser\\QQBrowser.exe"),
-            path.join(SYSTEM_DRIVE,"Program Files\\Tencent\\QQBrowser\\QQBrowser.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files (x86)\\Tencent\\QQBrowser\\QQBrowser.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files\\Tencent\\QQBrowser\\QQBrowser.exe"),
+        ],
+        trait: {
+            flash: true,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "Chrome",
+        allowedPaths: [
+            path.join(SYSTEM_DRIVE, "Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files\\Google\\Chrome\\Application\\chrome.exe"),
+        ],
+        trait: {
+            flash: false,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "Firefox",
+        allowedPaths: [
+            path.join(SYSTEM_DRIVE, "Program Files (x86)\\Mozilla Firefox\\firefox.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files\\Mozilla Firefox\\firefox.exe"),
+        ],
+        trait: {
+            flash: false,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "Edge(Chromium)",
+        allowedPaths: [
+            path.join(SYSTEM_DRIVE, "Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files\\Microsoft\\Edge\\Application\\msedge.exe"),
+        ],
+        trait: {
+            flash: false,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "星愿浏览器",
+        allowedPaths: [
+            path.join(SYSTEM_DRIVE, "Program Files (x86)\\Twinkstar Browser\\twinkstar.exe"),
+            path.join(SYSTEM_DRIVE, "Program Files\\Twinkstar Browser\\twinkstar.exe"),
+        ],
+        trait: {
+            flash: true,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "傲游浏览器",
+        allowedPaths: [
+            path.join(LOCAL_APPDATA, "Maxthon\\Application\\Maxthon.exe"),
+        ],
+        trait: {
+            flash: true,
+            unity: false,
+            debug: "--remote-debugging-port="
+        }
+    },
+    {
+        name: "Opera",
+        allowedPaths: [
+            path.join(LOCAL_APPDATA, "Programs\\Opera\\launcher.exe"),
         ],
         trait: {
             flash: true,

@@ -61,7 +61,7 @@ Flash Collector 在本地运行游戏可能需要浏览器的支持，Flash 游�
 
 `星愿浏览器`可能是因为人手不够加上产品定位的问题，没有加入对这两种插件的适配修改。
 
-Flash Collector 增加了上述列表中除`星愿浏览器`以外浏览器的识别。你也可以使用旧版的 Chrome 或 Firefox，然后通过 Flash Collector 安装纯净版的 Flash 运行库插件。
+Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧版的 Chrome 或 Firefox，然后通过 Flash Collector 安装纯净版的 Flash 运行库插件。
 
 ## 关于登录
 
