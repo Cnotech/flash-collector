@@ -3,7 +3,7 @@ import fs from 'fs'
 import {GameInfo, ProgressEnable} from "../class";
 import {getConfig} from "./config";
 import {getBrowserNode} from "./browser";
-import {Err, Ok, Result} from "ts-results";
+import {Err, None, Ok, Option, Result, Some} from "ts-results";
 import {BrowserWindow} from "electron";
 
 const shelljs = require('shelljs')
@@ -197,7 +197,7 @@ async function restore(info: GameInfo): Promise<Result<null, string>> {
                 let s = searchInP(info.local.folder, targetInfo.FLASH_LOCAL_WITH_NET, "flash")
                 if (s != null) backupTarget = targetInfo.FLASH_LOCAL_WITH_NET
             }
-            if (backupTarget == null) return new Err("进度恢复失败：没有找到进度恢复位置，请点击“开始游戏”或“兼容模式”游玩一会后重试")
+            if (backupTarget == null) return new Err("进度恢复失败：没有找到进度恢复位置，请点击“开始游戏”或游玩一会后重试")
 
             //复制目录
             for (let file of fs.readdirSync(backupRoot)) {
@@ -250,8 +250,19 @@ async function restore(info: GameInfo): Promise<Result<null, string>> {
     return new Err("Error:Fatal,unknown game type : " + info.type)
 }
 
+function getBackupTime(info: GameInfo): Option<string> {
+    if (info.local == null) return None
+
+    const backupRoot = path.join(process.cwd(), "games", info.type, info.local.folder, "_FC_PROGRESS_BACKUP_")
+    if (!fs.existsSync(backupRoot)) return None
+    let date = new Date(fs.statSync(backupRoot).mtime)
+
+    return new Some(date.toLocaleString())
+}
+
 export {
     initProgressModule,
     backup,
-    restore
+    restore,
+    getBackupTime
 }

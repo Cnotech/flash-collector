@@ -382,6 +382,13 @@ function openFolder() {
 }
 
 async function getProgressModuleStatus() {
+  //读取配置总开关
+  let config = await getConfig()
+  if (!config.progressBackup.enable) {
+    progressDisplayStatus.value.enable = 'disable'
+    progressDisplayStatus.value.msg = "进度备份功能已关闭，请在“设置”页面中启用"
+    return
+  }
   //获取进度模块状态
   let status = await bridge('initProgressModule') as ProgressEnable
   // console.log(status)
@@ -391,7 +398,7 @@ async function getProgressModuleStatus() {
       progressDisplayStatus.value.enable = 'full'
       progressDisplayStatus.value.msg = "进度备份功能已启用"
     } else {
-      progressDisplayStatus.value.msg = "暂时无法启用进度备份功能，请点击“开始游戏”或“兼容模式”游玩一会后重试"
+      progressDisplayStatus.value.msg = "暂时无法启用进度备份功能，请点击“开始游戏”游玩一会后重试"
     }
   } else if (info.value.type == 'unity') {
     if (status.unity) {
@@ -429,6 +436,24 @@ async function backupProgress() {
 }
 
 async function restoreProgress() {
+  let r = await bridge('getBackupTime', JSON.parse(JSON.stringify(info.value))) as Option<string>
+  if (r.some) {
+    Modal.confirm({
+      title: "确认恢复进度",
+      content: `即将使用保存于 ${r.val} 的备份覆盖当前游戏进度，您的最新进度将会丢失！`,
+      okText: "覆盖",
+      okButtonProps: {
+        danger: true
+      },
+      onOk: confirmRestoreProgress,
+      cancelText: "取消"
+    })
+  } else {
+    message.info("当前没有备份")
+  }
+}
+
+async function confirmRestoreProgress() {
   message.loading({
     content: "正在恢复游戏进度...",
     key: "restore",

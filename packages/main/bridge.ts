@@ -13,7 +13,7 @@ import cp from 'child_process'
 import {chooseBrowser, getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
 import {sniffing} from "./sniffing";
 import {update} from "./update";
-import {backup, initProgressModule, restore} from "./progress";
+import {backup, getBackupTime, initProgressModule, restore} from "./progress";
 
 const shelljs = require('shelljs')
 
@@ -243,7 +243,8 @@ const registry: { [name: string]: (...args: any) => any } = {
     initProgressModule,
     isPackaged,
     backup,
-    restore
+    restore,
+    getBackupTime
 }
 
 export default function () {

@@ -63,27 +63,21 @@
     </a-space>
   </a-card>
   <br/>
-  <a-card title="自动进度备份">
+  <a-card title="自动备份进度">
+    <p>在启动游戏时自动备份上次游戏进度，若频繁出错请<a @click="shell.openExternal('https://github.com/Cnotech/flash-collector/issues')">提交
+      issue </a>然后暂时关闭此功能</p>
     <a-switch v-model:checked="enableProgressBackup" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
   <br/>
-  <a-card title="搜索方式">
-    <a-space>
-      <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
-      <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
-    </a-space>
-  </a-card>
-  <br/>
   <a-card title="运行库检查">
+    <p>在启动游戏时自动检查相应运行库是否已经安装，若有误报请关闭</p>
     <a-switch v-model:checked="libCheck" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
   <br/>
-  <a-card title="游戏服务端口">
-    若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
-    <br/><br/>
+  <a-card title="搜索引擎">
     <a-space>
-      <a-input v-model:value="port" style="width: 100%"/>
-      <a-button :type="oldPort==port?'default':'primary'" @click="restart">立即应用</a-button>
+      <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
+      <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
     </a-space>
   </a-card>
   <br/>
@@ -100,6 +94,15 @@
     （3）本软件及其仓库是 Flash Collector 字样及下图所示图标（渐变绿底FC字）的最早使用者，任何个人或组织未经授权不得使用相关字样或图标。
     <br/><br/>
     <img alt="Icon" src="../assets/favicon.ico" style="height: 50px;width: 50px;margin: 10px 0 0 50%"/>
+  </a-card>
+  <br/>
+  <a-card title="游戏服务端口">
+    若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
+    <br/><br/>
+    <a-space>
+      <a-input v-model:value="port" style="width: 100%"/>
+      <a-button :type="oldPort==port?'default':'primary'" @click="restart">立即应用</a-button>
+    </a-space>
   </a-card>
   <br/>
   <a-card title="开发者工具">
