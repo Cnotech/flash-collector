@@ -32,6 +32,12 @@
                   @change="onChangeBrowser('unity')"></a-select>
         <span>{{ browser.unity.p }}</span>
       </a-space>
+      <a-space>
+        HTML5：
+        <a-select v-model:value="browser.h5.name" :options="h5BrowserList" style="width: 140px"
+                  @change="onChangeBrowser('h5')"></a-select>
+        <span>{{ browser.h5.p }}</span>
+      </a-space>
     </a-space>
   </a-card>
   <br/>
@@ -148,7 +154,7 @@ let site = ref<string>("4399"),
     libCheck = ref<boolean>(true),
     port = ref<number>(3000),
     oldPort = ref(3000),
-    browser = ref<{ flash: ExactBrowser, unity: ExactBrowser }>({
+    browser = ref<{ flash: ExactBrowser, unity: ExactBrowser, h5: ExactBrowser }>({
       flash: {
         name: "默认浏览器",
         p: "",
@@ -174,10 +180,24 @@ let site = ref<string>("4399"),
             debug: "disable"
           }
         }
+      },
+      h5: {
+        name: "默认浏览器",
+        p: "",
+        node: {
+          name: "默认浏览器",
+          allowedPaths: [],
+          trait: {
+            flash: false,
+            unity: false,
+            debug: "disable"
+          }
+        }
       }
     }),
     flashBrowserList = ref<{ label: string, value: string, node: Browser }[]>([]),
     unityBrowserList = ref<{ label: string, value: string, node: Browser }[]>([]),
+    h5BrowserList = ref<{ label: string, value: string, node: Browser }[]>([]),
     smartSniffing = ref<Config['smartSniffing']>({
       enable: false,
       port: 9222,
@@ -209,7 +229,7 @@ function getBrowserNode(name: string, list: { label: string, value: string, node
   return b
 }
 
-async function onChangeBrowser(type: 'flash' | 'unity') {
+async function onChangeBrowser(type: 'flash' | 'unity' | 'h5') {
   let name = "", q: Option<string>
   if (type == 'flash') {
     name = browser.value.flash.name
@@ -225,7 +245,7 @@ async function onChangeBrowser(type: 'flash' | 'unity') {
       browser.value.flash.p = ""
     }
     browser.value.flash.node = getBrowserNode(name, flashBrowserList.value)
-  } else {
+  } else if (type == 'unity') {
     name = browser.value.unity.name
     if (name == "自定义浏览器") {
       q = await bridge('chooseBrowser') as Option<string>
@@ -239,6 +259,20 @@ async function onChangeBrowser(type: 'flash' | 'unity') {
       browser.value.unity.p = ""
     }
     browser.value.unity.node = getBrowserNode(name, unityBrowserList.value)
+  } else {
+    name = browser.value.h5.name
+    if (name == "自定义浏览器") {
+      q = await bridge('chooseBrowser') as Option<string>
+    } else {
+      q = await bridge('parseBrowserPath', name) as Option<string>
+    }
+    if (q.some) {
+      browser.value.h5.p = q.val
+    } else {
+      browser.value.h5.name = "默认浏览器"
+      browser.value.h5.p = ""
+    }
+    browser.value.h5.node = getBrowserNode(name, h5BrowserList.value)
   }
 }
 
@@ -364,9 +398,18 @@ onMounted(async () => {
           node: n
         }
       })
+  h5BrowserList.value = bList
+      .map(n => {
+        return {
+          label: n.name,
+          value: n.name,
+          node: n
+        }
+      })
   //配置当前浏览器
   const flashBN = await bridge('getBrowserNickName', config.browser.flash),
-      unityBN = await bridge('getBrowserNickName', config.browser.unity)
+      unityBN = await bridge('getBrowserNickName', config.browser.unity),
+      h5BN = await bridge('getBrowserNickName', config.browser.h5)
   browser.value = {
     flash: {
       name: flashBN,
@@ -377,6 +420,11 @@ onMounted(async () => {
       name: unityBN,
       p: config.browser.unity,
       node: getBrowserNode(unityBN, unityBrowserList.value)
+    },
+    h5: {
+      name: h5BN,
+      p: config.browser.h5,
+      node: getBrowserNode(h5BN, h5BrowserList.value)
     }
   }
 })
@@ -394,6 +442,7 @@ const save = async () => {
   config.browser = {
     flash: browser.value.flash.p,
     unity: browser.value.unity.p,
+    h5: browser.value.h5.p,
     ignoreAlert: config.browser.ignoreAlert
   }
 

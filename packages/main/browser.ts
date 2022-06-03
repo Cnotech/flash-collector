@@ -119,7 +119,7 @@ const browserList: Browser[] = [
             path.join(SYSTEM_DRIVE, "Program Files\\Twinkstar Browser\\twinkstar.exe"),
         ],
         trait: {
-            flash: true,
+            flash: false,
             unity: false,
             debug: "--remote-debugging-port="
         }
@@ -130,7 +130,7 @@ const browserList: Browser[] = [
             path.join(LOCAL_APPDATA, "Maxthon\\Application\\Maxthon.exe"),
         ],
         trait: {
-            flash: true,
+            flash: false,
             unity: false,
             debug: "--remote-debugging-port="
         }
@@ -141,7 +141,7 @@ const browserList: Browser[] = [
             path.join(LOCAL_APPDATA, "Programs\\Opera\\launcher.exe"),
         ],
         trait: {
-            flash: true,
+            flash: false,
             unity: false,
             debug: "--remote-debugging-port="
         }

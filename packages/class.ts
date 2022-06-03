@@ -76,6 +76,7 @@ interface Config {
     browser: {
         flash: string,
         unity: string,
+        h5: string,
         ignoreAlert: boolean
     },
     smartSniffing: {
