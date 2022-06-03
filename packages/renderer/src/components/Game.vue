@@ -34,6 +34,7 @@
             <a-menu>
               <a-menu-item key="del" @click="del">删除</a-menu-item>
               <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
+              <a-menu-item key="ins" @click="backupProgress">备份进度</a-menu-item>
             </a-menu>
           </template>
           <a-button :disabled="status" @click="ren">
@@ -385,11 +386,8 @@ async function getProgressModuleStatus() {
   // console.log(status)
   //判断当前游戏的同步状态
   if (info.value.type == 'flash') {
-    if (status.flashIndividual && status.flashBrowser) {
+    if (status.flashIndividual) {
       progressDisplayStatus.value.enable = 'full'
-      progressDisplayStatus.value.msg = "进度备份、进度同步功能已启用"
-    } else if (status.flashIndividual || status.flashBrowser) {
-      progressDisplayStatus.value.enable = 'partial'
       progressDisplayStatus.value.msg = "进度备份功能已启用"
     } else {
       progressDisplayStatus.value.msg = "暂时无法启用进度备份功能，请点击“开始游戏”或“兼容模式”游玩一会后重试"
@@ -404,6 +402,28 @@ async function getProgressModuleStatus() {
   } else {
     progressDisplayStatus.value.enable = 'full'
     progressDisplayStatus.value.msg = "进度备份功能已启用"
+  }
+}
+
+async function backupProgress() {
+  message.loading({
+    content: "正在备份游戏进度...",
+    key: "backup",
+    duration: 0
+  })
+  let r = await bridge('backup', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+  if (r.ok) {
+    message.success({
+      content: "备份游戏进度成功",
+      key: "backup",
+      duration: 3
+    })
+  } else {
+    message.error({
+      content: r.val,
+      key: "backup",
+      duration: 5
+    })
   }
 }
 

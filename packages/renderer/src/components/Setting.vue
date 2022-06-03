@@ -63,6 +63,10 @@
     </a-space>
   </a-card>
   <br/>
+  <a-card title="自动进度备份">
+    <a-switch v-model:checked="enableProgressBackup" checked-children="启用" un-checked-children="禁用"/>
+  </a-card>
+  <br/>
   <a-card title="搜索方式">
     <a-space>
       <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
@@ -202,7 +206,8 @@ let site = ref<string>("4399"),
       enable: false,
       port: 9222,
       arg: "--remote-debugging-port="
-    })
+    }),
+    enableProgressBackup = ref(true)
 
 let config: Config
 
@@ -356,6 +361,7 @@ onMounted(async () => {
   oldPort.value = config.port
 
   smartSniffing.value = config.smartSniffing
+  enableProgressBackup.value = config.progressBackup.enable
 
   //获取本地可用浏览器列表
   let bList: Browser[] = [{
@@ -447,6 +453,7 @@ const save = async () => {
   }
 
   config.smartSniffing = JSON.parse(JSON.stringify(smartSniffing.value))
+  config.progressBackup.enable = enableProgressBackup.value
 
   setConfig(config, true)
   bus.emit('update-search-pattern')

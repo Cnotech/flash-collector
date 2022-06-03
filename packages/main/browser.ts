@@ -18,6 +18,9 @@ const browserList: Browser[] = [
             flash: true,
             unity: true,
             debug: "--remote-debugging-port="
+        },
+        location: {
+            flashCache: path.join(LOCAL_APPDATA, "360ChromeX\\Chrome\\User Data\\Default\\Pepper Data\\Shockwave Flash\\WritableRoot\\#SharedObjects")
         }
     },
     {

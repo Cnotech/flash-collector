@@ -24,6 +24,9 @@ const configPatch = {
     },
     notice: {
         ignore: []
+    },
+    progressBackup: {
+        enable: true
     }
 }
 
@@ -40,6 +43,7 @@ function geneInitConfig(): Config {
         browser: {
             flash: "",
             unity: "",
+            h5: "",
             ignoreAlert: false
         },
         smartSniffing: {
@@ -49,6 +53,9 @@ function geneInitConfig(): Config {
         },
         notice: {
             ignore: []
+        },
+        progressBackup: {
+            enable: true
         }
     }
 }

@@ -86,6 +86,9 @@ interface Config {
     },
     notice: {
         ignore: string[]
+    },
+    progressBackup: {
+        enable: boolean
     }
 }
 
