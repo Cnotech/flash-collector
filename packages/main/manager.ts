@@ -369,7 +369,7 @@ async function launch(type: string, folder: string, method: 'normal' | 'backup' 
                 break
             case "h5":
                 if (method == 'origin') {
-                    await openWithBrowser("", infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
+                    await openWithBrowser(config.browser.h5, infoConfig.online.truePage + '#flash-collector-0?title=' + infoConfig.title)
                     resolve(true)
                 } else if (method == 'normal') {
                     const win = new BrowserWindow({

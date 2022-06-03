@@ -101,7 +101,7 @@ const browserList: Browser[] = [
         }
     },
     {
-        name: "Edge(Chromium)",
+        name: "Edge (Chromium)",
         allowedPaths: [
             path.join(SYSTEM_DRIVE, "Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"),
             path.join(SYSTEM_DRIVE, "Program Files\\Microsoft\\Edge\\Application\\msedge.exe"),

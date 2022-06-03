@@ -84,6 +84,8 @@
           <a-popover placement="rightBottom" title="这是一个在线游戏" trigger="hover">
             <template #content>
               <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
+              <br/>
+              <p>关于源站播放：</p>
               <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>

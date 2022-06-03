@@ -21,22 +21,22 @@
       <p>Flash Collector 在本地运行游戏可能需要浏览器的支持，请参考我们提供的<a
           @click="shell.openExternal('https://github.com/Cnotech/flash-collector#浏览器兼容性')">浏览器兼容性表格</a>选择游戏的启动浏览器</p>
       <a-space>
-        Flash：
-        <a-select v-model:value="browser.flash.name" :options="flashBrowserList" style="width: 140px"
+        <span style="margin-right: 12.5px">Flash：</span>
+        <a-select v-model:value="browser.flash.name" :options="flashBrowserList" class="browser-selector"
                   @change="onChangeBrowser('flash')"></a-select>
-        <span>{{ browser.flash.p }}</span>
+        <span class="browser-location">{{ browser.flash.p }}</span>
       </a-space>
       <a-space>
-        Unity：
-        <a-select v-model:value="browser.unity.name" :options="unityBrowserList" style="width: 140px"
+        <span style="margin-right: 12px">Unity：</span>
+        <a-select v-model:value="browser.unity.name" :options="unityBrowserList" class="browser-selector"
                   @change="onChangeBrowser('unity')"></a-select>
-        <span>{{ browser.unity.p }}</span>
+        <span class="browser-location">{{ browser.unity.p }}</span>
       </a-space>
       <a-space>
-        HTML5：
-        <a-select v-model:value="browser.h5.name" :options="h5BrowserList" style="width: 140px"
+        <span>HTML5：</span>
+        <a-select v-model:value="browser.h5.name" :options="h5BrowserList" class="browser-selector"
                   @change="onChangeBrowser('h5')"></a-select>
-        <span>{{ browser.h5.p }}</span>
+        <span class="browser-location">{{ browser.h5.p }}</span>
       </a-space>
     </a-space>
   </a-card>
@@ -495,5 +495,13 @@ async function restart() {
 <style scoped>
 a-card {
   width: 100%;
+}
+
+.browser-selector {
+  width: 160px;
+}
+
+.browser-location {
+  color: gray;
 }
 </style>
