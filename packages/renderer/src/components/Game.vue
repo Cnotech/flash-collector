@@ -35,6 +35,7 @@
               <a-menu-item key="del" @click="del">删除</a-menu-item>
               <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
               <a-menu-item key="ins" @click="backupProgress">备份进度</a-menu-item>
+              <a-menu-item key="ins" @click="restoreProgress">恢复进度</a-menu-item>
             </a-menu>
           </template>
           <a-button :disabled="status" @click="ren">
@@ -422,6 +423,28 @@ async function backupProgress() {
     message.error({
       content: r.val,
       key: "backup",
+      duration: 5
+    })
+  }
+}
+
+async function restoreProgress() {
+  message.loading({
+    content: "正在恢复游戏进度...",
+    key: "restore",
+    duration: 0
+  })
+  let r = await bridge('restore', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+  if (r.ok) {
+    message.success({
+      content: "恢复游戏进度成功",
+      key: "restore",
+      duration: 3
+    })
+  } else {
+    message.error({
+      content: r.val,
+      key: "restore",
       duration: 5
     })
   }

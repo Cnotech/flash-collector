@@ -89,19 +89,21 @@ function searchInP(targetFolder: string, p: string, type: "flash" | "unity"): st
 }
 
 function copyFolder(source: string, target: string): boolean {
-    if (fs.existsSync(target)) shelljs.rm("-rf", target)
-    if (fs.existsSync(target)) return false
-    shelljs.mkdir(target)
-    shelljs.cp("-R", source, path.join(target, path.basename(source)))
-    return fs.existsSync(target)
+    const final = path.join(target, path.basename(source))
+    if (fs.existsSync(final)) shelljs.rm("-rf", final)
+    if (fs.existsSync(final)) return false
+    if (!fs.existsSync(target)) shelljs.mkdir(target)
+    shelljs.cp("-R", source, target)
+    return fs.existsSync(final)
 }
 
 function copyFile(source: string, target: string): boolean {
-    if (fs.existsSync(target)) shelljs.rm("-rf", target)
-    if (fs.existsSync(target)) return false
-    shelljs.mkdir(target)
-    shelljs.cp(source, path.join(target, path.basename(source)))
-    return fs.existsSync(target)
+    const final = path.join(target, path.basename(source))
+    if (fs.existsSync(final)) shelljs.rm("-rf", final)
+    if (fs.existsSync(final)) return false
+    if (!fs.existsSync(target)) shelljs.mkdir(target)
+    shelljs.cp(source, target)
+    return fs.existsSync(final)
 }
 
 function writeJson(json: any, targetFolder: string, fileName: string): boolean {
@@ -176,7 +178,80 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
     return new Err("Error:Fatal,unknown game type : " + info.type)
 }
 
+async function restore(info: GameInfo): Promise<Result<null, string>> {
+    if (info.local == null) return new Err("Error:Fatal,no local information provided")
+
+    const backupRoot = path.join(process.cwd(), "games", info.type, info.local.folder, "_FC_PROGRESS_BACKUP_")
+    if (!fs.existsSync(backupRoot)) {
+        return new Err("进度恢复失败：当前没有备份")
+    }
+    let backupSource, backupTarget
+    switch (info.type) {
+        case "flash":
+            //查找两个位置
+            if (targetInfo.FLASH_LOCALHOST != "") {
+                let s = searchInP(info.local.folder, targetInfo.FLASH_LOCALHOST, "flash")
+                if (s != null) backupTarget = targetInfo.FLASH_LOCALHOST
+            }
+            if (backupTarget == null && targetInfo.FLASH_LOCAL_WITH_NET != "") {
+                let s = searchInP(info.local.folder, targetInfo.FLASH_LOCAL_WITH_NET, "flash")
+                if (s != null) backupTarget = targetInfo.FLASH_LOCAL_WITH_NET
+            }
+            if (backupTarget == null) return new Err("进度恢复失败：没有找到进度恢复位置，请点击“开始游戏”或“兼容模式”游玩一会后重试")
+
+            //复制目录
+            for (let file of fs.readdirSync(backupRoot)) {
+                backupSource = path.join(backupRoot, file)
+                if (!copyFolder(backupSource, backupTarget)) {
+                    return new Err(`进度恢复失败：无法拷贝进度文件夹${file}`)
+                }
+            }
+            return new Ok(null)
+        case "unity":
+            if (targetInfo.UNITY_WEB_PLAYER_PREFS != "") {
+                let s = searchInP(info.local.folder, path.join(targetInfo.UNITY_WEB_PLAYER_PREFS, "localhost"), "unity")
+                if (s != null) backupTarget = path.join(targetInfo.UNITY_WEB_PLAYER_PREFS, "localhost")
+            }
+            if (backupTarget == null) return new Err("进度备份失败：没有找到进度恢复位置，请点击“开始游戏”游玩一会后重试")
+
+            //复制文件
+            for (let file of fs.readdirSync(backupRoot)) {
+                backupSource = path.join(backupRoot, file)
+                if (!copyFile(backupSource, backupTarget)) {
+                    return new Err(`进度恢复失败：无法拷贝进度文件${file}`)
+                }
+            }
+            return new Ok(null)
+        case "h5":
+            const localStorageFile = path.join(backupRoot, "localStorage.json")
+            if (!fs.existsSync(localStorageFile)) {
+                return new Err("进度恢复失败：当前没有 localStorage 备份")
+            }
+            let data = JSON.parse(fs.readFileSync(localStorageFile).toString())
+            return new Promise(async res => {
+                const win = new BrowserWindow({
+                    width: 30,
+                    height: 20
+                })
+                win.hide()
+                win.webContents.once('did-stop-loading', async () => {
+                    //写入localStorage
+                    for (let key in data) {
+                        await win.webContents.executeJavaScript(`window.localStorage.setItem('${key}', '${data[key]}');`, true)
+                    }
+                    res(new Ok(null))
+                })
+                await win.loadURL(info.online.binUrl, {
+                    httpReferrer: info.online.truePage,
+                    userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
+                })
+            })
+    }
+    return new Err("Error:Fatal,unknown game type : " + info.type)
+}
+
 export {
     initProgressModule,
-    backup
+    backup,
+    restore
 }
