@@ -2,7 +2,7 @@ import {dialog, ipcMain} from "electron";
 import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
-import {restart, toggleDevtool, version} from "./index";
+import {isPackaged, restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
 import path from "path";
 import fs from "fs";
@@ -240,7 +240,8 @@ const registry: { [name: string]: (...args: any) => any } = {
     chooseBrowser,
     sniffing,
     update,
-    initProgressModule
+    initProgressModule,
+    isPackaged
 }
 
 export default function () {

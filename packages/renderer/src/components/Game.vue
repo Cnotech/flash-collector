@@ -388,10 +388,7 @@ async function getProgressModuleStatus() {
     if (status.flashIndividual && status.flashBrowser) {
       progressDisplayStatus.value.enable = 'full'
       progressDisplayStatus.value.msg = "进度备份、进度同步功能已启用"
-    } else if (status.flashIndividual) {
-      progressDisplayStatus.value.enable = 'partial'
-      progressDisplayStatus.value.msg = "进度备份功能已启用"
-    } else if (status.flashBrowser) {
+    } else if (status.flashIndividual || status.flashBrowser) {
       progressDisplayStatus.value.enable = 'partial'
       progressDisplayStatus.value.msg = "进度备份功能已启用"
     } else {

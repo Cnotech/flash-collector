@@ -47,6 +47,7 @@ let data: UpdateReply | null = null,
     updateMethod: "update" | "extendedUpdate" | "full" = "update"
 
 async function init() {
+  if (await bridge('isPackaged')) return
   //获取信息
   let res = await axios.get(updateApi)
   data = res.data as UpdateReply

@@ -112,10 +112,15 @@ function update() {
     cp.exec(`start cmd /c main.cmd ${latestVersion}`)
 }
 
+function isPackaged() {
+    return app.isPackaged
+}
+
 bridge()
 export {
     toggleDevtool,
     restart,
     version,
-    enableUpdate
+    enableUpdate,
+    isPackaged
 }
