@@ -177,15 +177,28 @@ function parseBrowserPath(availableBrowser: string): Option<string> {
 
 //由路径查找浏览器昵称
 function getBrowserNickName(inputPath: string): string {
-    if (inputPath == '') return "默认浏览器"
+    return getBrowserNode(inputPath).name
+}
+
+function getBrowserNode(inputPath: string): Browser {
+    const defaultBrowser = {
+        name: "默认浏览器",
+        allowedPaths: [],
+        trait: {
+            flash: true,
+            unity: true,
+            debug: "disable"
+        }
+    }
+    if (inputPath == '') return defaultBrowser
     for (let n of browserList) {
         for (let p of n.allowedPaths) {
             if (p == inputPath) {
-                return n.name
+                return n
             }
         }
     }
-    return "自定义浏览器"
+    return defaultBrowser
 }
 
 //自定义浏览器路径
@@ -207,5 +220,6 @@ export {
     getAvailableBrowsers,
     parseBrowserPath,
     getBrowserNickName,
+    getBrowserNode,
     chooseBrowser
 }

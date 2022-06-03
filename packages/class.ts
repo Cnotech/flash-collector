@@ -102,6 +102,9 @@ interface Browser {
         flash: boolean,
         unity: boolean,
         debug: string | 'disable' | 'unknown'
+    },
+    location?: {
+        flashCache?: string
     }
 }
 
@@ -133,6 +136,13 @@ interface UpdateReply {
     notice: Notice[]
 }
 
+interface ProgressEnable {
+    flashIndividual: boolean,
+    flashBrowser: boolean,
+    unity: boolean,
+    h5Import: boolean
+}
+
 export {
     GameInfo,
     ParserRegister,
@@ -143,5 +153,6 @@ export {
     Config,
     Browser,
     UpdateReply,
-    Notice
+    Notice,
+    ProgressEnable
 }

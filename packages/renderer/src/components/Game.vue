@@ -20,6 +20,13 @@
       </template>
       <template #tags>
         <a-tag color="green">{{ info.fromSite }}</a-tag>
+        <a-tooltip :title="progressDisplayStatus.msg">
+          <file-protect-outlined v-if="progressDisplayStatus.enable==='full'" class="progress-status-icon"
+                                 style="color: #52c41a"/>
+          <file-done-outlined v-if="progressDisplayStatus.enable==='partial'" class="progress-status-icon"
+                              style="color: #52c41a"/>
+          <exception-outlined v-if="progressDisplayStatus.enable==='disable'" class="progress-status-icon"/>
+        </a-tooltip>
       </template>
       <template #extra>
         <a-dropdown>
@@ -58,7 +65,7 @@
               <p v-else>请点击“源站播放”并尽可能游玩全部关卡以嗅探缺失的文件</p>
 
               <br/>
-              <p>关于源站播放：</p>
+              <p>关于源站播放</p>
               <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
@@ -85,7 +92,7 @@
             <template #content>
               <p>HTML5游戏暂时没有方法保存到本地，页面来自源游戏网站</p>
               <br/>
-              <p>关于源站播放：</p>
+              <p>关于源站播放</p>
               <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
@@ -129,10 +136,13 @@
 <script lang="ts" setup>
 import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
-import {Config, GameInfo} from "../../../class";
+import {Config, GameInfo, ProgressEnable} from "../../../class";
 import {
   DownOutlined,
+  ExceptionOutlined,
   ExclamationCircleOutlined,
+  FileDoneOutlined,
+  FileProtectOutlined,
   QuestionCircleOutlined,
   RadarChartOutlined,
   WarningFilled
@@ -172,11 +182,16 @@ let status = ref<boolean>(false),
     rename = ref<{ status: boolean, value: string }>({status: false, value: ""}),
     alertSwf = ref(false),
     port = ref(3000),
-    sniffingStatue = ref(false)
+    sniffingStatue = ref(false),
+    progressDisplayStatus = ref<{ enable: 'full' | 'partial' | 'disable', msg: string }>({
+      enable: 'disable',
+      msg: "进度备份功能无法启用"
+    })
 
 let browser: Config['browser'] = {
   flash: "",
   unity: "",
+  h5: "",
   ignoreAlert: false
 }
 getConfig().then(c => {
@@ -187,6 +202,10 @@ getConfig().then(c => {
 
 //启动游戏
 async function launch(method: 'normal' | 'backup' | 'origin') {
+  //刷新同步状态
+  await getProgressModuleStatus()
+
+  //启动游戏
   playingList.push(info.value.local?.folder as string)
   status.value = true
   let res: Result<{ type: string, folder: string, method: 'normal' | 'backup' | 'origin' }, string> = await bridge('launch',
@@ -360,6 +379,37 @@ function openFolder() {
   }
 }
 
+async function getProgressModuleStatus() {
+  //获取进度模块状态
+  let status = await bridge('initProgressModule') as ProgressEnable
+  // console.log(status)
+  //判断当前游戏的同步状态
+  if (info.value.type == 'flash') {
+    if (status.flashIndividual && status.flashBrowser) {
+      progressDisplayStatus.value.enable = 'full'
+      progressDisplayStatus.value.msg = "进度备份、进度同步功能已启用"
+    } else if (status.flashIndividual) {
+      progressDisplayStatus.value.enable = 'partial'
+      progressDisplayStatus.value.msg = "进度备份功能已启用"
+    } else if (status.flashBrowser) {
+      progressDisplayStatus.value.enable = 'partial'
+      progressDisplayStatus.value.msg = "进度备份功能已启用"
+    } else {
+      progressDisplayStatus.value.msg = "暂时无法启用进度备份功能，请点击“开始游戏”或“兼容模式”游玩一会后重试"
+    }
+  } else if (info.value.type == 'unity') {
+    if (status.unity) {
+      progressDisplayStatus.value.enable = 'full'
+      progressDisplayStatus.value.msg = "进度备份功能已启用"
+    } else {
+      progressDisplayStatus.value.msg = "暂时无法启用进度备份功能，请点击“开始游戏”游玩一会后重试"
+    }
+  } else {
+    progressDisplayStatus.value.enable = 'full'
+    progressDisplayStatus.value.msg = "进度备份功能已启用"
+  }
+}
+
 onMounted(async () => {
   //配置查询
   const qRes = await query()
@@ -397,6 +447,9 @@ onMounted(async () => {
   //     }
   //   }
   // })
+
+  //刷新同步状态
+  await getProgressModuleStatus()
 })
 
 //配置更新查询
@@ -412,10 +465,16 @@ router.afterEach(async () => {
   }
   //配置webview
   webview.setAttribute('src', info.value.online.originPage)
+  //刷新同步状态
+  await getProgressModuleStatus()
 })
 
 </script>
 
 <style scoped>
-
+.progress-status-icon {
+  font-size: large;
+  margin-left: 5px;
+  transform: translateY(2px);
+}
 </style>
