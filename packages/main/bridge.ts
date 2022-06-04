@@ -2,7 +2,7 @@ import {dialog, ipcMain} from "electron";
 import {GameInfo, Reply, Request} from "../class";
 import manager from "./manager";
 import {Err, Ok, Result} from "ts-results";
-import {isPackaged, restart, toggleDevtool, version} from "./index";
+import {isPackaged, logToRenderer, restart, toggleDevtool, version} from "./index";
 import {getConfig, setConfig} from "./config";
 import path from "path";
 import fs from "fs";
@@ -179,6 +179,7 @@ const registry: { [name: string]: (...args: any) => any } = {
     confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[], includeProgress: boolean, advisedFileName?: string): Promise<Result<string, string>> => {
         if (direction == 'Import') {
             //处理导入
+            logToRenderer('proc import')
             let source, target, progressRestoreError: { info: GameInfo, errMsg: string }[] = []
             for (let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
@@ -196,8 +197,10 @@ const registry: { [name: string]: (...args: any) => any } = {
                     return new Err(`Error:Import failed : ${game.type}/${game.local.folder}`)
                 }
                 //导入游戏进度
+                logToRenderer('jud')
                 if (includeProgress && fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_/backup.json"))) {
                     let r = await restore(game, true)
+                    logToRenderer(r.err)
                     if (r.err) {
                         progressRestoreError.push({
                             info: game,
@@ -205,6 +208,7 @@ const registry: { [name: string]: (...args: any) => any } = {
                         })
                     } else {
                         //成功恢复后删除本地的备份
+                        logToRenderer(path.join(target, "_FC_PROGRESS_BACKUP_"))
                         shelljs.rm("-rf", path.join(target, "_FC_PROGRESS_BACKUP_"))
                     }
                 } else if (fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
@@ -228,7 +232,7 @@ const registry: { [name: string]: (...args: any) => any } = {
                 }
             }
             if (causedByFlash) {
-                report += "；这可能是由于您尚未从 Flash Collector 启动 Flash 游戏导致的，请稍后在游戏页面重试"
+                report += "；这可能是由于您尚未从 Flash Collector 启动带有进度保存功能的 Flash 游戏导致的，请稍后在游戏页面重试"
             }
             return new Ok(report)
         } else {
