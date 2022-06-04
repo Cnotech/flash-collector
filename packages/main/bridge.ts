@@ -166,10 +166,10 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
         return new Ok(gameList)
     },
-    confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[], advisedFileName?: string): Promise<Result<string, string>> => {
+    confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[], includeProgress: boolean, advisedFileName?: string): Promise<Result<string, string>> => {
         if (direction == 'Import') {
             //处理导入
-            let source, target
+            let source, target, progressRestoreError: { info: GameInfo, errMsg: string }[] = []
             for (let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
                 source = path.join("TEMP/UNZIP-TEMP", game.type, game.local.folder)
@@ -185,8 +185,26 @@ const registry: { [name: string]: (...args: any) => any } = {
                 if (!fs.existsSync(target)) {
                     return new Err(`Error:Import failed : ${game.type}/${game.local.folder}`)
                 }
+                //导入游戏进度
+                if (includeProgress && fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
+                    let r = await restore(game)
+                    if (r.err) {
+                        progressRestoreError.push({
+                            info: game,
+                            errMsg: r.val
+                        })
+                    }
+                }
             }
-            return new Ok(`成功导入${games.length}个游戏`)
+            //生成报告
+            let report = `成功导入${games.length}个游戏`
+            if (progressRestoreError.length > 0) {
+                report += `，但是有${progressRestoreError.length}个游戏的进度恢复失败，请稍后在游戏页面重试：`
+                for (let r of progressRestoreError) {
+                    report += ` ${r.info.title}`
+                }
+            }
+            return new Ok(report)
         } else {
             //处理导出
             //清理临时目录
@@ -210,13 +228,19 @@ const registry: { [name: string]: (...args: any) => any } = {
                 return new Err("Error:User didn't select a location")
             }
             //复制文件
-            let source, target
+            let source, target, backup
             for(let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
                 source = path.join("games", game.type, game.local.folder)
                 target = path.join("TEMP/ZIP-TEMP", game.type, game.local.folder)
                 shelljs.mkdir("-p", path.join("TEMP/ZIP-TEMP", game.type))
                 shelljs.cp('-R', source, target)
+
+                //没有包含进度时删除进度
+                backup = path.join(target, "_FC_PROGRESS_BACKUP_")
+                if (!includeProgress && fs.existsSync(backup)) {
+                    shelljs.rm("-rf", backup)
+                }
             }
             //压缩
             if(!fs.existsSync("exports")) shelljs.mkdir("exports")

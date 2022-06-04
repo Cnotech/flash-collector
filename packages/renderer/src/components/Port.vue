@@ -177,7 +177,7 @@ async function confirm() {
   if (state.value == "Export" && selected.value.length == 1) {
     advisedFileName = selected.value[0].title
   }
-  let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)), advisedFileName)
+  let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)), includeProgress.value, advisedFileName)
   loading.value = false
   if (r.ok) {
     if (state.value == 'Export') {
