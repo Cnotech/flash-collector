@@ -82,7 +82,6 @@ function initProgressModule(): ProgressEnable {
         res.h5Import = true
     }
 
-    // console.log(targetInfo)
     return res
 }
 
@@ -280,7 +279,7 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
             }
             return new Ok(null)
         case "unity":
-            if (!pEnable.flashIndividual) return new Err("进度恢复失败：当前 Unity 进度管理模块异常，请点击“开始游戏”游玩一会后重试")
+            // if (!pEnable.unity) return new Err("进度恢复失败：当前 Unity 进度管理模块异常，请点击“开始游戏”游玩一会后重试")
             //复制文件
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue

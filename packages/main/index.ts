@@ -116,11 +116,16 @@ function isPackaged() {
     return app.isPackaged
 }
 
+function logToRenderer(msg: any) {
+    win?.webContents.send('logToRenderer', msg)
+}
+
 bridge()
 export {
     toggleDevtool,
     restart,
     version,
     enableUpdate,
-    isPackaged
+    isPackaged,
+    logToRenderer
 }

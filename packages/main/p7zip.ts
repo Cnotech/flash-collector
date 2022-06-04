@@ -16,7 +16,7 @@ async function release(file: string, intoDir: string, overwrite?: boolean, cwd?:
 			shell.mkdir('-p', aID);
 		}
 		try {
-			cp.execSync(`${p7zip} x "${file}" -o"${intoDir}" -y`, {cwd});
+			cp.execSync(`"${p7zip}" x "${file}" -o"${intoDir}" -y`, {cwd});
 		} catch (e) {
 			console.log('Error:Release command failed\n' + e);
 			resolve(false);
@@ -33,7 +33,7 @@ async function compress(choosePlainDir: string, file: string, compressLevel: num
 		}
 		shell.rm('-f', path.join(cwd ?? '', file));
 		try {
-			cp.exec(`${p7zip} a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)}, (err) => {
+			cp.exec(`"${p7zip}" a -mx${compressLevel} "${file}" *`, {cwd: path.join(cwd ?? '', choosePlainDir)}, (err) => {
 				if (err) {
 					console.log('Error:Compress command failed\n' + err);
 					resolve(false);

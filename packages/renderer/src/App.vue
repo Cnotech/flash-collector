@@ -110,6 +110,7 @@ import bridge from "./bridge";
 import {getConfig} from "./config";
 import {notification} from 'ant-design-vue';
 import {Option} from "ts-results";
+import {ipcRenderer} from "electron";
 
 const router = useRouter(), route = useRoute()
 
@@ -169,9 +170,14 @@ function updateSidebarOpen() {
 
 router.afterEach(updateSidebarOpen)
 
-onMounted(()=>{
+onMounted(()=> {
   refreshSidebar()
   updateSidebarOpen()
+
+  //监听由主进程发送的日志信息
+  ipcRenderer.on('logToRenderer', (event, msg) => {
+    console.log(msg)
+  })
 })
 
 </script>
