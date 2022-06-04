@@ -265,7 +265,7 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
-                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-r", backupTarget)
+                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-p", backupTarget)
                 if (!copyFolder(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件夹${file}`)
                 }
@@ -277,7 +277,7 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
-                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-r", backupTarget)
+                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-p", backupTarget)
                 if (!copyFile(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件${file}`)
                 }
