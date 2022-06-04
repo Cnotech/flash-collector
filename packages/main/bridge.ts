@@ -204,10 +204,11 @@ const registry: { [name: string]: (...args: any) => any } = {
                             errMsg: r.val
                         })
                     } else {
-                        //立即刷新一次本地的备份
-                        await backup(game, true)
+                        //成功恢复后删除本地的备份
+                        shelljs.rm("-rf", path.join(target, "_FC_PROGRESS_BACKUP_"))
                     }
                 } else if (fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
+                    //删除无效的备份目录
                     shelljs.rm("-rf", path.join(target, "_FC_PROGRESS_BACKUP_"))
                 }
             }
