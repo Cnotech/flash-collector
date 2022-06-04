@@ -133,12 +133,20 @@ function writeJson(json: any, targetFolder: string, fileName: string): boolean {
     return fs.existsSync(finalPath)
 }
 
-async function backup(info: GameInfo): Promise<Result<null, string>> {
+async function backup(info: GameInfo, force?: boolean): Promise<Result<null, string>> {
     if (info.local == null) return new Err("Error:Fatal,no local information provided")
 
     //解析备份目标目录
     let backupSource = null
     const backupTarget = path.join(process.cwd(), "games", info.type, info.local.folder, "_FC_PROGRESS_BACKUP_")
+    //处理来自他人创建的进度，显示覆盖提示
+    const backupJson = path.join(backupTarget, "backup.json")
+    if (fs.existsSync(backupJson)) {
+        let backupJsonData = JSON.parse(fs.readFileSync(backupJson).toString())
+        if (validBackupJson(backupJsonData) && backupJsonData.createdBy != os.hostname() && !force) {
+            return new Err(`OVERWRITE_CONFIRM:${backupJsonData.createdBy}`)
+        }
+    }
     switch (info.type) {
         case "flash":
             //查找两个位置

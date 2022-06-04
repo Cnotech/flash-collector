@@ -211,10 +211,20 @@ const registry: { [name: string]: (...args: any) => any } = {
             //生成报告
             let report = `成功导入${games.length}个游戏`
             if (progressRestoreError.length > 0) {
-                report += `，但是有${progressRestoreError.length}个游戏的进度恢复失败，请稍后在游戏页面重试：`
+                report += `，但是有${progressRestoreError.length}个游戏的进度恢复失败：`
                 for (let r of progressRestoreError) {
                     report += ` ${r.info.title}`
                 }
+            }
+            let causedByFlash = false
+            for (let item of progressRestoreError) {
+                if (item.info.type == "flash") {
+                    causedByFlash = true
+                    break
+                }
+            }
+            if (causedByFlash) {
+                report += "；这可能是由于您尚未从 Flash Collector 启动 Flash 游戏导致的，请稍后在游戏页面重试"
             }
             return new Ok(report)
         } else {

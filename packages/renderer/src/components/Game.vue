@@ -219,7 +219,7 @@ getConfig().then(c => {
 })
 
 //启动游戏
-async function launch(method: 'normal' | 'backup' | 'origin') {
+async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
   //刷新同步状态
   await getProgressModuleStatus()
 
@@ -230,14 +230,36 @@ async function launch(method: 'normal' | 'backup' | 'origin') {
   if (backup) {
     backupDisplayStatus.value = "pending"
     backupDisplayTip.value = "正在备份进度"
-    let r = await bridge('backup', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+    let gameInfo = JSON.parse(JSON.stringify(info.value))
+    let r = await bridge('backup', gameInfo, force) as Result<null, string>
     if (r.ok) {
       backupDisplayStatus.value = "success"
       backupDisplayTip.value = `进度备份成功（${(new Date()).toLocaleString()}）`
     } else {
-      backupDisplayStatus.value = "error"
-      backupDisplayTip.value = r.val
-
+      if (r.val.indexOf("OVERWRITE_CONFIRM:") == 0) {
+        let createdBy = r.val.split(":")[1]
+        let t = await bridge('getBackupTime', gameInfo)
+        Modal.confirm({
+          title: "未解决的冲突备份",
+          content: `本地存在另一份由 ${createdBy} 创建于 ${t.val} 的进度，请选择保留一个`,
+          okText: `${createdBy} 的进度`,
+          cancelText: "本机进度",
+          okButtonProps: {
+            danger: true
+          },
+          onOk: () => {
+            confirmRestoreProgress(true)
+            launch(method, true)
+          },
+          onCancel: () => {
+            launch(method, true)
+          }
+        })
+        return
+      } else {
+        backupDisplayStatus.value = "error"
+        backupDisplayTip.value = r.val
+      }
     }
   }
 
