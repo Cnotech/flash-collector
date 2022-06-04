@@ -202,6 +202,7 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
                 win.webContents.once('did-stop-loading', async () => {
                     //读取localStorage
                     let ls = await win.webContents.executeJavaScript('({...localStorage});', true)
+                    win.close()
                     //写localStorage.json
                     if (!writeJson(ls, backupTarget, "localStorage.json")) {
                         res(new Err("进度备份失败：无法写入进度文件"))
@@ -299,6 +300,7 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
                     for (let key in data) {
                         await win.webContents.executeJavaScript(`window.localStorage.setItem('${key}', '${data[key]}');`, true)
                     }
+                    win.close()
                     res(new Ok(null))
                 })
                 await win.loadURL(info.online.binUrl, {
