@@ -203,6 +203,9 @@ const registry: { [name: string]: (...args: any) => any } = {
                             info: game,
                             errMsg: r.val
                         })
+                    } else {
+                        //立即刷新一次本地的备份
+                        await backup(game, true)
                     }
                 } else if (fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
                     shelljs.rm("-rf", path.join(target, "_FC_PROGRESS_BACKUP_"))

@@ -76,7 +76,7 @@ function afterBuild(compressLevel) {
     cp.execSync(`xcopy /s /r /y .\\retinue\\* .\\release\\${version}\\win-unpacked\\retinue\\`)
 
     //打包
-    console.log('Packaging into 7zip...')
+    console.log(`Packaging into 7zip with compress level ${compressLevel}...`)
     cp.execSync(`".\\retinue\\7zip\\7z.exe" a -t7z -mx${compressLevel} ".\\release\\Flash Collector_${version}_win-x64.7z" .\\release\\${version}\\win-unpacked\\*`)
     console.log(`Build stored at ./release/Flash Collector_${version}_win-x64.7z`)
 }
