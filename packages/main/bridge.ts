@@ -228,7 +228,7 @@ const registry: { [name: string]: (...args: any) => any } = {
                 return new Err("Error:User didn't select a location")
             }
             //复制文件
-            let source, target, backup
+            let source, target, backupFolder
             for(let game of games) {
                 if (game.local == null) return new Err(`Error:Fatal error : ${game.title} don't include local key`)
                 source = path.join("games", game.type, game.local.folder)
@@ -236,10 +236,15 @@ const registry: { [name: string]: (...args: any) => any } = {
                 shelljs.mkdir("-p", path.join("TEMP/ZIP-TEMP", game.type))
                 shelljs.cp('-R', source, target)
 
-                //没有包含进度时删除进度
-                backup = path.join(target, "_FC_PROGRESS_BACKUP_")
-                if (!includeProgress && fs.existsSync(backup)) {
-                    shelljs.rm("-rf", backup)
+                backupFolder = path.join(target, "_FC_PROGRESS_BACKUP_")
+                if (fs.existsSync(backupFolder)) {
+                    if (!includeProgress) {
+                        //没有包含进度时删除临时目录中的进度
+                        shelljs.rm("-rf", backupFolder)
+                    } else {
+                        //包含进度时尝试保存进度
+                        await backup(game)
+                    }
                 }
             }
             //压缩
