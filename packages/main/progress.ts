@@ -5,6 +5,13 @@ import {getConfig} from "./config";
 import {getBrowserNode} from "./browser";
 import {Err, None, Ok, Option, Result, Some} from "ts-results";
 import {BrowserWindow} from "electron";
+import Ajv from "ajv";
+import backupSchema from "./schema/backup.json";
+import * as os from "os";
+
+
+const ajv = new Ajv()
+const backupValidator = ajv.compile(backupSchema)
 
 const shelljs = require('shelljs')
 
@@ -15,6 +22,17 @@ let targetInfo = {
     FLASH_LOCALHOST: "",
     FLASH_BROWSER: "",
     UNITY_WEB_PLAYER_PREFS: ""
+}
+
+function validBackupJson(json: any): Result<null, string> {
+    let r = backupValidator(json)
+    if (r) {
+        return new Ok(null)
+    } else {
+        let m = backupValidator.errors ? JSON.stringify(backupValidator.errors[0]) : "No error description"
+        backupValidator.errors = null
+        return new Err(m)
+    }
 }
 
 function initProgressModule(): ProgressEnable {
@@ -124,21 +142,35 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
     switch (info.type) {
         case "flash":
             //查找两个位置
+            let originLocation = ""
             if (targetInfo.FLASH_LOCALHOST != "") {
                 let s = searchInP(info.local.folder, targetInfo.FLASH_LOCALHOST, "flash")
-                if (s != null) backupSource = s
+                if (s != null) {
+                    backupSource = s
+                    originLocation = "%FLASH_LOCALHOST%"
+                }
             }
             if (backupSource == null && targetInfo.FLASH_LOCAL_WITH_NET != "") {
                 let s = searchInP(info.local.folder, targetInfo.FLASH_LOCAL_WITH_NET, "flash")
-                if (s != null) backupSource = s
+                if (s != null) {
+                    backupSource = s
+                    originLocation = "%FLASH_LOCAL_WITH_NET%"
+                }
             }
             if (backupSource == null) return new Err("进度备份失败：没有找到进度文件；暂不支持兼容模式的进度备份")
 
             //复制目录
-            if (copyFolder(backupSource, backupTarget)) {
+            if (!copyFolder(backupSource, backupTarget)) {
+                return new Err("进度备份失败：无法拷贝进度文件")
+            }
+            //写信息
+            if (writeJson({
+                originLocation,
+                createdBy: os.hostname()
+            }, backupTarget, "backup.json")) {
                 return new Ok(null)
             } else {
-                return new Err("进度备份失败：无法拷贝进度文件")
+                return new Err("进度备份失败：无法写入配置信息")
             }
         case "unity":
             if (targetInfo.UNITY_WEB_PLAYER_PREFS != "") {
@@ -148,10 +180,17 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
             if (backupSource == null) return new Err("进度备份失败：没有找到进度文件")
 
             //复制文件
-            if (copyFile(backupSource, backupTarget)) {
+            if (!copyFile(backupSource, backupTarget)) {
+                return new Err("进度备份失败：无法拷贝进度文件")
+            }
+            //写信息
+            if (writeJson({
+                originLocation: "%UNITY_WEB_PLAYER_PREFS%/localhost",
+                createdBy: os.hostname()
+            }, backupTarget, "backup.json")) {
                 return new Ok(null)
             } else {
-                return new Err("进度备份失败：无法拷贝进度文件")
+                return new Err("进度备份失败：无法写入配置信息")
             }
         case "h5":
             return new Promise(async res => {
@@ -163,10 +202,18 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
                 win.webContents.once('did-stop-loading', async () => {
                     //读取localStorage
                     let ls = await win.webContents.executeJavaScript('({...localStorage});', true)
-                    if (writeJson(ls, backupTarget, "localStorage.json")) {
+                    //写localStorage.json
+                    if (!writeJson(ls, backupTarget, "localStorage.json")) {
+                        res(new Err("进度备份失败：无法写入进度文件"))
+                    }
+                    //写信息
+                    if (writeJson({
+                        originLocation: "localStorage",
+                        createdBy: os.hostname()
+                    }, backupTarget, "backup.json")) {
                         res(new Ok(null))
                     } else {
-                        res(new Err("进度备份失败：无法写入进度文件"))
+                        res(new Err("进度备份失败：无法写入配置信息"))
                     }
                 })
                 await win.loadURL(info.online.binUrl, {
@@ -178,29 +225,38 @@ async function backup(info: GameInfo): Promise<Result<null, string>> {
     return new Err("Error:Fatal,unknown game type : " + info.type)
 }
 
-async function restore(info: GameInfo): Promise<Result<null, string>> {
+function parseOriginLocation(pattern: string): string {
+    return pattern
+        .replace("%FLASH_LOCALHOST%", targetInfo.FLASH_LOCALHOST)
+        .replace("%FLASH_LOCAL_WITH_NET%", targetInfo.FLASH_LOCAL_WITH_NET)
+        .replace("%UNITY_WEB_PLAYER_PREFS%", targetInfo.UNITY_WEB_PLAYER_PREFS)
+}
+
+async function restore(info: GameInfo, force?: boolean): Promise<Result<null, string>> {
     if (info.local == null) return new Err("Error:Fatal,no local information provided")
 
     const backupRoot = path.join(process.cwd(), "games", info.type, info.local.folder, "_FC_PROGRESS_BACKUP_")
-    if (!fs.existsSync(backupRoot)) {
+    if (!fs.existsSync(backupRoot + "/backup.json")) {
         return new Err("进度恢复失败：当前没有备份")
     }
-    let backupSource, backupTarget
+    let backupJsonData = JSON.parse(fs.readFileSync(backupRoot + "/backup.json").toString()) as {
+        originLocation: string,
+        createdBy: string
+    }
+    let v = validBackupJson(backupJsonData)
+    if (v.err) {
+        return new Err("进度恢复失败：备份信息校验错误：" + v.val)
+    }
+    //处理来自他人创建的进度，显示覆盖提示
+    if (backupJsonData.createdBy != os.hostname() && !force) {
+        return new Err(`OVERWRITE_CONFIRM:${backupJsonData.createdBy}`)
+    }
+    let backupSource, backupTarget = parseOriginLocation(backupJsonData.originLocation)
     switch (info.type) {
         case "flash":
-            //查找两个位置
-            if (targetInfo.FLASH_LOCALHOST != "") {
-                let s = searchInP(info.local.folder, targetInfo.FLASH_LOCALHOST, "flash")
-                if (s != null) backupTarget = targetInfo.FLASH_LOCALHOST
-            }
-            if (backupTarget == null && targetInfo.FLASH_LOCAL_WITH_NET != "") {
-                let s = searchInP(info.local.folder, targetInfo.FLASH_LOCAL_WITH_NET, "flash")
-                if (s != null) backupTarget = targetInfo.FLASH_LOCAL_WITH_NET
-            }
-            if (backupTarget == null) return new Err("进度恢复失败：没有找到进度恢复位置，请点击“开始游戏”或游玩一会后重试")
-
             //复制目录
             for (let file of fs.readdirSync(backupRoot)) {
+                if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
                 if (!copyFolder(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件夹${file}`)
@@ -208,14 +264,9 @@ async function restore(info: GameInfo): Promise<Result<null, string>> {
             }
             return new Ok(null)
         case "unity":
-            if (targetInfo.UNITY_WEB_PLAYER_PREFS != "") {
-                let s = searchInP(info.local.folder, path.join(targetInfo.UNITY_WEB_PLAYER_PREFS, "localhost"), "unity")
-                if (s != null) backupTarget = path.join(targetInfo.UNITY_WEB_PLAYER_PREFS, "localhost")
-            }
-            if (backupTarget == null) return new Err("进度备份失败：没有找到进度恢复位置，请点击“开始游戏”游玩一会后重试")
-
             //复制文件
             for (let file of fs.readdirSync(backupRoot)) {
+                if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
                 if (!copyFile(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件${file}`)
@@ -264,5 +315,6 @@ export {
     initProgressModule,
     backup,
     restore,
-    getBackupTime
+    getBackupTime,
+    validBackupJson
 }

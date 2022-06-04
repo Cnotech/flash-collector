@@ -13,7 +13,7 @@ import cp from 'child_process'
 import {chooseBrowser, getAvailableBrowsers, getBrowserNickName, parseBrowserPath} from "./browser";
 import {sniffing} from "./sniffing";
 import {update} from "./update";
-import {backup, getBackupTime, initProgressModule, restore} from "./progress";
+import {backup, getBackupTime, initProgressModule, restore, validBackupJson} from "./progress";
 
 const shelljs = require('shelljs')
 
@@ -154,13 +154,23 @@ const registry: { [name: string]: (...args: any) => any } = {
         let list = manager.readList("TEMP/UNZIP-TEMP")
 
         //生成列表并校验重复
-        let gameList: { info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[] = []
+        let gameList: { info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[] = [], backupFolder,
+            backupJson: string, progressAlert: boolean
         for (let type in list) {
             for (let info of list[type]) {
+                //检查备份信息是否正确
+                progressAlert = false
+                backupFolder = path.join("TEMP/UNZIP-TEMP", type, info.local?.folder ?? "", "_FC_PROGRESS_BACKUP_")
+                backupJson = path.join(backupFolder, "backup.json")
+                if (fs.existsSync(backupJson) && validBackupJson(JSON.parse(fs.readFileSync(backupJson).toString())).ok) {
+                    progressAlert = true
+                } else if (fs.existsSync(backupFolder)) {
+                    shelljs.rm("-rf", backupFolder)
+                }
                 gameList.push({
                     info,
                     overwriteAlert: fs.existsSync(path.join("games", type, info.local?.folder ?? "")),
-                    progressAlert: fs.existsSync(path.join("TEMP/UNZIP-TEMP", type, info.local?.folder ?? "", "_FC_PROGRESS_BACKUP_"))
+                    progressAlert
                 })
             }
         }
@@ -186,14 +196,16 @@ const registry: { [name: string]: (...args: any) => any } = {
                     return new Err(`Error:Import failed : ${game.type}/${game.local.folder}`)
                 }
                 //导入游戏进度
-                if (includeProgress && fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
-                    let r = await restore(game)
+                if (includeProgress && fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_/backup.json"))) {
+                    let r = await restore(game, true)
                     if (r.err) {
                         progressRestoreError.push({
                             info: game,
                             errMsg: r.val
                         })
                     }
+                } else if (fs.existsSync(path.join(target, "_FC_PROGRESS_BACKUP_"))) {
+                    shelljs.rm("-rf", path.join(target, "_FC_PROGRESS_BACKUP_"))
                 }
             }
             //生成报告

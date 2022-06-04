@@ -237,6 +237,7 @@ async function launch(method: 'normal' | 'backup' | 'origin') {
     } else {
       backupDisplayStatus.value = "error"
       backupDisplayTip.value = r.val
+
     }
   }
 
@@ -418,6 +419,8 @@ async function getProgressModuleStatus() {
   //清除备份状态显示
   backupDisplayStatus.value = "none"
   backupDisplayTip.value = ""
+  //获取进度模块状态
+  let status = await bridge('initProgressModule') as ProgressEnable
   //读取配置总开关
   let config = await getConfig()
   if (!config.progressBackup.enable) {
@@ -425,9 +428,6 @@ async function getProgressModuleStatus() {
     progressDisplayStatus.value.msg = "进度备份功能已关闭，请在“设置”页面中启用"
     return
   }
-  //获取进度模块状态
-  let status = await bridge('initProgressModule') as ProgressEnable
-  // console.log(status)
   //判断当前游戏的同步状态
   if (info.value.type == 'flash') {
     if (status.flashIndividual) {
@@ -481,7 +481,7 @@ async function restoreProgress() {
       okButtonProps: {
         danger: true
       },
-      onOk: confirmRestoreProgress,
+      onOk: () => confirmRestoreProgress(false),
       cancelText: "取消"
     })
   } else {
@@ -489,13 +489,13 @@ async function restoreProgress() {
   }
 }
 
-async function confirmRestoreProgress() {
+async function confirmRestoreProgress(force?: boolean) {
   message.loading({
     content: "正在恢复游戏进度...",
     key: "restore",
     duration: 0
   })
-  let r = await bridge('restore', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+  let r = await bridge('restore', JSON.parse(JSON.stringify(info.value)), force) as Result<null, string>
   if (r.ok) {
     message.success({
       content: "恢复游戏进度成功！如果游戏中依然没有更新进度则可能触发了游戏的反作弊机制，此类游戏无法正常恢复进度",
@@ -503,11 +503,34 @@ async function confirmRestoreProgress() {
       duration: 3
     })
   } else {
-    message.error({
-      content: r.val,
-      key: "restore",
-      duration: 5
-    })
+    //检查错误是否由来自他人创建的进度导致，显示覆盖提示
+    if (r.val.indexOf("OVERWRITE_CONFIRM:") == 0) {
+      let createdBy = r.val.split(":")[1]
+      let t = await bridge('getBackupTime', JSON.parse(JSON.stringify(info.value)))
+      Modal.confirm({
+        title: "这是一个由他人创建的进度",
+        content: `该进度由 ${createdBy} 创建于 ${t.val}，是否使用该进度覆盖您的当前进度？`,
+        okText: "覆盖",
+        okButtonProps: {
+          danger: true
+        },
+        onOk: () => confirmRestoreProgress(true),
+        cancelText: "取消",
+        onCancel: () => {
+          message.info({
+            content: "没有操作",
+            key: "restore",
+            duration: 2
+          })
+        }
+      })
+    } else {
+      message.error({
+        content: r.val,
+        key: "restore",
+        duration: 5
+      })
+    }
   }
 }
 
