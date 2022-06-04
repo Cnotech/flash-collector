@@ -3,7 +3,7 @@
       title="港口"
   >
     <a-alert
-        description="你可以在这里导入或导出你的游戏库用于备份或是分享，请注意港口无法保存或恢复你的游戏进度"
+        description="你可以在这里导入或导出你的游戏库用于备份或是分享"
         message="欢迎来到港口"
         show-icon
         type="success"
@@ -43,6 +43,7 @@
         <a-button type="link" v-if="state==='Import'" @click="selectHelper('Safe')">安全</a-button>
         <a-button type="link" @click="selectHelper('None')">不选</a-button>
       </div>
+      <a-checkbox v-model:checked="includeProgress">包含游戏进度</a-checkbox>
     </a-space>
     <a-row style="margin-right: 5%;height: 65%;overflow: auto" type="flex">
       <a-col :span="1"/>
@@ -77,8 +78,13 @@
                   </template>
                 </a-list-item-meta>
                 <template #actions>
-                  <a-tooltip v-if="item.overwriteAlert" title="本地游戏库已存在此游戏，如果继续将会覆盖">
-                    <WarningFilled style="color: orange;font-size: larger"/>
+                  <a-tooltip v-if="item.overwriteAlert"
+                             :title="`本地游戏库已存在此游戏，如果继续将会覆盖游戏本体${includeProgress&&item.progressAlert?'和您的游戏进度！':''}`">
+                    <WarningFilled v-if="includeProgress&&item.progressAlert" style="color: red;font-size: larger"/>
+                    <WarningFilled v-else style="color: orange;font-size: larger"/>
+                  </a-tooltip>
+                  <a-tooltip v-if="state==='Export'&&includeProgress&&item.progressAlert" title="导出时将会包含您的游戏进度">
+                    <file-zip-outlined style="color: #42b983;font-size: larger"/>
                   </a-tooltip>
                   <a-checkbox :value="item.info"></a-checkbox>
                 </template>
@@ -98,18 +104,21 @@ import {GameInfo, List} from "../../../class";
 import bridge from "../bridge";
 import {Result} from "ts-results";
 import {message} from "ant-design-vue";
-import {BulbOutlined, WarningFilled} from '@ant-design/icons-vue';
+import {BulbOutlined, FileZipOutlined, WarningFilled} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
+import path from "path";
+import fs from "fs";
 
 type State = 'None' | 'Import' | 'Export'
 type SortBy = 'Name' | 'Type' | 'Site' | 'Cate'
 
 let port = ref(3000),
-    selectList = ref<{ info: GameInfo, overwriteAlert: boolean }[]>([]),
+    selectList = ref<{ info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[]>([]),
     selected = ref<GameInfo[]>([]),
     state = ref<State>('None'),
     sortBy = ref<SortBy>('Name'),
-    loading=ref(false)
+    loading = ref(false),
+    includeProgress = ref(true)
 
 getConfig().then(c => port.value = c.port)
 
@@ -117,7 +126,7 @@ async function initImportList() {
   message.loading({content: '正在处理中...', key: "initImport", duration: 0})
   loading.value=true
   //等待选择文件
-  let res: Result<{ info: GameInfo, overwriteAlert: boolean }[], string> = await bridge('initImportPackage')
+  let res: Result<{ info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[], string> = await bridge('initImportPackage')
   loading.value=false
 
   if (res.err) {
@@ -148,7 +157,8 @@ async function initExportList() {
     {
       return {
         info,
-        overwriteAlert: false
+        overwriteAlert: false,
+        progressAlert: fs.existsSync(path.join(process.cwd(), "games", info.type, info.local?.folder ?? "", "_FC_PROGRESS_BACKUP_"))
       }
     }
   })

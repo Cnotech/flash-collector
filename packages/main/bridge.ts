@@ -94,7 +94,7 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
     },
     del: manager.del,
-    initImportPackage: async (): Promise<Result<{ info: GameInfo, overwriteAlert: boolean }[], string>> => {
+    initImportPackage: async (): Promise<Result<{ info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[], string>> => {
         //打开文件选择框
         let r = await dialog.showOpenDialog({
             title: "选择一个 Flash Collector Games 压缩包",
@@ -154,12 +154,13 @@ const registry: { [name: string]: (...args: any) => any } = {
         let list = manager.readList("TEMP/UNZIP-TEMP")
 
         //生成列表并校验重复
-        let gameList: { info: GameInfo, overwriteAlert: boolean }[] = []
+        let gameList: { info: GameInfo, overwriteAlert: boolean, progressAlert?: boolean }[] = []
         for (let type in list) {
             for (let info of list[type]) {
                 gameList.push({
                     info,
-                    overwriteAlert: fs.existsSync(path.join("games", type, info.local?.folder ?? ""))
+                    overwriteAlert: fs.existsSync(path.join("games", type, info.local?.folder ?? "")),
+                    progressAlert: fs.existsSync(path.join("TEMP/UNZIP-TEMP", type, info.local?.folder ?? "", "_FC_PROGRESS_BACKUP_"))
                 })
             }
         }
