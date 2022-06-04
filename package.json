@@ -7,6 +7,7 @@
   "description": "小游戏收集器，支持小游戏一键下载、本地启动等功能",
   "scripts": {
     "dev": "node scripts/watch.mjs",
+    "prebuild": "vue-tsc --noEmit --p packages/renderer/tsconfig.json && node scripts/build.mjs",
     "build": "electron-builder && node scripts/pack.js",
     "test": "ts-node test/test.ts",
     "push": "node ./scripts/publish.js"
