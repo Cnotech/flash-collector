@@ -235,6 +235,10 @@ function parseOriginLocation(pattern: string): string {
 async function restore(info: GameInfo, force?: boolean): Promise<Result<null, string>> {
     if (info.local == null) return new Err("Error:Fatal,no local information provided")
 
+    //读取当前进度状态
+    let pEnable = initProgressModule()
+
+    //读取备份信息
     const backupRoot = path.join(process.cwd(), "games", info.type, info.local.folder, "_FC_PROGRESS_BACKUP_")
     if (!fs.existsSync(backupRoot + "/backup.json")) {
         return new Err("进度恢复失败：当前没有备份")
@@ -247,6 +251,7 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
     if (v.err) {
         return new Err("进度恢复失败：备份信息校验错误：" + v.val)
     }
+
     //处理来自他人创建的进度，显示覆盖提示
     if (backupJsonData.createdBy != os.hostname() && !force) {
         return new Err(`OVERWRITE_CONFIRM:${backupJsonData.createdBy}`)
@@ -254,20 +259,24 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
     let backupSource, backupTarget = parseOriginLocation(backupJsonData.originLocation)
     switch (info.type) {
         case "flash":
+            if (!pEnable.flashIndividual) return new Err("进度恢复失败：当前 Flash 进度管理模块异常，请点击“开始游戏”游玩一会后重试")
             //复制目录
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
+                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-r", backupTarget)
                 if (!copyFolder(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件夹${file}`)
                 }
             }
             return new Ok(null)
         case "unity":
+            if (!pEnable.flashIndividual) return new Err("进度恢复失败：当前 Unity 进度管理模块异常，请点击“开始游戏”游玩一会后重试")
             //复制文件
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
+                if (!fs.existsSync(backupTarget)) shelljs.mkdir("-r", backupTarget)
                 if (!copyFile(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件${file}`)
                 }
