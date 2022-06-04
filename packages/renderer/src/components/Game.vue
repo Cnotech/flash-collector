@@ -27,6 +27,15 @@
                               style="color: #52c41a"/>
           <exception-outlined v-if="progressDisplayStatus.enable==='disable'" class="progress-status-icon"/>
         </a-tooltip>
+
+        <a-tooltip :title="backupDisplayTip">
+          <check-circle-outlined v-if="backupDisplayStatus==='success'" class="progress-status-icon"
+                                 style="color: #52c41a"/>
+          <close-circle-outlined v-if="backupDisplayStatus==='error'" class="progress-status-icon"
+                                 style="color: #e81e25"/>
+          <sync-outlined v-if="backupDisplayStatus==='pending'" id="sync" class="progress-status-icon"
+                         style="color: #1890FF"/>
+        </a-tooltip>
       </template>
       <template #extra>
         <a-dropdown>
@@ -140,6 +149,8 @@ import {createVNode, onMounted, ref} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
 import {Config, GameInfo, ProgressEnable} from "../../../class";
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DownOutlined,
   ExceptionOutlined,
   ExclamationCircleOutlined,
@@ -147,6 +158,7 @@ import {
   FileProtectOutlined,
   QuestionCircleOutlined,
   RadarChartOutlined,
+  SyncOutlined,
   WarningFilled
 } from '@ant-design/icons-vue';
 import {message, Modal, notification} from "ant-design-vue";
@@ -161,6 +173,8 @@ import {shell} from "electron"
 
 const route = useRoute(), router = useRouter()
 const banScript = fs.readFileSync("retinue/banScript.js").toString()
+
+type BackupStatus = 'none' | 'pending' | 'success' | 'error'
 
 let playingList: string[] = [],
     webview: any
@@ -188,7 +202,9 @@ let status = ref<boolean>(false),
     progressDisplayStatus = ref<{ enable: 'full' | 'partial' | 'disable', msg: string }>({
       enable: 'disable',
       msg: "进度备份功能无法启用"
-    })
+    }),
+    backupDisplayStatus = ref<BackupStatus>("none"),
+    backupDisplayTip = ref("")
 
 let browser: Config['browser'] = {
   flash: "",
@@ -206,6 +222,23 @@ getConfig().then(c => {
 async function launch(method: 'normal' | 'backup' | 'origin') {
   //刷新同步状态
   await getProgressModuleStatus()
+
+  //判断是否自动备份
+  let backup = progressDisplayStatus.value.enable != "disable" && method == 'normal'
+
+  //备份
+  if (backup) {
+    backupDisplayStatus.value = "pending"
+    backupDisplayTip.value = "正在备份进度"
+    let r = await bridge('backup', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+    if (r.ok) {
+      backupDisplayStatus.value = "success"
+      backupDisplayTip.value = `进度备份成功（${(new Date()).toLocaleString()}）`
+    } else {
+      backupDisplayStatus.value = "error"
+      backupDisplayTip.value = r.val
+    }
+  }
 
   //启动游戏
   playingList.push(info.value.local?.folder as string)
@@ -382,6 +415,9 @@ function openFolder() {
 }
 
 async function getProgressModuleStatus() {
+  //清除备份状态显示
+  backupDisplayStatus.value = "none"
+  backupDisplayTip.value = ""
   //读取配置总开关
   let config = await getConfig()
   if (!config.progressBackup.enable) {
@@ -462,7 +498,7 @@ async function confirmRestoreProgress() {
   let r = await bridge('restore', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
   if (r.ok) {
     message.success({
-      content: "恢复游戏进度成功",
+      content: "恢复游戏进度成功！如果游戏中依然没有更新进度则可能触发了游戏的反作弊机制，此类游戏无法正常恢复进度",
       key: "restore",
       duration: 3
     })

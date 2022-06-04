@@ -47,11 +47,14 @@ let data: UpdateReply | null = null,
     updateMethod: "update" | "extendedUpdate" | "full" = "update"
 
 async function init() {
-  if (await bridge('isPackaged')) return
+  const currentVersion: string = await bridge('version')
+  if (await bridge('isPackaged')) {
+    document.title = `Flash Collector - 小游戏收集器 v${currentVersion}`
+    return
+  }
   //获取信息
   let res = await axios.get(updateApi)
   data = res.data as UpdateReply
-  const currentVersion: string = await bridge('version')
   const config = await getConfig()
 
   //初始化标题
