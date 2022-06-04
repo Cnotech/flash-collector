@@ -171,9 +171,14 @@ function changeState(s: State) {
 
 async function confirm() {
   message.loading({content: '正在处理中...', key: "Confirm", duration: 0})
-  loading.value=true
-  let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)))
-  loading.value=false
+  loading.value = true
+  //当仅导出一个游戏时提供建议的文件名
+  let advisedFileName = undefined
+  if (state.value == "Export" && selected.value.length == 1) {
+    advisedFileName = selected.value[0].title
+  }
+  let r: Result<string, string> = await bridge('confirmPort', state.value, JSON.parse(JSON.stringify(selected.value)), advisedFileName)
+  loading.value = false
   if (r.ok) {
     if (state.value == 'Export') {
       message.success({

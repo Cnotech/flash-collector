@@ -166,7 +166,7 @@ const registry: { [name: string]: (...args: any) => any } = {
         }
         return new Ok(gameList)
     },
-    confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[]): Promise<Result<string, string>> => {
+    confirmPort: async (direction: 'Import' | 'Export', games: GameInfo[], advisedFileName?: string): Promise<Result<string, string>> => {
         if (direction == 'Import') {
             //处理导入
             let source, target
@@ -198,7 +198,7 @@ const registry: { [name: string]: (...args: any) => any } = {
             const d = new Date()
             let dRes = await dialog.showSaveDialog({
                 title: "导出 Flash Collector Games 压缩包",
-                defaultPath: d.getFullYear().toString() + (d.getMonth() + 1) + d.getDate() + "-" + d.getHours() + d.getMinutes() + d.getSeconds(),
+                defaultPath: (advisedFileName ? advisedFileName + "-" : "") + d.getFullYear().toString() + (d.getMonth() + 1) + d.getDate() + "-" + d.getHours() + d.getMinutes() + d.getSeconds(),
                 filters: [
                     {
                         name: "Flash Collector Games 压缩包",
