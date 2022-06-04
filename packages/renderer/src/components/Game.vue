@@ -43,7 +43,7 @@
             <a-menu>
               <a-menu-item key="del" @click="del">删除</a-menu-item>
               <a-menu-item key="ins" @click="openFolder">查看目录</a-menu-item>
-              <a-menu-item key="ins" @click="backupProgress">备份进度</a-menu-item>
+              <a-menu-item key="ins" @click="backupProgress()">备份进度</a-menu-item>
               <a-menu-item key="ins" @click="restoreProgress">恢复进度</a-menu-item>
             </a-menu>
           </template>
@@ -240,7 +240,7 @@ async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
         let createdBy = r.val.split(":")[1]
         let t = await bridge('getBackupTime', gameInfo)
         Modal.confirm({
-          title: "未解决的冲突备份",
+          title: "未解决的备份冲突",
           content: `本地存在另一份由 ${createdBy} 创建于 ${t.val} 的进度，请选择保留一个`,
           okText: `${createdBy} 的进度`,
           cancelText: "本机进度",
@@ -471,13 +471,14 @@ async function getProgressModuleStatus() {
   }
 }
 
-async function backupProgress() {
+async function backupProgress(force?: boolean) {
   message.loading({
     content: "正在备份游戏进度...",
     key: "backup",
     duration: 0
   })
-  let r = await bridge('backup', JSON.parse(JSON.stringify(info.value))) as Result<null, string>
+  let gameInfo = JSON.parse(JSON.stringify(info.value))
+  let r = await bridge('backup', gameInfo, force) as Result<null, string>
   if (r.ok) {
     message.success({
       content: "备份游戏进度成功",
@@ -485,6 +486,27 @@ async function backupProgress() {
       duration: 3
     })
   } else {
+    if (r.val.indexOf("OVERWRITE_CONFIRM:") == 0) {
+      let createdBy = r.val.split(":")[1]
+      let t = await bridge('getBackupTime', gameInfo)
+      Modal.confirm({
+        title: "未解决的备份冲突",
+        content: `本地存在另一份由 ${createdBy} 创建于 ${t.val} 的进度，请选择保留一个`,
+        okText: `${createdBy} 的进度`,
+        cancelText: "本机进度",
+        okButtonProps: {
+          danger: true
+        },
+        onOk: () => {
+          confirmRestoreProgress(true)
+          backupProgress(true)
+        },
+        onCancel: () => {
+          backupProgress(true)
+        }
+      })
+      return
+    }
     message.error({
       content: r.val,
       key: "backup",
