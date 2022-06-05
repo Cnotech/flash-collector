@@ -1,7 +1,9 @@
 <template>
   <div class="container">
     <HotUpdate/>
-    <img alt="Icon" src="../assets/favicon.ico" style="height: 64px;width: 64px;margin: 10% 55% 5% 45%"/>
+    <div class="flex-container" style="margin-top: 10%;margin-bottom: 5%">
+      <img alt="Icon" src="../assets/favicon.ico" style="height: 64px;width: 64px"/>
+    </div>
     <a-row type="flex">
       <a-col :span="2"/>
       <a-col :span="17">
@@ -83,22 +85,19 @@
       </a-col>
     </a-row>
 
-    <a-row style="height: 20%;padding-top: 10%">
-      <a-col :span="9"/>
-      <a-col :span="6" style="margin-left: 1%">
-        <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
-          {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
-          <template v-if="item.login">
-            <check-circle-outlined style="color: #42b983"/>
-            <a-button size="small" @click="logout(item.name)">登出</a-button>
-          </template>
-          <template v-else>
-            <close-circle-outlined style="color: gray"/>
-            <a-button size="small" @click="login(item.name)">登录</a-button>
-          </template>
-        </a-space>
-      </a-col>
-    </a-row>
+    <div class="flex-container" style="margin-top: 10%">
+      <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
+        {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
+        <template v-if="item.login">
+          <check-circle-outlined style="color: #42b983"/>
+          <a-button size="small" @click="logout(item.name)">登出</a-button>
+        </template>
+        <template v-else>
+          <close-circle-outlined style="color: gray"/>
+          <a-button size="small" @click="login(item.name)">登录</a-button>
+        </template>
+      </a-space>
+    </div>
 
   </div>
 </template>
@@ -359,11 +358,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.logo-big {
-  width: 15vw;
-  height: 15vw;
-}
-
 .container {
   width: 100%;
   height: 100%;
@@ -373,7 +367,15 @@ onUnmounted(() => {
 }
 
 .status-bar {
-  margin-top: 5%;
-  margin-bottom: 5%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 </style>
