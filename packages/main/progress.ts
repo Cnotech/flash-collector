@@ -80,10 +80,12 @@ function initProgressModule(noCreateProgressCache?: boolean): ProgressEnable {
 
     //判断unity
     let p3 = path.join(ROAMING_APPDATA, 'Unity', 'WebPlayerPrefs')
-    if (fs.existsSync(p3)) {
-        targetInfo.UNITY_WEB_PLAYER_PREFS = p3
-        res.unity = true
-    }
+    // if (fs.existsSync(p3)) {
+    //     targetInfo.UNITY_WEB_PLAYER_PREFS = p3
+    //     res.unity = true
+    // }
+    targetInfo.UNITY_WEB_PLAYER_PREFS = p3
+    res.unity = true
 
     //判断h5启动浏览器是否支持CDP
     if (getBrowserNode(config.browser.h5).trait.debug) {
