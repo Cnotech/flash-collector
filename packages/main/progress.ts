@@ -250,6 +250,17 @@ function parseOriginLocation(pattern: string): string {
         .replace("%UNITY_WEB_PLAYER_PREFS%", targetInfo.UNITY_WEB_PLAYER_PREFS)
 }
 
+async function shortLaunch(swf: string): Promise<null> {
+    return new Promise(res => {
+        let p = cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${swf}"`, () => {
+            res(null)
+        })
+        setTimeout(() => {
+            p.kill()
+        }, 3000)
+    })
+}
+
 async function restore(info: GameInfo, force?: boolean): Promise<Result<null, string>> {
     if (info.local == null) return new Err("Error:Fatal,no local information provided")
 
@@ -282,6 +293,12 @@ async function restore(info: GameInfo, force?: boolean): Promise<Result<null, st
             for (let file of fs.readdirSync(backupRoot)) {
                 if (file == "backup.json") continue
                 backupSource = path.join(backupRoot, file)
+
+                //检查目标目录是否存在，若不存在则启动一次游戏
+                if (!fs.existsSync(path.join(backupTarget, path.basename(backupSource)))) {
+                    await shortLaunch(path.join("games", info.type, info.local.folder, info.local.binFile))
+                }
+                //复制
                 if (!fs.existsSync(backupTarget)) shelljs.mkdir("-p", backupTarget)
                 if (!copyFolder(backupSource, backupTarget)) {
                     return new Err(`进度恢复失败：无法拷贝进度文件夹${file}`)
