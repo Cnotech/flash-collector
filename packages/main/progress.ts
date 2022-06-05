@@ -252,7 +252,7 @@ function parseOriginLocation(pattern: string): string {
 
 async function shortLaunch(swf: string): Promise<null> {
     return new Promise(res => {
-        let p = cp.exec(`"${path.join("retinue", "flashplayer_sa.exe")}" "${swf}"`, () => {
+        let p = cp.execFile(path.join("retinue", "flashplayer_sa.exe"), [swf], () => {
             res(null)
         })
         setTimeout(() => {
