@@ -7,8 +7,8 @@ import {Err, None, Ok, Option, Result, Some} from "ts-results";
 import {BrowserWindow} from "electron";
 import Ajv from "ajv";
 import backupSchema from "./schema/backup.json";
-import * as os from "os";
-
+import os from "os";
+import cp from "child_process"
 
 const ajv = new Ajv()
 const backupValidator = ajv.compile(backupSchema)
@@ -35,7 +35,7 @@ function validBackupJson(json: any): Result<null, string> {
     }
 }
 
-function initProgressModule(): ProgressEnable {
+function initProgressModule(noCreateProgressCache?: boolean): ProgressEnable {
     let res: ProgressEnable = {
         flashIndividual: false,
         flashBrowser: false,
@@ -58,6 +58,14 @@ function initProgressModule(): ProgressEnable {
                 targetInfo.FLASH_LOCALHOST = p2
             }
         }
+    }
+    //如果找不到进度则尝试调用示例swf文件创建一个进度，然后重试
+    if (!res.flashIndividual && !noCreateProgressCache) {
+        shelljs.mkdir("-p", path.join("games", "flash", "_FC_TEMP_"))
+        shelljs.cp(path.join("retinue", "createProgressCache.swf"), path.join("games", "flash", "_FC_TEMP_"))
+        cp.execSync(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join("games", "flash", "_FC_TEMP_", "createProgressCache.swf")}"`)
+        shelljs.rm("-rf", path.join("games", "flash", "_FC_TEMP_"))
+        return initProgressModule(true)
     }
     let browserFlashCacheLocation = getBrowserNode(config.browser.flash).location?.flashCache
     if (browserFlashCacheLocation && fs.existsSync(browserFlashCacheLocation) && fs.statSync(browserFlashCacheLocation).isDirectory()) {
@@ -82,6 +90,8 @@ function initProgressModule(): ProgressEnable {
         res.h5Import = true
     }
 
+    // console.log(targetInfo)
+    // console.log(res)
     return res
 }
 
