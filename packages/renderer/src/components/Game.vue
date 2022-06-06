@@ -219,7 +219,7 @@ getConfig().then(c => {
 })
 
 //启动游戏
-async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
+async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean): Promise<boolean> {
   //刷新同步状态
   await getProgressModuleStatus()
 
@@ -255,7 +255,7 @@ async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
             launch(method, true)
           }
         })
-        return
+        return false
       } else {
         backupDisplayStatus.value = "error"
         backupDisplayTip.value = r.val
@@ -277,6 +277,7 @@ async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
     if (payload.type == info.value.type && payload.folder == info.value.local?.folder) {
       status.value = false
     }
+    return true
   } else {
     console.log(res.val)
     playingList = playingList.filter(val => val != info.value.local?.folder)
@@ -306,6 +307,7 @@ async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean) {
         }))
       }
     })
+    return false
   }
 }
 
@@ -367,7 +369,7 @@ function unityAlert() {
 }
 
 function browserAlert(method: 'normal' | 'backup' | 'origin') {
-  launch(method).then(async () => {
+  launch(method).then(async (launchRes) => {
     //配置嗅探
     const config = await getConfig()
     if (info.value.type == 'flash' && method == 'origin' && config.smartSniffing.enable) {
@@ -408,7 +410,7 @@ function browserAlert(method: 'normal' | 'backup' | 'origin') {
     } else if (info.value.type == 'unity' && browser.unity == "") {
       defaultAlert = true
     }
-    if (!browser.ignoreAlert && defaultAlert) {
+    if (!browser.ignoreAlert && defaultAlert && launchRes) {
       Modal.confirm({
         title: "浏览器兼容性提示",
         content: "如果浏览器提示不支持插件，请前往设置页面配置启动浏览器",
