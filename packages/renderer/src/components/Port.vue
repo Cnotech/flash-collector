@@ -86,6 +86,10 @@
                   <a-tooltip v-if="state==='Export'&&includeProgress&&item.progressAlert" title="导出时将会包含您的游戏进度">
                     <file-zip-outlined style="color: #42b983;font-size: larger"/>
                   </a-tooltip>
+                  <a-tooltip v-if="state==='Import'&&!item.overwriteAlert&&includeProgress&&item.progressAlert"
+                             title="导入时将会包含游戏进度">
+                    <file-zip-outlined style="color: #42b983;font-size: larger"/>
+                  </a-tooltip>
                   <a-checkbox :value="item.info"></a-checkbox>
                 </template>
               </a-list-item>
@@ -130,7 +134,7 @@ async function initImportList() {
   loading.value=false
 
   if (res.err) {
-    message.error({content: res.val, key: "initImport", duration: 3})
+    message.error({content: res.val, key: "initImport", duration: 5})
   } else {
     message.info({content: '请选择需要导入的游戏', key: "initImport", duration: 3})
     //填充待选列表
@@ -200,7 +204,7 @@ async function confirm() {
     }
     changeState('None')
   } else {
-    message.error({content: r.val, key: "Confirm", duration: 3})
+    message.error({content: r.val, key: "Confirm", duration: 5})
   }
   bus.emit('refreshSidebar')
 }
