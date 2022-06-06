@@ -180,7 +180,7 @@ async function downloader(info: GameInfo): Promise<Result<GameInfo, string>> {
             directory: dir,
             headers: {
                 'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36",
-                referer: info.online.originPage
+                referer: info.online.truePage
             },
             onBeforeSave(finalName: string) {
                 downloadedFileName = finalName
@@ -249,7 +249,12 @@ function geneNaiveList(p: string): GameInfo[] {
     for (let folder of folders) {
         infoFile = path.join(p, folder, "info.json")
         if (!fs.existsSync(infoFile)) {
-            loadErrors.push("Can't find info config : " + infoFile)
+            //检查是否为空文件夹
+            if (fs.readdirSync(path.join(p, folder)).length == 0) {
+                shelljs.rm("-rf", path.join(p, folder))
+            } else {
+                loadErrors.push("Can't find info config : " + infoFile)
+            }
             continue
         }
         infoConfig = JSON.parse(fs.readFileSync(infoFile).toString()) as GameInfo

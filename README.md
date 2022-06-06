@@ -8,14 +8,13 @@
 ## 特性
 
 - 一键解析下载 Flash 和 Unity3D Web 小游戏
-- 智能嗅探技术，帮助下载复杂的异步加载 Flash 游戏
+- 智能嗅探技术，帮助下载复杂的异步加载 Flash 游戏（不保证完全可用）
 - 在本地运行 Flash 和 Unity3D Web 小游戏
 - 一键解析并保存 HTML5 小游戏真实页面
 - 自动添加 Referer 绕过 HTML5 小游戏真实页面请求限制
 - 登录站点自动获取 Cookie
 - Referer / UA 请求仿真，避免触发站点反爬策略
 - 自动检测并安装必要的运行库
-- 原生支持 4399 和 7k7k 两大站点
 - 模块化设计，可拓展小游戏站点支持
 - 一键导入导出你的游戏库，与你的同伴共享游戏
 - 进度备份/恢复/导出/导入功能，方便地在不同电脑之间同步进度
@@ -23,6 +22,12 @@
 ## 下载
 
 访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 或[境内发布服务器](https://pineapple.edgeless.top/FC/)。
+
+## 支持的站点
+
+- [4399](http://www.4399.com) by [@Cnotech](https://github.com/Cnotech)
+- [7k7k](http://www.7k7k.com) by [@Cnotech](https://github.com/Cnotech)
+- [game773](https://www.game773.com) by [@Cnotech](https://github.com/Cnotech)
 
 ## 配套用户脚本
 
@@ -79,7 +84,7 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5
 或页游的反馈请求。
 
-如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**；如果你看了还是不清楚怎么做需要详细教程，那么说明你的相关基础知识无法支撑你完成这一步骤，建议放弃这一功能的使用。
+如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**。
 
 ## 拓展小游戏网站支持
 

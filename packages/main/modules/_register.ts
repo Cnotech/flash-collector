@@ -1,5 +1,6 @@
 import com7k7k from "./com7k7k";
 import com4399 from "./com4399";
+import game773 from "./game773";
 import {ParserRegister} from "../../class";
 
 export const register: Array<ParserRegister> = [
@@ -32,5 +33,6 @@ export const register: Array<ParserRegister> = [
             get: com7k7k.getCookie,
             clear: com7k7k.clearCookie
         }
-    }
+    },
+    game773
 ]
