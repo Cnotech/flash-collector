@@ -8,6 +8,7 @@
 ## 特性
 
 - 一键解析下载 Flash 和 Unity3D Web 小游戏
+- 智能嗅探技术，帮助下载复杂的异步加载 Flash 游戏
 - 在本地运行 Flash 和 Unity3D Web 小游戏
 - 一键解析并保存 HTML5 小游戏真实页面
 - 自动添加 Referer 绕过 HTML5 小游戏真实页面请求限制
@@ -21,7 +22,7 @@
 
 ## 下载
 
-访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 页面。
+访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 或[境内发布服务器](https://pineapple.edgeless.top/FC/)。
 
 ## 配套用户脚本
 
