@@ -1,0 +1,14 @@
+name: 主程序建议
+description: 提供优化 Flash Collector 主程序的建议
+title: "[feature]: "
+assignees:
+  - Cnotech
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 有何高见？
+      description: 详细描述你所期待实现的特性，最好附上一些草图以便于更好地理解你的想法。
+      placeholder: 输入内容
+    validations:
+      required: true
