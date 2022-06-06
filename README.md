@@ -19,15 +19,17 @@
 - 一键导入导出你的游戏库，与你的同伴共享游戏
 - 进度备份/恢复/导出/导入功能，方便地在不同电脑之间同步进度
 
-## 下载
-
-访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 或[境内发布服务器](https://pineapple.edgeless.top/FC/)。
-
 ## 支持的站点
+
+如果希望拓展站点支持请查看[拓展小游戏网站支持](#拓展小游戏网站支持)。不接受站点支持添加请求，请自己动手添加支持然后提交 PR，谢谢！
 
 - [4399](http://www.4399.com) by [@Cnotech](https://github.com/Cnotech)
 - [7k7k](http://www.7k7k.com) by [@Cnotech](https://github.com/Cnotech)
 - [game773](https://www.game773.com) by [@Cnotech](https://github.com/Cnotech)
+
+## 下载
+
+访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 或 [境内发布服务器](https://pineapple.edgeless.top/FC/)。
 
 ## 配套用户脚本
 
@@ -77,7 +79,7 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 解析与下载功能需要登录对应的网站，可以不实名制认证。
 
-登录功能仅用于在爬取游戏时向站点发送有效 cookie，你的游戏进度不能被保存到本地。
+登录功能仅用于在爬取页面和下载游戏时向站点发送有效 cookie，你的游戏进度不能被保存到本地。
 
 ## 反馈
 
