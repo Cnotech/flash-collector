@@ -727,6 +727,13 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
+"@types/iconv@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@types/iconv/-/iconv-3.0.1.tgz#88931a83d8a1e9575e493c48f737491326cd5e0f"
+  integrity sha512-VHYt1HZZCAJq/Odxut9eIKfRY8qQpDhNVhWJdk3sJXgvxeAeoUse0uIeZBlcC5O0tT2NBuqlW/4jd7e5wiAfKA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"
@@ -2691,6 +2698,11 @@ iconv-lite@^0.6.2, iconv-lite@^0.6.3:
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
+
+iconv@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/iconv/-/iconv-3.0.1.tgz#31d319d71b59415cf348362c382961b1eb6f0e81"
+  integrity sha512-lJnFLxVc0d82R7GfU7a9RujKVUQ3Eee19tPKWZWBJtAEGRHVEyFzCtbNl3GPKuDnHBBRT4/nDS4Ru9AIDT72qA==
 
 ieee754@^1.1.13:
   version "1.2.1"

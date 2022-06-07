@@ -4,7 +4,7 @@ import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
 import iconv from 'iconv-lite';
 import cheerio from 'cheerio';
-import {GBKEncodeURI} from "./gbkEncodeUri";
+import GBKEncodeUri from "./GBKEncodeUri";
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -269,7 +269,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 async function getIcon(title: string, id: string): Promise<string | undefined> {
 
     //生成搜索页面数组
-    const searchPage = await fetch("http://so2.4399.com/search/search.php?k=" + GBKEncodeURI(title), "http://www.4399.com")
+    const searchPage = await fetch("http://so2.4399.com/search/search.php?k=" + GBKEncodeUri(title), "http://www.4399.com")
     const $ = cheerio.load(searchPage)
     let searchResults: SearchResult[] = []
     let child, icon: string | undefined, nodeId
