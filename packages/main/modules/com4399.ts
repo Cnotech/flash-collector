@@ -248,6 +248,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             type = "unity"
         } else type = "h5"
 
+        //返回结果
+        timeout = false
         resolve(new Ok({
             title,
             category,

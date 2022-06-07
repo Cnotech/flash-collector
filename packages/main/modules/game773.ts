@@ -1,6 +1,6 @@
 import {Err, Ok, Result} from 'ts-results';
 import axios from 'axios';
-import {GameInfo} from '../../class';
+import {GameInfo, ParserRegister} from '../../class';
 import {BrowserWindow} from 'electron';
 import cheerio from 'cheerio';
 
@@ -125,6 +125,9 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             }
         }
         // console.log(result)
+
+        //返回结果
+        timeout = false
         resolve(new Ok(result))
     })
 
@@ -140,7 +143,12 @@ function getNickName(_: string): Result<string, string> {
     return new Ok("Guest")
 }
 
-export default {
+//导出时带上类型
+function exportDefault(p: ParserRegister): ParserRegister {
+    return p
+}
+
+export default exportDefault({
     name: "game773",
     regex: /https?:\/\/www\.game773\.com\/play\/[\d_]+\.htm/,
     entrance,
@@ -154,4 +162,4 @@ export default {
         get: getCookie,
         clear: clearCookie
     }
-}
+})
