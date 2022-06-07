@@ -19,11 +19,11 @@ interface GameInfo {
 }
 
 interface ParserRegister {
-    //站点名称，例如 "4399"
+    //站点名称，例如 "4399"，只能由字母和数字组成
     name: string,
     //支持解析的 URL 正则表达式
     regex: RegExp,
-    //解析入口，输入一个 URL，输出 GameInfo；
+    //解析入口，输入一个 URL，输出不包含 local 字段的 GameInfo 对象；
     // 注意若此时没有 Cookie 则需要在函数内先调用获取 Cookie 函数并通过 Cookie 更新回调通知上层
     entrance: (url: string) => Promise<Result<GameInfo, string>>,
     //工具函数
@@ -35,15 +35,16 @@ interface ParserRegister {
     },
     //Cookie 控制器，用于管理该站点的 Cookie
     cookieController: {
-        //初始化
+        //初始化，当程序启动时会调用此函数
         // cookie：当用户已登录则会传入一个 Cookie，否则传入 null；
-        // updateCookieCallback：一个 Cookie 更新回调，当模块内部更新 Cookie 时调用此回调函数通知上层
+        // updateCookieCallback：一个 Cookie 更新回调函数，当模块内部更新 Cookie 时调用此回调函数通知上层
         init: (cookie: string | null, updateCookieCallback: (cookie: string) => void) => void,
-        //获取 Cookie，此函数通常是在用户主动点击“登录”按钮时被外部调用
+        //获取 Cookie，此函数通常是在用户主动点击“登录”按钮时被调用
+        //此时需要新建一个 BrowserWindow 并加载相应登录页面、等待用户登录后获取 Cookie
         get: () => Promise<Result<string, string>>,
-        //设定 Cookie，要求调用此函数时覆盖模块内部的 Cookie
+        //设定 Cookie，当此函数被调用时覆盖模块内部保存的 Cookie
         set: (cookie: string) => void,
-        //清除模块内部的 Cookie
+        //清除模块内部保存的 Cookie
         clear: () => void
     }
 }
