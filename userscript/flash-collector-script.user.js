@@ -3,12 +3,17 @@
 // @namespace   Flash Collector Scripts
 // @match       *://*.4399.com/*
 // @match       *://*.7k7k.com/*
+// @match       *://*.game773.com/*
 // @grant       none
 // @license MPL-2.0
-// @version     1.2
+// @version     1.3
 // @author      Cnotech
 // @description Flash Collector 用户脚本，用于解除 4399.com 的源站播放 Referer 限制、增加源站播放标题
 // ==/UserScript==
+
+function enlargeNativeFlash() {
+    document.getElementsByTagName("embed")[0].setAttribute("height", `${document.documentElement.scrollHeight}px`)
+}
 
 function query(key) {
     let m = window.location.href.match(new RegExp(`[?|&]${key}=[^&]*`))
@@ -56,6 +61,11 @@ function main() {
         com4399()
     } else if (url.indexOf("7k7k.com") > -1) {
         com7k7k()
+    }
+    //撑大原始flash
+    let u = new URL(url)
+    if (u.pathname.endsWith(".swf")) {
+        enlargeNativeFlash()
     }
 }
 

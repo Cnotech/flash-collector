@@ -267,7 +267,6 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 }
 
 async function getIcon(title: string, id: string): Promise<string | undefined> {
-
     //生成搜索页面数组
     const searchPage = await fetch("http://so2.4399.com/search/search.php?k=" + GBKEncodeUri(title), "http://www.4399.com")
     const $ = cheerio.load(searchPage)
@@ -288,6 +287,7 @@ async function getIcon(title: string, id: string): Promise<string | undefined> {
             icon
         })
     })
+
     //查找图标
     icon = undefined
     for (let n of searchResults) {
