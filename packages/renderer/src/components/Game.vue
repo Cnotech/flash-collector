@@ -170,9 +170,9 @@ import fs from "fs";
 import {bus} from "../eventbus";
 import {getConfig, setConfig} from "../config";
 import {shell} from "electron"
+import {banScript} from "../assets/banScript.json"
 
 const route = useRoute(), router = useRouter()
-const banScript = fs.readFileSync("retinue/banScript.js").toString()
 
 type BackupStatus = 'none' | 'pending' | 'success' | 'error'
 

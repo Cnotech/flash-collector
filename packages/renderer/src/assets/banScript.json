@@ -1,0 +1,3 @@
+{
+    "banScript": "const banClass = ['begin_btn', 'game_kaishi', 'play', 'pag-play'];let banElements = [];for (let c of banClass) {banElements = banElements.concat(...document.getElementsByClassName(c))};for (let e of banElements) {if (e.style) e.style.visibility = 'hidden'};document.addEventListener('click', e => {e.preventDefault()})"
+}
