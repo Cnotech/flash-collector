@@ -14,6 +14,7 @@ import {chooseBrowser, getAvailableBrowsers, getBrowserNickName, parseBrowserPat
 import {sniffing} from "./sniffing";
 import {update} from "./update";
 import {backup, getBackupTime, initProgressModule, restore, validBackupJson} from "./progress";
+import {getTimeStamp} from "./utils";
 
 const shelljs = require('shelljs')
 
@@ -242,7 +243,7 @@ const registry: { [name: string]: (...args: any) => any } = {
             const d = new Date()
             let dRes = await dialog.showSaveDialog({
                 title: "导出 Flash Collector Games 压缩包",
-                defaultPath: (advisedFileName ? advisedFileName + "-" : "") + d.getFullYear().toString() + (d.getMonth() + 1) + d.getDate() + "-" + d.getHours() + d.getMinutes() + d.getSeconds(),
+                defaultPath: (advisedFileName ? advisedFileName + "-" : "") + getTimeStamp(),
                 filters: [
                     {
                         name: "Flash Collector Games 压缩包",
