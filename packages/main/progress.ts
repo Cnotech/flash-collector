@@ -35,6 +35,9 @@ function validBackupJson(json: any): Result<null, string> {
     }
 }
 
+//记录是否执行过CreateProgressCache
+let launchedCreateProgressCache = false
+
 function initProgressModule(noCreateProgressCache?: boolean): ProgressEnable {
     let res: ProgressEnable = {
         flashIndividual: false,
@@ -43,6 +46,7 @@ function initProgressModule(noCreateProgressCache?: boolean): ProgressEnable {
         h5Import: false
     }
     let config = getConfig()
+    if (launchedCreateProgressCache) noCreateProgressCache = true
     //判断flash
     const SharedObjects = path.join(ROAMING_APPDATA, 'Macromedia', 'Flash Player', '#SharedObjects')
     const CwdAppend = process.cwd().split('\\').slice(1).concat(['games', 'flash'])
@@ -61,6 +65,7 @@ function initProgressModule(noCreateProgressCache?: boolean): ProgressEnable {
     }
     //如果找不到进度则尝试调用示例swf文件创建一个进度，然后重试
     if (!res.flashIndividual && !noCreateProgressCache) {
+        launchedCreateProgressCache = true
         shelljs.mkdir("-p", path.join("games", "flash", "_FC_TEMP_"))
         shelljs.cp(path.join("retinue", "createProgressCache.swf"), path.join("games", "flash", "_FC_TEMP_"))
         cp.execSync(`"${path.join("retinue", "flashplayer_sa.exe")}" "${path.join("games", "flash", "_FC_TEMP_", "createProgressCache.swf")}"`)
