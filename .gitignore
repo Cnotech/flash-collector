@@ -20,3 +20,4 @@ ZIP-TEMP
 /yarn-error.log
 TEMP
 /config.json
+.yarn
