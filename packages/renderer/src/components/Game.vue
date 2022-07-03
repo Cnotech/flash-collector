@@ -474,6 +474,8 @@ async function getProgressModuleStatus() {
 }
 
 async function backupProgress(force?: boolean) {
+  backupDisplayStatus.value = "pending"
+  backupDisplayTip.value = "正在备份进度"
   message.loading({
     content: "正在备份游戏进度...",
     key: "backup",
@@ -482,6 +484,8 @@ async function backupProgress(force?: boolean) {
   let gameInfo = JSON.parse(JSON.stringify(info.value))
   let r = await bridge('backup', gameInfo, force) as Result<null, string>
   if (r.ok) {
+    backupDisplayStatus.value = "success"
+    backupDisplayTip.value = `进度备份成功（${(new Date()).toLocaleString()}）`
     message.success({
       content: "备份游戏进度成功",
       key: "backup",
