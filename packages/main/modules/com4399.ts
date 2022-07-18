@@ -136,16 +136,16 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         //获取标题
         let originPage = await fetch(`http://www.4399.com/flash/${id}.htm`, "http://www.4399.com")
         // fs.writeFileSync("page.html", originPage)
-        let m = originPage.match(/<title>.+<\/title>/)
+        let m = originPage.match(/<title>.+<\/title>/i)
         if (m == null) {
             resolve(new Err("Error:Can't fetch game title"))
             return
         }
-        const title = m[0].replace(/<\/?title>/g, "").split(/[,_]/)[0]
+        const title = m[0].replace(/<\/?title>/ig, "").split(/[,_]/)[0]
         // console.log('title:'+title)
 
         //获取分类
-        m = (originPage as string).match(/分类：.+小游戏/)
+        m = (originPage as string).match(/分类[：:].+小游戏/)
         if (m == null) {
             resolve(new Err("Error:Can't get game category"))
             return
@@ -161,8 +161,15 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         //获取游戏页面链接
         m = (originPage as string).match(new RegExp(`/flash/${id}_\\d.htm`))
         if (m == null) {
-            resolve(new Err("Error:Can't parse playing page"))
-            return
+            //加入pvz补丁
+            let pvzPatchRes=await pvzPatch(originPage,`http://www.4399.com/flash/${id}.htm`,id,{title,category})
+            if(pvzPatchRes.err){
+                resolve(new Err("Error:Can't parse playing page"))
+                return
+            }else{
+                resolve(pvzPatchRes)
+                return
+            }
         }
         const playingPage = m[0]
         // console.log('playingPage:'+playingPage)
@@ -361,6 +368,41 @@ function getNickName(cookie: string): Result<string, string> {
         }
     }
     return new Ok(decodeURI(m[0].split(/[=;]/)[1]))
+}
+
+//4399pvz专题页面的补丁函数
+async function pvzPatch(page:string,url:string,id:string,known:{title:string,category:string}):Promise<Result<GameInfo, null>>{
+    //查找iframe元素
+    let match=page.match(/<iframe.+\.htm.+<\/iframe>/)
+    if(match==null) return new Err(null)
+    const truePageUrl="https:"+match[0].match(/\/\/.+\.htm/)![0]
+    // console.log(truePageUrl);
+
+    //获取真实页面。匹配swf文件名
+    const truePage=await fetch(truePageUrl,url)
+    match=truePage.match(/gameswf=.+\.swf/)
+    if(match==null) return new Err(null)
+    const swfName=match[0].split("=")[1]
+    // console.log(swfName);
+    
+    //获得二进制真实地址
+    let s=truePageUrl.split("/")
+    let last=s[s.length-1]
+    const binUrl=truePageUrl.replace(last,swfName)
+    // console.log(binUrl);
+    
+    //返回结果
+    return new Ok({
+        ...known,
+        type:"flash",
+        fromSite:"4399",
+        online:{
+            originPage:url,
+            truePage:truePageUrl,
+            binUrl,
+            icon:await getIcon(known.title,id)
+        }
+    })
 }
 
 export default {
