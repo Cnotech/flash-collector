@@ -21,3 +21,5 @@ ZIP-TEMP
 TEMP
 /config.json
 .yarn
+
+.vscode
