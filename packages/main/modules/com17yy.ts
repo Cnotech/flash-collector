@@ -1,7 +1,8 @@
 import { Err, Ok, Result } from "ts-results"
-import axios from "axios"
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
 import { GameInfo } from "../../class"
 import { BrowserWindow } from "electron"
+import iconv from "iconv-lite"
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -121,7 +122,10 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
         headers["user-agent"] =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36"
-        const axiosConfig = { headers }
+        const axiosConfig: AxiosRequestConfig = {
+            headers,
+            responseType: "arraybuffer",
+        }
 
         //匹配出游戏id
         let p = parseID(url)
@@ -139,11 +143,19 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             var network=0; var tleUrl="http://www.17yy.com/f/245976.html"; </script>
         */
         //获取标题, 分类, 服务器, 类型, 日期, 图标
-        let originPage = await axios.get(
-            `http://www.17yy.com/f/play/${id}.htm`,
-            axiosConfig
-        )
-        let originPageHtml = (originPage.data as string).replaceAll(" ", "")
+        let originPage: AxiosResponse
+        try {
+            originPage = await axios.get(
+                `http://www.17yy.com/f/play/${id}.html`,
+                axiosConfig
+            )
+        } catch (e) {
+            resolve(new Err(String(e)))
+            return
+        }
+        let originPageHtml = iconv
+            .decode(originPage.data, "gb2312")
+            .replaceAll(" ", "")
 
         let matchedTitle = originPageHtml.match(/<title>.+<\/title>/)
         if (matchedTitle == null) {
@@ -245,7 +257,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
 
         let binUrl = ""
-        if (!trueUrl.endsWith("swf") || !trueUrl.endsWith("unity3d")) {
+        if (!trueUrl.endsWith("swf") && !trueUrl.endsWith("unity3d")) {
             //处理没有直接返回swf,u3d的情况
             console.log(
                 "Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game"
@@ -257,7 +269,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
                     type: "h5",
                     fromSite: "17yy",
                     online: {
-                        originPage: `http://www.17yy.com/f/${id}.htm`,
+                        originPage: `http://www.17yy.com/f/${id}.html`,
                         truePage: trueUrl,
                         binUrl: trueUrl,
                         icon,
@@ -287,7 +299,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
                 type,
                 fromSite: "17yy",
                 online: {
-                    originPage: `http://www.17yy.com/f/${id}.htm`,
+                    originPage: `http://www.17yy.com/f/${id}.html`,
                     truePage: trueUrl,
                     binUrl,
                     icon,
