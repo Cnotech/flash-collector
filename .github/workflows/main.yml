@@ -18,7 +18,7 @@ jobs:
     - name: Install and Build
       # 该步骤运行的终端命令，进入仓库的src目录，安装依赖，运行编译命令
       run:
-        cd src && npm install && npm run build
+        cd src && npm install && npm run prebuild && npm run build
     # 步骤二的名称：将编译后的结果上传
     - name: Upload File
       # 使用预制action：上传文件，可以将执行路径打包成zip上传
