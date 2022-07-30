@@ -29,4 +29,4 @@ jobs:
         # 上传后文件的名称
         name: windows
         # 打包的路径以及文件过滤，此为仅打包dist目录下的exe文件
-        path: dist/*exe
+        path: release/*
