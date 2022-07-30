@@ -11,7 +11,7 @@ jobs:
     # 运行的操作系统 windows server 2022
     runs-on: windows-2022
     env: 
-      GH_TOKEN: ${secrets.GITHUB_TOKEN}
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     # 步骤
     steps:
     # 使用预制action：拉取最新的代码
