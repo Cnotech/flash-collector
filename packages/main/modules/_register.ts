@@ -1,7 +1,8 @@
-import com7k7k from "./com7k7k";
-import com4399 from "./com4399";
-import game773 from "./game773";
-import {ParserRegister} from "../../class";
+import com7k7k from "./com7k7k"
+import com4399 from "./com4399"
+import game773 from "./game773"
+import com17yy from "./com17yy"
+import { ParserRegister } from "../../class"
 
 export const register: Array<ParserRegister> = [
     {
@@ -16,8 +17,8 @@ export const register: Array<ParserRegister> = [
             init: com4399.initCookie,
             set: com4399.setCookie,
             get: com4399.getCookie,
-            clear: com4399.clearCookie
-        }
+            clear: com4399.clearCookie,
+        },
     },
     {
         name: "7k7k",
@@ -31,8 +32,23 @@ export const register: Array<ParserRegister> = [
             init: com7k7k.initCookie,
             set: com7k7k.setCookie,
             get: com7k7k.getCookie,
-            clear: com7k7k.clearCookie
-        }
+            clear: com7k7k.clearCookie,
+        },
     },
-    game773
+    game773,
+    {
+        name: "17yy",
+        regex: /https?:\/\/www\.17yy\.com\/f\/(play\/)?\d+\.htm/,
+        entrance: com17yy.entrance,
+        utils: {
+            parseID: com17yy.parseID,
+            getNickName: com17yy.getNickName,
+        },
+        cookieController: {
+            init: com17yy.initCookie,
+            set: com17yy.setCookie,
+            get: com17yy.getCookie,
+            clear: com17yy.clearCookie,
+        },
+    },
 ]
