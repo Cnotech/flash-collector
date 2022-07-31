@@ -4,8 +4,7 @@ import {Err, Ok, Result} from "ts-results";
 import fs from "fs"
 import path from "path"
 import Downloader from "nodejs-file-downloader";
-
-const shelljs = require('shelljs')
+import shelljs from "shelljs";
 
 async function update(pkg: string, latestVersion: string): Promise<Result<null, string>> {
     //清空更新文件夹

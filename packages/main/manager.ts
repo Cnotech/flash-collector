@@ -10,8 +10,7 @@ import express from 'express'
 import {getConfig, setConfig} from "./config";
 import Ajv from "ajv";
 import infoSchema from "./schema/info.json"
-
-const shelljs = require('shelljs')
+import shelljs from "shelljs";
 
 const LOCAL_GAME_LIBRARY = "./games"
 

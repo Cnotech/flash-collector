@@ -9,11 +9,10 @@ import Ajv from "ajv";
 import backupSchema from "./schema/backup.json";
 import os from "os";
 import cp from "child_process"
+import shelljs from "shelljs";
 
 const ajv = new Ajv()
 const backupValidator = ajv.compile(backupSchema)
-
-const shelljs = require('shelljs')
 
 const ROAMING_APPDATA = process.env['APPDATA'] ?? ""
 

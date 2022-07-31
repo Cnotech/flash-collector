@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "node scripts/watch.mjs",
     "prebuild": "vue-tsc --noEmit --p packages/renderer/tsconfig.json && node scripts/build.mjs",
-    "build": "electron-builder -p=never && node scripts/pack.js",
+    "build": "electron-builder && node scripts/pack.js",
     "test": "ts-node test/test.ts",
     "push": "node ./scripts/publish.js"
   },
