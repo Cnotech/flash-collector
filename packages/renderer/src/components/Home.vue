@@ -227,7 +227,7 @@ async function login(name: string) {
 }
 
 //监听解析结果返回
-const urlRegex = /https?:\/\/\S+\.html?/
+const urlRegex = /https?:\/\/\S+/
 let recentSubmit = 0
 
 async function parse() {

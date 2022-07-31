@@ -3,7 +3,7 @@ import com4399 from "./com4399"
 import game773 from "./game773"
 import com17yy from "./com17yy"
 import com7724 from "./com7724"
-import { ParserRegister } from "../../class"
+import {ParserRegister} from "../../class"
 
 export const register: Array<ParserRegister> = [
     {
@@ -54,7 +54,7 @@ export const register: Array<ParserRegister> = [
     },
     {
         name: "7724",
-        regex: /https?:\/\/www\.7724\.com\//,
+        regex: /https?:\/\/www\.7724\.com\/\S+/,
         entrance: com7724.entrance,
         utils: {
             parseID: com7724.parseID,

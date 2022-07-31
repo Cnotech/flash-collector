@@ -1,7 +1,7 @@
-import { Err, Ok, Result } from "ts-results"
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import { GameInfo } from "../../class"
-import { BrowserWindow } from "electron"
+import {Err, Ok, Result} from "ts-results"
+import axios, {AxiosRequestConfig, AxiosResponse} from "axios"
+import {GameInfo} from "../../class"
+import {BrowserWindow} from "electron"
 import cheerio from "cheerio"
 
 let cookie: string | null = null
@@ -66,7 +66,7 @@ async function getCookie(): Promise<Result<string, string>> {
                 let cookie = await win.webContents.session.cookies.get({
                     url: "http://www.7724.com",
                 })
-                if (cookie.length >= 3) {
+                if (cookie.length > 5) {
                     win.close()
                 }
             }
@@ -75,7 +75,7 @@ async function getCookie(): Promise<Result<string, string>> {
         //监听窗口关闭
         win.on("close", async () => {
             win.webContents.session.cookies
-                .get({ url: "http://www.7724.com" })
+                .get({url: "http://www.7724.com"})
                 .then((cookies) => {
                     if (cookies.length < 3) {
                         resolve(new Err("Error:Can't read cookie"))
@@ -203,24 +203,17 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
         console.log(trueUrl)
 
-        let binUrl = trueUrl
-        console.log("Match bin file " + binUrl)
-
-        //7724 只有 h5 游戏
-        let type: "flash" | "unity" | "h5" = "h5"
-        console.log("Warning: 7724 has only h5 game")
-
         //返回结果
         resolve(
             new Ok({
                 title,
                 category,
-                type,
+                type: "h5",
                 fromSite: "7724",
                 online: {
-                    originPage: `http://www.17yy.com/f/${gameName}.html`,
+                    originPage: `http://www.7724.com/${gameName}/`,
                     truePage: trueUrl,
-                    binUrl,
+                    binUrl: trueUrl,
                     icon,
                 },
             })
@@ -232,6 +225,7 @@ function parseID(url: string): Result<string, string> {
     // https://www.7724.com/JieXianMiTi2/
     return new Ok(url.split("/")[3])
 }
+
 function getNickName(cookie: string): Result<string, string> {
     let m = cookie.match(/nickname=.+;/)
     if (m == null) return new Err("Error:Can't match nick name")

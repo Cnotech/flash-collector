@@ -86,16 +86,6 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 部分 17yy 小游戏需要一定的功勋值，目前还没有办法绕过此限制。
 
-## 关于 7724 下载
-
-7724 里面全是 h5 游戏。
-
-**下载游戏时要为链接后面加点东西**，比如:
-
-> https://www.7724.com/YouXianDiaoYu/ => https://www.7724.com/YouXianDiaoYu/index.htm(l)
-
-> https://www.7724.com/YouXianDiaoYu/game => https://www.7724.com/YouXianDiaoYu/game.htm(l)
-
 ## 反馈
 
 如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5
