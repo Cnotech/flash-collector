@@ -2,6 +2,7 @@ import com7k7k from "./com7k7k"
 import com4399 from "./com4399"
 import game773 from "./game773"
 import com17yy from "./com17yy"
+import com7724 from "./com7724"
 import { ParserRegister } from "../../class"
 
 export const register: Array<ParserRegister> = [
@@ -49,6 +50,21 @@ export const register: Array<ParserRegister> = [
             set: com17yy.setCookie,
             get: com17yy.getCookie,
             clear: com17yy.clearCookie,
+        },
+    },
+    {
+        name: "7724",
+        regex: /https?:\/\/www\.7724\.com\//,
+        entrance: com7724.entrance,
+        utils: {
+            parseID: com7724.parseID,
+            getNickName: com7724.getNickName,
+        },
+        cookieController: {
+            init: com7724.initCookie,
+            set: com7724.setCookie,
+            get: com7724.getCookie,
+            clear: com7724.clearCookie,
         },
     },
 ]

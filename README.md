@@ -26,6 +26,7 @@
 -   [7k7k](http://www.7k7k.com) by [@Cnotech](https://github.com/Cnotech)
 -   [game773](https://www.game773.com) by [@Cnotech](https://github.com/Cnotech)
 -   [17yy](http://www.17yy.com) by [@dsy4567](https://github.com/dsy4567)
+-   [7724](https://www.7724.com/new.html) by [@dsy4567](https://github.com/dsy4567)
 
 ## 下载
 
@@ -83,7 +84,17 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 ## 关于 17yy 功勋值
 
-部分 17yy 小游戏需要一定的功勋值, 目前还没有办法绕过此限制
+部分 17yy 小游戏需要一定的功勋值，目前还没有办法绕过此限制。
+
+## 关于 7724 下载
+
+7724 里面全是 h5 游戏。
+
+**下载游戏时要为链接后面加点东西**，比如:
+
+> https://www.7724.com/YouXianDiaoYu/ => https://www.7724.com/YouXianDiaoYu/index.htm(l)
+
+> https://www.7724.com/YouXianDiaoYu/game => https://www.7724.com/YouXianDiaoYu/game.htm(l)
 
 ## 反馈
 
