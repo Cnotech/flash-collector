@@ -78,7 +78,8 @@
             <a-avatar v-else shape="square" size="large" style="background-color: #4bb117">
               {{ item.info.title.slice(0, 2) }}
             </a-avatar>
-            {{ item.info.title }}
+
+            <a-typography-text :content="item.info.title" :ellipsis="{tooltip:true}" style="max-width: 132px"/>
             <small style="color: gray">{{ item.freq }}次</small>
           </a-space>
         </a-space>

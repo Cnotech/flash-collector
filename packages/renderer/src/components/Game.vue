@@ -16,7 +16,9 @@
             <a-button size="middle" type="primary" @click="confirmRen">完成</a-button>
           </a-space>
         </template>
-        <a v-else @click="shell.openExternal(info.online.originPage)">{{ info.title }}</a>
+        <a v-else @click="shell.openExternal(info.online.originPage)">
+          <a-typography-text :content="info.title" :ellipsis="{tooltip:true}" style="color: #4BB117"/>
+        </a>
       </template>
       <template #tags>
         <a-tag color="green">{{ info.fromSite }}</a-tag>
