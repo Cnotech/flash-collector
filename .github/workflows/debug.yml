@@ -1,0 +1,42 @@
+name: Debug
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/**'
+      - 'retinue/**'
+      - 'package.json'
+      - '.github/**'
+
+jobs:
+  serve:
+    runs-on: windows-2019
+    steps:
+      # 获取仓库源码
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          ref: ${{ github.ref }}
+
+      # 缓存node_modules
+      - uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      # 安装依赖
+      - name: Install dependencies
+        run: yarn
+      
+      # 运行构建
+      - name: Build preview
+        run: yarn build
+
+      # 上传构建
+      - name: Upload File
+        uses: actions/upload-artifact@v2
+        with:
+          name: preview
+          path: release/Flash Collector_*_win-x64.7z
