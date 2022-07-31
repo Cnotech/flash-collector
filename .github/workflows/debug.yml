@@ -32,7 +32,7 @@ jobs:
       
       # 运行构建
       - name: Build preview
-        run: yarn build
+        run: yarn build -p=never
 
       # 上传构建
       - name: Upload File
