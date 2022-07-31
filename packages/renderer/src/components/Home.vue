@@ -96,7 +96,7 @@
               <strong>登录状态（{{ cookieStatus.filter(n => n.login).length }}/{{ cookieStatus.length }}）</strong>
             </template>
             <div v-for="item of cookieStatus" class="status-bar">
-              <a-space>
+              <a-space style="margin: 3px 0">
                 {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
                 <template v-if="item.login">
                   <check-circle-outlined style="color: #42b983"/>
