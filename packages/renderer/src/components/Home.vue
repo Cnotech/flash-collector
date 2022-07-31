@@ -86,19 +86,32 @@
       </a-col>
     </a-row>
 
-    <div class="flex-container" style="margin-top: 10%">
-      <a-space v-for="item of cookieStatus" class="status-bar" size="middle">
-        {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
-        <template v-if="item.login">
-          <check-circle-outlined style="color: #42b983"/>
-          <a-button size="small" @click="logout(item.name)">登出</a-button>
-        </template>
-        <template v-else>
-          <close-circle-outlined style="color: gray"/>
-          <a-button size="small" @click="login(item.name)">登录</a-button>
-        </template>
-      </a-space>
-    </div>
+    <a-row style="margin-top: 20px" type="flex">
+      <a-col :span="2"/>
+      <a-col :span="20">
+        <a-collapse v-model:activeKey="statusBarActiveKey" expandIconPosition="right" ghost
+                    style="width: 100%;margin-left:-15px">
+          <a-collapse-panel key="main">
+            <template #header>
+              <strong>登录状态（{{ cookieStatus.filter(n => n.login).length }}/{{ cookieStatus.length }}）</strong>
+            </template>
+            <div v-for="item of cookieStatus" class="status-bar">
+              <a-space>
+                {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
+                <template v-if="item.login">
+                  <check-circle-outlined style="color: #42b983"/>
+                  <a-button size="small" @click="logout(item.name)">登出</a-button>
+                </template>
+                <template v-else>
+                  <close-circle-outlined style="color: gray"/>
+                  <a-button size="small" @click="login(item.name)">登录</a-button>
+                </template>
+              </a-space>
+            </div>
+          </a-collapse-panel>
+        </a-collapse>
+      </a-col>
+    </a-row>
 
   </div>
 </template>
@@ -127,7 +140,8 @@ let url = ref<string>(""),
     cookieStatus = ref<LoginStatus[]>([]),
     localSearch = ref<GameInfo[]>([]),
     port = ref(3000),
-    recentLaunch = ref<{ info: GameInfo, freq: number }[]>([])
+    recentLaunch = ref<{ info: GameInfo, freq: number }[]>([]),
+    statusBarActiveKey = ref([])
 
 
 let gameInfo: GameInfo | null = null,
@@ -370,6 +384,10 @@ onUnmounted(() => {
 .status-bar {
   margin-top: 5px;
   margin-bottom: 5px;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 .flex-container {
