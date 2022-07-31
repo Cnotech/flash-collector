@@ -26,6 +26,7 @@
 -   [7k7k](http://www.7k7k.com) by [@Cnotech](https://github.com/Cnotech)
 -   [game773](https://www.game773.com) by [@Cnotech](https://github.com/Cnotech)
 -   [17yy](http://www.17yy.com) by [@dsy4567](https://github.com/dsy4567)
+-   [7724](https://www.7724.com/new.html) by [@dsy4567](https://github.com/dsy4567)
 
 ## 下载
 
