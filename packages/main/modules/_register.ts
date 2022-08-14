@@ -23,7 +23,7 @@ export const register: Array<ParserRegister> = [
     },
     {
         name: "7k7k",
-        regex: /https?:\/\/www\.7k7k\.com\/(swf|flash)\/\d+\.htm/,
+        regex: /.+\.7k7k\.com.+/,
         entrance: com7k7k.entrance,
         utils: {
             parseID: com7k7k.parseID,

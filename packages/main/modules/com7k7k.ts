@@ -75,7 +75,7 @@ async function getCookie(): Promise<Result<string, string>> {
                         updateCookie(cookie)
                         resolve(new Ok(cookie))
                     }
-                }).catch(e => {
+                }).catch(_ => {
                 resolve(new Err("Error:Can't read cookie"))
             })
 
@@ -91,7 +91,59 @@ function clearCookie() {
     cookie = null
 }
 
+//匹配无法解析ID的不规范url
+async function common7k7kParser(html: string): Promise<Result<string, string>> {
+    const $ = cheerio.load(html)
+    const iframes = $("iframe")
+    if (iframes.length == 0) {
+        return new Err("Error:No game iframe found on this page")
+    }
+    let src = iframes.attr("src")
+    if (src?.startsWith("//")) {
+        src = "http:" + src
+    }
+    console.log(`Info:Get iframe src = ${src}`)
+    if (src != null && src.includes("7k7k.com")) {
+        return new Ok(src)
+    } else {
+        //对于可能使用动态真实页面的页面匹配关键词
+        const dynamicTrueUrlRegex = /_gamespecialpath\s*=\s*"(.+)"/
+        let match = html.match(dynamicTrueUrlRegex)
+        if (match != null) {
+            return new Ok(match[0].replace(dynamicTrueUrlRegex, "$1"))
+        } else {
+            return new Err("Error:No valid game iframe found on this page")
+        }
+    }
+}
+
+function getTitleAndCategory(html: string): Result<{ title: string, category: string }, string> {
+    let m = html.match(/<title>.+<\/title>/)
+    if (m == null) {
+        return new Err("Error:Can't fetch game title")
+    }
+    //尝试使用 - 分割标题以判断是否为标准页面
+    const originTitle = m[0].replace(/<\/?title>/g, "")
+    let s = originTitle.split(/\s*-\s*/)
+    if (s.length > 2) {
+        //标准标题
+        const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
+        return new Ok({
+            title,
+            category
+        })
+    } else {
+        //非标准标题，使用_分割后直接返回
+        let title = originTitle.split(/[_,]/)[0]
+        return new Ok({
+            title,
+            category: "专题"
+        })
+    }
+}
+
 async function entrance(url: string): Promise<Result<GameInfo, string>> {
+    console.log(url)
     return new Promise(async (resolve) => {
         //检查cookie是否为空
         if (cookie == null && (await getCookie()).err) {
@@ -116,20 +168,43 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         //匹配出游戏id
         let p = parseID(url)
         if (p.err) {
-            resolve(p)
+            //尝试使用通用匹配方法
+
+            //直接获取用户输入页面
+            const htmlRes = await axios.get(url)
+
+            //获取标题和分类
+            let tcRes = getTitleAndCategory(htmlRes.data)
+            if (tcRes.err) {
+                return tcRes
+            }
+            const {title, category} = tcRes.val
+
+            //尝试通用匹配真实页面
+            const commonMatch = await common7k7kParser(htmlRes.data)
+            if (commonMatch.ok) {
+                resolve(await getGameInfoFromTrueUrl(commonMatch.val, {
+                    axiosConfig,
+                    title,
+                    category,
+                    originUrl: url
+                }))
+            } else {
+                resolve(commonMatch)
+            }
             return
         }
         const id = p.val
 
-        //获取标题和分类
+        //获取页面
         let originPage = await axios.get(`http://www.7k7k.com/flash/${id}.htm`, axiosConfig)
-        let m = (originPage.data as string).match(/<title>.+<\/title>/)
-        if (m == null) {
-            resolve(new Err("Error:Can't fetch game title"))
-            return
+
+        //获取标题和分类
+        let tcRes = getTitleAndCategory(originPage.data)
+        if (tcRes.err) {
+            return tcRes
         }
-        let s = m[0].replace(/<\/?title>/g, "").split(/\s*-\s*/)
-        const title = s[0].split(',')[0], category = s[1].replace("小游戏", "")
+        const {title, category} = tcRes.val
 
         //匹配图标
         const $ = cheerio.load(originPage.data)
@@ -147,8 +222,32 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             resolve(new Err("Error:Request 7k7k api failed, have you logged in?"))
             return
         }
-        const trueUrl = json.result.url as string, gameType = json.result.gameType
+        const trueUrl = json.result.url as string
+        // const gameType = json.result.gameType
+        const result = await getGameInfoFromTrueUrl(trueUrl, {
+            axiosConfig,
+            title,
+            category,
+            id,
+            icon,
+            originUrl: url
+        })
+        resolve(result)
+    })
 
+}
+
+async function getGameInfoFromTrueUrl(trueUrl: string, props: {
+    axiosConfig: any,
+    title: string,
+    category: string,
+    originUrl: string,
+    id?: string,
+    icon?: string
+}): Promise<Result<GameInfo, string>> {
+    const {axiosConfig, title, category, id, icon} = props
+    const originPage = id != null ? `http://www.7k7k.com/flash/${id}.htm` : props.originUrl
+    return new Promise(async (resolve) => {
         let binUrl
         if (trueUrl.endsWith("swf")) {
             //处理直接返回swf的情况
@@ -158,22 +257,25 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             let truePage = await axios.get(trueUrl, axiosConfig)
 
             //匹配其中的游戏文件
-            m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
+            let m = truePage.data.match(/(https?:\/\/)?[^'"\s]+\.(swf|unity3d)/)
             if (m == null) {
-                // return new Err("Error:Can't match any bin file, if this is a HTML5 game thus it's not supported yet")
-                console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
-                resolve(new Ok({
-                    title,
-                    category,
-                    type: 'h5',
-                    fromSite: "7k7k",
-                    online: {
-                        originPage: `http://www.7k7k.com/flash/${id}.htm`,
-                        truePage: trueUrl,
-                        binUrl: trueUrl,
-                        icon
-                    }
-                }))
+                if (id != null) {
+                    console.log("Warning:Can't either try download any swf file or match any bin file, treat as HTML5 game")
+                    resolve(new Ok({
+                        title,
+                        category,
+                        type: 'h5',
+                        fromSite: "7k7k",
+                        online: {
+                            originPage,
+                            truePage: trueUrl,
+                            binUrl: trueUrl,
+                            icon
+                        }
+                    }))
+                } else {
+                    resolve(new Err("Error:Can't find game on this page"))
+                }
                 return
             }
             binUrl = m[0]
@@ -195,21 +297,19 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         } else type = "h5"
 
         //返回结果
-        timeout = false
         resolve(new Ok({
             title,
             category,
             type,
             fromSite: "7k7k",
             online: {
-                originPage: `http://www.7k7k.com/flash/${id}.htm`,
+                originPage,
                 truePage: trueUrl,
                 binUrl,
                 icon
             }
         }))
     })
-
 }
 
 function parseID(url: string): Result<string, string> {

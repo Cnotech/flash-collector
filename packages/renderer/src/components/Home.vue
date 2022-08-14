@@ -308,6 +308,7 @@ async function parse() {
     message.error(result.val)
     //清空gameInfo
     gameInfo = null
+    gameTitle.value = null
   }
 }
 

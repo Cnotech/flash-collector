@@ -142,16 +142,20 @@ async function parser(url: string): Promise<Result<GameInfo, string>> {
     if (regNode == null) return new Err("Error:Can't find parser for this url")
 
     //遍历list查询此游戏是否被下载了
-    let found: GameInfo | null = null, thisID = regNode.utils.parseID(url).unwrap()
-    for (let type in gameList) {
-        for (let game of gameList[type]) {
-            if (game.fromSite == regNode.name) {
-                let idRes = regNode.utils.parseID(game.online.originPage)
-                if (idRes.err) {
-                    console.log(`Warning:Fatal, can't parse id for local game ${type}/${game.local?.folder} with module ${regNode.name}`)
-                } else if (idRes.val == thisID) {
-                    found = game
-                    break
+    let thisIDRes = regNode.utils.parseID(url),
+        found: GameInfo | null = null;
+    if (thisIDRes.ok) {
+        let thisID = thisIDRes.val
+        for (let type in gameList) {
+            for (let game of gameList[type]) {
+                if (game.fromSite == regNode.name) {
+                    let idRes = regNode.utils.parseID(game.online.originPage)
+                    if (idRes.err) {
+                        console.log(`Warning:Fatal, can't parse id for local game ${type}/${game.local?.folder} with module ${regNode.name}`)
+                    } else if (idRes.val == thisID) {
+                        found = game
+                        break
+                    }
                 }
             }
         }
