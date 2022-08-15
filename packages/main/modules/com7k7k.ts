@@ -118,12 +118,33 @@ async function common7k7kParser(html: string): Promise<Result<string, string>> {
 }
 
 function getTitleAndCategory(html: string): Result<{ title: string, category: string }, string> {
-    let m = html.match(/<title>.+<\/title>/)
-    if (m == null) {
-        return new Err("Error:Can't fetch game title")
+    const originTitleMatchers: Array<(url: string) => string | null> = [
+        (url) => {
+            let m = html.match(/<title>.+<\/title>/i)
+            if (m == null) return null
+            return m[0].replace(/<\/?title>/g, "")
+        },
+        (url) => {
+            const regex = /<meta property="og:title" content="(.+)" \/>/i
+            let m = html.match(regex)
+            if (m == null) return null
+            return m[0].replace(regex, "$1")
+        }
+    ]
+    //使用匹配链尝试匹配标题
+    let originTitle: string | null = null
+    for (let matcher of originTitleMatchers) {
+        const res = matcher(html)
+        if (res != null) {
+            originTitle = res
+            break
+        }
+    }
+
+    if (originTitle == null) {
+        return new Err("Error:Can't parse game title")
     }
     //尝试使用 - 分割标题以判断是否为标准页面
-    const originTitle = m[0].replace(/<\/?title>/g, "")
     let s = originTitle.split(/\s*-\s*/)
     if (s.length > 2) {
         //标准标题
@@ -168,6 +189,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         //匹配出游戏id
         let p = parseID(url)
         if (p.err) {
+            console.log("Info:Can't parse id, try common match")
             //尝试使用通用匹配方法
 
             //直接获取用户输入页面
@@ -176,7 +198,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             //获取标题和分类
             let tcRes = getTitleAndCategory(htmlRes.data)
             if (tcRes.err) {
-                return tcRes
+                resolve(tcRes)
+                return
             }
             const {title, category} = tcRes.val
 
@@ -201,8 +224,10 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
 
         //获取标题和分类
         let tcRes = getTitleAndCategory(originPage.data)
+        console.log(tcRes)
         if (tcRes.err) {
-            return tcRes
+            resolve(tcRes)
+            return
         }
         const {title, category} = tcRes.val
 
