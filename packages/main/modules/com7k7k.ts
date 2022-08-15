@@ -232,6 +232,8 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             icon,
             originUrl: url
         })
+
+        timeout=false
         resolve(result)
     })
 
