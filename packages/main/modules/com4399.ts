@@ -372,6 +372,7 @@ function getNickName(cookie: string): Result<string, string> {
 
 //4399pvz专题页面的补丁函数
 async function pvzPatch(page: string, known: { title: string, category: string, id: string }): Promise<Result<GameInfo, null>> {
+    const {title, category} = known
     const url = `http://www.4399.com/flash/${known.id}.htm`
     //查找iframe元素
     let match = page.match(/<iframe.+\.htm.+<\/iframe>/)
@@ -394,7 +395,8 @@ async function pvzPatch(page: string, known: { title: string, category: string, 
 
     //返回结果
     return new Ok({
-        ...known,
+        title,
+        category,
         type: "flash",
         fromSite: "4399",
         online: {
