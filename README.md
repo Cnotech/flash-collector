@@ -99,9 +99,15 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 `ParserRegister` 接口的相关注释位于 `packages/class.ts`，尽量参考现有模块的实现。
 
+我们推荐为你的模块增加单元测试文件 `MODULE_NAME.test.ts` 以便确保后续项目变动时你的模块能够正常工作。
+
 ## 调试
 
 执行 `yarn dev`。
+
+## 单元测试
+
+执行 `yarn test`。
 
 ## 编译
 
