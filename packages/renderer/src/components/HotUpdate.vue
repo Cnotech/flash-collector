@@ -48,8 +48,8 @@ let data: UpdateReply | null = null,
 
 async function init() {
   const currentVersion: string = await bridge('version')
-  if (await bridge('isPackaged')) {
-    document.title = `Flash Collector - 小游戏收集器 v${currentVersion}`
+  if (!(await bridge('isPackaged'))) {
+    document.title = `Flash Collector Dev - 小游戏收集器 v${currentVersion}`
     return
   }
   //获取信息
