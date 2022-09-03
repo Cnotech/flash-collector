@@ -1,6 +1,7 @@
 const Iconv = require('iconv').Iconv
+const decodeUriComponent = require('decodeuricomponent');
 
-export default function (uri: string): string {
+export function GBKEncodeUri(uri: string): string {
     let i = new Iconv('UTF-8', 'GBK');
     let from = i.convert(uri);
     let rt = '';
@@ -15,4 +16,8 @@ export default function (uri: string): string {
         }
     }
     return rt;
+}
+
+export function GBKDecodeUri(uri: string): string {
+    return decodeUriComponent(uri);
 }

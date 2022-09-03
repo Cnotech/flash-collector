@@ -4,7 +4,7 @@ import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
 import iconv from 'iconv-lite';
 import cheerio from 'cheerio';
-import GBKEncodeUri from "./GBKEncodeUri";
+import {GBKEncodeUri,GBKDecodeUri} from "./GBKUri";
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -364,10 +364,10 @@ function getNickName(cookie: string): Result<string, string> {
         if (m == null) {
             return new Err("Error:Can't match nick name")
         } else {
-            return new Ok(decodeURI(m[0].split(/[=;]/)[1]))
+            return new Ok(GBKDecodeUri(m[0].split(/[=;]/)[1]))
         }
     }
-    return new Ok(decodeURI(m[0].split(/[=;]/)[1]))
+    return new Ok(GBKDecodeUri(m[0].split(/[=;]/)[1]))
 }
 
 //4399pvz专题页面的补丁函数

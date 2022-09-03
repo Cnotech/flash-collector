@@ -2035,6 +2035,13 @@ debug@4, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.4:
   dependencies:
     ms "2.1.2"
 
+decodeuricomponent@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/decodeuricomponent/-/decodeuricomponent-0.3.1.tgz#4c3de9dd0fce86ca81da12ef0329e899d73e7c99"
+  integrity sha512-8PuirnWM7fdE54vRKoVT60RQlkFXgKsi7ToV4pdVbj9jc9qGSFt4P10Oi3UK+FPHZi+lhqRdPyG2QqhSfIhtQQ==
+  dependencies:
+    iconv-lite "^0.4.19"
+
 decompress-response@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/decompress-response/-/decompress-response-3.3.0.tgz#80a4dd323748384bfa248083622aedec982adff3"
@@ -3016,7 +3023,7 @@ iconv-corefoundation@^1.1.7:
     cli-truncate "^2.1.0"
     node-addon-api "^1.6.3"
 
-iconv-lite@0.4.24:
+iconv-lite@0.4.24, iconv-lite@^0.4.19:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
   integrity sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==

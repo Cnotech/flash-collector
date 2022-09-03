@@ -47,6 +47,7 @@
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.10",
     "chrome-remote-interface": "^0.31.2",
+    "decodeuricomponent": "^0.3.1",
     "express": "^4.18.1",
     "iconv": "^3.0.1",
     "iconv-lite": "^0.6.3",
