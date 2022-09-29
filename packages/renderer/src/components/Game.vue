@@ -520,6 +520,8 @@ async function backupProgress(force?: boolean) {
       key: "backup",
       duration: 5
     })
+    backupDisplayStatus.value = "error"
+    backupDisplayTip.value = r.val
   }
 }
 
