@@ -1,0 +1,46 @@
+name: 游戏解析出错
+description: 报告 Flash Collector 主程序无法正确解析的小游戏
+title: "[unsolvable]: "
+assignees:
+  - Cnotech
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Flash Collector 版本号
+      description: 遇到此问题时使用的 Flash Collector 版本号
+      placeholder: e.g. 1.7
+    validations:
+      required: true
+  - type: dropdown
+    id: win
+    attributes:
+      label: Windows 版本
+      description: 遇到此问题时使用的 Windows 版本
+      options:
+        - Windows 10 x64
+        - Windows 11 x64
+        - 其他（请在下面描述问题的输入框中写明 Windows 版本）
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: 无法解析的小游戏页面网址
+      description: 请确认此页面的小游戏不是页游
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 发生什么事了？
+      description: 详细描述你遇到的问题，并附上屏幕截图。
+      placeholder: 输入内容
+    validations:
+      required: true
+  - type: textarea
+    id: howto-recur
+    attributes:
+      label: 如何复现这个问题？
+      description: 详细描述从启动 Flash Collector 主程序到遇到此问题中间执行的步骤。
+      placeholder: 输入内容
