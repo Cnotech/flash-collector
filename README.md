@@ -2,7 +2,7 @@
 
 小游戏收集器，一键下载、本地运行小游戏，希望能帮助你收集到来自童年的一份快乐
 
-<img src="img/screenshot.jpg"/>
+<img src="img/screenshot.jpg" alt="screenshot"/>
 
 ## 特性
 
@@ -52,15 +52,15 @@ Flash Collector 在本地运行游戏可能需要浏览器的支持，Flash 游�
 几款主流国际浏览器因为全军覆没因此没有出现在表格中：`Chrome` `Edge (Chromium)` `Firefox` `傲游浏览器` `Opera` `IE11`
 ；2345 加速浏览器则因为其过于恶臭的名声（捏鼻）没有被加入测试名单。如果你知晓其他**最新版本**支持这两种插件的浏览器请新建 PR。
 
-| 浏览器                           | Flash 纯净版 | Flash 毒瘤版 | Unity64 位 | Unity32 位              |
-| -------------------------------- | ------------ | ------------ | ---------- | ----------------------- |
-| 360 极速浏览器 X 64 位           | √            | √            | √          | x                       |
-| 360 极速浏览器 32 位（停止维护） | √            | √            | x          | √                       |
-| 搜狗高速浏览器                   | √            | √            | x          | ○ 能显示 logo，无法加载 |
-| 360 安全浏览器                   | x            | √            | x          | √                       |
-| 百分浏览器                       | √            | √            | x          | x                       |
-| QQ 浏览器                        | √            | √            | x          | x                       |
-| 星愿浏览器                       | x            | x            | x          | x                       |
+| 浏览器                  | Flash 纯净版 | Flash 毒瘤版 | Unity64 位 | Unity32 位       |
+|----------------------|-----------|-----------|-----------|-----------------|
+| 360 极速浏览器 X 64 位     | √         | √         | √         | x               |
+| 360 极速浏览器 32 位（停止维护） | √         | √         | x         | √               |
+| 搜狗高速浏览器              | √         | √         | x         | ○ 能显示 logo，无法加载 |
+| 360 安全浏览器            | x         | √         | x         | √               |
+| 百分浏览器                | √         | √         | x         | x               |
+| QQ 浏览器               | √         | √         | x         | x               |
+| 星愿浏览器                | x         | x         | x         | x               |
 
 `360极速浏览器X 64位`是测试的浏览器中唯一支持 Unity 64 位的，并且同时支持 Flash 纯净版，这个浏览器也没有自带流氓捆绑，因此还是比较推荐的（真没收钱 xdm）；
 
@@ -74,7 +74,7 @@ Flash Collector 在本地运行游戏可能需要浏览器的支持，Flash 游�
 
 `星愿浏览器`可能是因为人手不够加上产品定位的问题，没有加入对这两种插件的适配修改。
 
-Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧版的 Chrome 或 Firefox，然后通过 Flash Collector 安装纯净版的 Flash 运行库插件。
+Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧版的 Chrome 或 Firefox，然后在“设置”页面自定义启动浏览器路径。
 
 ## 关于登录
 
@@ -88,7 +88,9 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 ## 反馈
 
-如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D 游戏请[新建 issue](https://github.com/Cnotech/flash-collector/issues)，不接受 HTML5
+如果遇到无法解析或解析为 HTML5 的 Flash 或 Unity3D
+游戏请 [新建反馈 issue](https://github.com/Cnotech/flash-collector/issues/new?assignees=Cnotech&labels=&template=unsolvable.yml&title=%5Bunsolvable%5D%3A+)
+，不接受 HTML5
 或页游的反馈请求。
 
 如果无法在本地正常运行 Flash 小游戏或是无法使用“源站播放”功能，请**仔细阅读“开始游戏”按钮右侧问号图标内的内容**。
@@ -122,5 +124,5 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 3. 本软件及其仓库是 Flash Collector 字样及下图所示图标（渐变绿底 FC 字）的最早使用者，任何个人或组织不得未经授权使用相关字样或图标。
 
 <div align=center>
-    <img src="retinue/favicon.ico"/>
+    <img src="retinue/favicon.ico" alt="logo"/>
 </div>
