@@ -43,7 +43,8 @@
   <br/>
   <a-card title="智能嗅探">
     <a-space direction="vertical">
-      <p>此功能可以帮助下载异步加载的在线小游戏，启用后当您使用“源站播放”时 Flash Collector 会监听浏览器的资源请求并将请求的文件下载到本地</p>
+      <p>此功能可以帮助下载异步加载的 Flash 小游戏，启用后当您使用“源站播放”时 Flash Collector
+        会监听浏览器的资源请求并将请求的文件下载到本地</p>
       <p>需要浏览器支持 Chrome DevTools Protocol 才能进行嗅探，嗅探过程中浏览器可能会卡顿</p>
       <p>注意：嗅探过程中请尽可能游玩全部关卡以保证缺失的文件被嗅探全面；如果嗅探结束后仍不能在本地正确播放说明这个 Flash 可能在异步策略中增加了校验策略，建议还是在线玩</p>
       <a-switch v-model:checked="smartSniffing.enable" checked-children="启用" un-checked-children="关闭"
@@ -251,6 +252,8 @@ async function onChangeBrowser(type: 'flash' | 'unity' | 'h5') {
     } else {
       browser.value.flash.name = "默认浏览器"
       browser.value.flash.p = ""
+      smartSniffing.value.enable = false
+      name = "默认浏览器"
     }
     browser.value.flash.node = getBrowserNode(name, flashBrowserList.value)
   } else if (type == 'unity') {
@@ -265,6 +268,7 @@ async function onChangeBrowser(type: 'flash' | 'unity' | 'h5') {
     } else {
       browser.value.unity.name = "默认浏览器"
       browser.value.unity.p = ""
+      name = "默认浏览器"
     }
     browser.value.unity.node = getBrowserNode(name, unityBrowserList.value)
   } else {
@@ -279,6 +283,7 @@ async function onChangeBrowser(type: 'flash' | 'unity' | 'h5') {
     } else {
       browser.value.h5.name = "默认浏览器"
       browser.value.h5.p = ""
+      name = "默认浏览器"
     }
     browser.value.h5.node = getBrowserNode(name, h5BrowserList.value)
   }
@@ -307,7 +312,7 @@ function validPort(): boolean {
 }
 
 function checkSmartSniffing(): boolean {
-  if (!smartSniffing.value) return true
+  if (!smartSniffing.value.enable) return true
   //定义最终变量
   let arg
   //检查Flash浏览器
