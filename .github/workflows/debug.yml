@@ -29,6 +29,10 @@ jobs:
       # 安装依赖
       - name: Install dependencies
         run: yarn
+
+      # 单元测试
+      - name: Build preview
+        run: yarn test
       
       # 运行构建
       - name: Build preview
