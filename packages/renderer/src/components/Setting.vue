@@ -19,7 +19,8 @@
   <a-card title="启动浏览器">
     <a-space direction="vertical">
       <p>Flash Collector 在本地运行游戏可能需要浏览器的支持，请参考我们提供的<a
-          @click="shell.openExternal('https://github.com/Cnotech/flash-collector#浏览器兼容性')">浏览器兼容性表格</a>选择游戏的启动浏览器</p>
+          @click="shell.openExternal('https://github.com/Cnotech/flash-collector#浏览器兼容性')">浏览器兼容性表格</a>选择游戏的启动浏览器：
+      </p>
       <a-space>
         <span style="margin-right: 12.5px">Flash：</span>
         <a-select v-model:value="browser.flash.name" :options="flashBrowserList" class="browser-selector"
@@ -44,9 +45,10 @@
   <a-card title="智能嗅探">
     <a-space direction="vertical">
       <p>此功能可以帮助下载异步加载的 Flash 小游戏，启用后当您使用“源站播放”时 Flash Collector
-        会监听浏览器的资源请求并将请求的文件下载到本地</p>
-      <p>需要浏览器支持 Chrome DevTools Protocol 才能进行嗅探，嗅探过程中浏览器可能会卡顿</p>
-      <p>注意：嗅探过程中请尽可能游玩全部关卡以保证缺失的文件被嗅探全面；如果嗅探结束后仍不能在本地正确播放说明这个 Flash 可能在异步策略中增加了校验策略，建议还是在线玩</p>
+        会监听浏览器的资源请求并将请求的文件下载到本地。</p>
+      <p>需要浏览器支持 Chrome DevTools Protocol 才能进行嗅探，嗅探过程中浏览器可能会卡顿。</p>
+      <p>注意：嗅探过程中请尽可能游玩全部关卡以保证缺失的文件被嗅探全面；如果嗅探结束后仍不能在本地正确播放说明这个 Flash
+        可能在异步策略中增加了校验策略，建议还是在线玩😥。</p>
       <a-switch v-model:checked="smartSniffing.enable" checked-children="启用" un-checked-children="关闭"
                 @change="checkSmartSniffing"/>
       <a-space v-if="smartSniffing.enable" size="large">
@@ -65,17 +67,19 @@
   </a-card>
   <br/>
   <a-card title="自动备份进度">
-    <p>在启动游戏时自动备份上次游戏进度，若频繁出错请<a @click="shell.openExternal('https://github.com/Cnotech/flash-collector/issues')">提交
-      issue </a>然后暂时关闭此功能</p>
+    <p>在启动游戏时自动备份上次游戏进度，若频繁出错请<a
+        @click="shell.openExternal('https://github.com/Cnotech/flash-collector/issues')">提交
+      issue </a>然后暂时关闭此功能。</p>
     <a-switch v-model:checked="enableProgressBackup" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
   <br/>
   <a-card title="运行库检查">
-    <p>在启动游戏时自动检查相应运行库是否已经安装，若有误报请关闭</p>
+    <p>在启动游戏时自动检查相应运行库是否已经安装，若频繁误报请关闭。</p>
     <a-switch v-model:checked="libCheck" checked-children="启用" un-checked-children="禁用"/>
   </a-card>
   <br/>
   <a-card title="搜索引擎">
+    <p>自定义首页搜索框所使用的搜索引擎。</p>
     <a-space>
       <a-select v-model:value="site" :options="siteOptions" style="width: 120px"></a-select>
       <a-select v-model:value="method" :options="methodOptions" style="width: 140px"></a-select>
@@ -98,7 +102,7 @@
   </a-card>
   <br/>
   <a-card title="游戏服务端口">
-    若无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口更改可能会导致丢失游戏进度！
+    若出现端口冲突导致无法在浏览器中访问本地游戏服务器请尝试修改端口，但是注意端口的更改可能会导致丢失游戏进度！
     <br/><br/>
     <a-space>
       <a-input v-model:value="port" style="width: 100%"/>
@@ -305,7 +309,7 @@ function validPort(): boolean {
   const p = port.value
   if (p < 1000 || p > 65535) {
     port.value = 3000
-    message.error("请保持端口处于1000-65535")
+    message.error("端口有效值范围：1000-65535")
     return false
   }
   return true
