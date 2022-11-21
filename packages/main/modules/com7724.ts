@@ -66,7 +66,7 @@ async function getCookie(): Promise<Result<string, string>> {
                 let cookie = await win.webContents.session.cookies.get({
                     url: "http://www.7724.com",
                 })
-                if (cookie.length > 5) {
+                if (cookie.length > 12) {
                     win.close()
                 }
             }
@@ -77,7 +77,7 @@ async function getCookie(): Promise<Result<string, string>> {
             win.webContents.session.cookies
                 .get({url: "http://www.7724.com"})
                 .then((cookies) => {
-                    if (cookies.length < 3) {
+                    if (cookies.length <= 12) {
                         resolve(new Err("Error:Can't read cookie"))
                     } else {
                         cookie = ""
