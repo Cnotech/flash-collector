@@ -30,6 +30,7 @@ const configPatch = {
     }
 }
 
+
 function geneInitConfig(): Config {
     return {
         cookies: {},
@@ -38,7 +39,7 @@ function geneInitConfig(): Config {
             method: "baidu"
         },
         libCheck: true,
-        port: 3000,
+        port: 4090,
         recentLaunch: [],
         browser: {
             flash: "",
