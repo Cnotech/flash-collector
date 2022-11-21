@@ -95,18 +95,36 @@
             <template #header>
               <strong>登录状态（{{ cookieStatus.filter(n => n.login).length }}/{{ cookieStatus.length }}）</strong>
             </template>
-            <div v-for="item of cookieStatus" class="status-bar">
-              <a-space style="margin: 3px 0">
-                {{ item.name }}：{{ item.login ? item.nickName : "未登录" }}
-                <template v-if="item.login">
-                  <check-circle-outlined style="color: #42b983"/>
-                  <a-button size="small" @click="logout(item.name)">登出</a-button>
-                </template>
-                <template v-else>
-                  <close-circle-outlined style="color: gray"/>
-                  <a-button size="small" @click="login(item.name)">登录</a-button>
-                </template>
-              </a-space>
+            <div style="display: flex;justify-content: center;width: 100%">
+
+              <table style="width: 50%;text-align: center">
+                <tr v-for="item of cookieStatus" style="height: 40px">
+                  <td>
+                    <a-tag color="cyan">{{ item.name }}</a-tag>
+                  </td>
+                  <td>
+                    <small>{{ item.login ? item.nickName : "未登录" }}</small>
+                  </td>
+                  <template v-if="item.login">
+                    <td>
+                      <check-circle-outlined style="color: #42b983"/>
+                    </td>
+                    <td>
+                      <a-button size="small" @click="logout(item.name)">登出</a-button>
+                    </td>
+                  </template>
+                  <template v-else>
+                    <td>
+                      <close-circle-outlined style="color: gray"/>
+                    </td>
+                    <td>
+                      <a-button size="small" @click="login(item.name)">登录</a-button>
+                    </td>
+                  </template>
+                  <a-space style="margin: 3px 0">
+                  </a-space>
+                </tr>
+              </table>
             </div>
           </a-collapse-panel>
         </a-collapse>
