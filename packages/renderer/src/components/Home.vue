@@ -96,35 +96,23 @@
               <strong>登录状态（{{ cookieStatus.filter(n => n.login).length }}/{{ cookieStatus.length }}）</strong>
             </template>
             <div style="display: flex;justify-content: center;width: 100%">
-
               <table style="width: 50%;text-align: center">
-                <tr v-for="item of cookieStatus" style="height: 40px">
-                  <td>
-                    <a-tag color="cyan">{{ item.name }}</a-tag>
-                  </td>
-                  <td>
-                    <small>{{ item.login ? item.nickName : "未登录" }}</small>
-                  </td>
-                  <template v-if="item.login">
+                <template v-for="item of cookieStatus">
+                  <tr style="height: 40px">
+                    <td>{{ item.name }}</td>
                     <td>
-                      <check-circle-outlined style="color: #42b983"/>
+                      <a-tag :color="item.login?'cyan':'gray'">
+                        {{ item.login ? item.nickName : "未登录" }}
+                      </a-tag>
                     </td>
                     <td>
-                      <a-button size="small" @click="logout(item.name)">登出</a-button>
+                      <a-button v-if="item.login" size="small" @click="logout(item.name)">登出</a-button>
+                      <a-button v-else size="small" type="primary" @click="login(item.name)">登录</a-button>
                     </td>
-                  </template>
-                  <template v-else>
-                    <td>
-                      <close-circle-outlined style="color: gray"/>
-                    </td>
-                    <td>
-                      <a-button size="small" @click="login(item.name)">登录</a-button>
-                    </td>
-                  </template>
-                  <a-space style="margin: 3px 0">
-                  </a-space>
-                </tr>
+                  </tr>
+                </template>
               </table>
+
             </div>
           </a-collapse-panel>
         </a-collapse>
@@ -140,7 +128,6 @@ import {clipboard, shell} from "electron";
 import {Option, Result} from "ts-results";
 import {Config, GameInfo, LoginStatus} from "../../../class";
 import {message, Modal} from 'ant-design-vue';
-import {CheckCircleOutlined, CloseCircleOutlined} from '@ant-design/icons-vue';
 import {bus} from "../eventbus";
 import bridge from "../bridge";
 import {getConfig} from "../config";
