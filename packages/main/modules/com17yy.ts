@@ -1,7 +1,7 @@
-import { Err, Ok, Result } from "ts-results"
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios"
-import { GameInfo } from "../../class"
-import { BrowserWindow } from "electron"
+import {Err, Ok, Result} from "ts-results"
+import axios, {AxiosRequestConfig, AxiosResponse} from "axios"
+import {GameInfo} from "../../class"
+import {BrowserWindow} from "electron"
 import iconv from "iconv-lite"
 
 let cookie: string | null = null
@@ -40,7 +40,10 @@ async function getCookie(): Promise<Result<string, string>> {
         }
 
         //加载页面
-        await win.loadURL("http://www.17yy.com")
+        try {
+            await win.loadURL("http://www.17yy.com")
+        } catch (e) {
+        }
 
         //修改标题
         let init = true
