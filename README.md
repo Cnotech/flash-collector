@@ -115,6 +115,8 @@ Flash Collector 支持大部分主流浏览器的识别。你也可以使用旧�
 
 执行 `yarn build`。
 
+> Flash Collector 仅支持在 Windows 64 位系统上编译和运行
+
 ## 条款
 
 使用此软件及其相关内容即表示您同意下述条款：
