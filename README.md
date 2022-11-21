@@ -36,10 +36,10 @@
 
 由于 4399 为真实游戏页面增加了 Referer 限制，因此无法直接在浏览器中访问源站真实页面播放游戏，需要配合油猴或暴力猴插件安装配套用户脚本；此脚本还可以修改源站播放的网页标题、撑开原生 Flash 游戏文件元素。
 
-GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399
+GreasyFork : https://greasyfork.org/zh-CN/scripts/444989-flash-collector-script
 
-如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `userscript`
-目录获取脚本或直接[点击此链接安装](https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-script.user.js)。
+如果在 GreasyFork 上的脚本被举报删除，请在本仓库的 `user-script`
+目录获取脚本或直接[点击此链接安装](https://github.com/Cnotech/flash-collector/raw/master/user-script/flash-collector-script.user.js)。
 
 ## 浏览器兼容性
 

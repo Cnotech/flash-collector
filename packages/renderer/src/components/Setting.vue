@@ -12,7 +12,7 @@
     （2）访问 <a
       @click="shell.openExternal('https://greasyfork.org/zh-CN/scripts/444989-flash-collector-for-4399')">GreasyFork
     脚本页面</a> 或 <a
-      @click="shell.openExternal('https://github.com/Cnotech/flash-collector/raw/master/userscript/flash-collector-script.user.js')">GitHub
+      @click="shell.openExternal('https://github.com/Cnotech/flash-collector/raw/master/user-script/flash-collector-script.user.js')">GitHub
     仓库脚本直链</a>，安装脚本。
   </a-card>
   <br/>
