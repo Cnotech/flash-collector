@@ -3,6 +3,7 @@ import {release} from 'os'
 import path from 'path'
 import bridge from "./bridge";
 import cp from "child_process"
+import {GameInfo} from "../class";
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) app.disableHardwareAcceleration()
@@ -120,6 +121,17 @@ function logToRenderer(msg: any) {
     win?.webContents.send('logToRenderer', msg)
 }
 
+function realTimeSniffing(payload?: {
+    url: string,
+    method: "downloaded" | "cached" | "ignored" | "error",
+    info: GameInfo
+}) {
+    win?.webContents.send('realTimeSniffing', {
+        display: payload != null,
+        payload
+    })
+}
+
 bridge()
 export {
     toggleDevtool,
@@ -127,5 +139,6 @@ export {
     version,
     enableUpdate,
     isPackaged,
-    logToRenderer
+    logToRenderer,
+    realTimeSniffing
 }

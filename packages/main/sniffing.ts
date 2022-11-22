@@ -6,6 +6,7 @@ import path from "path";
 import shelljs from "shelljs";
 import Downloader from "nodejs-file-downloader";
 import fs from "fs";
+import {realTimeSniffing} from "./index";
 
 const CDP = require('chrome-remote-interface');
 
@@ -32,6 +33,7 @@ async function sniffing(url: string, info: GameInfo): Promise<Result<string[], s
                 working = false
                 if (resource.length > 0) showNotification("资源嗅探成功", `嗅探到${resource.length}个新资源`)
                 else showNotification("没有嗅探到新的资源", `玩的关卡越多嗅探的资源越全面哦`)
+                realTimeSniffing()
                 res(new Ok(resource))
             })
             await Page.enable();
@@ -57,12 +59,24 @@ function getBase(url: string): string {
 
 async function fetchResource(url: string, base: string, info: GameInfo): Promise<boolean> {
     if (url.indexOf(base) != 0 || info.local == null) {
+        realTimeSniffing({
+            url,
+            method: "ignored",
+            info
+        })
         return false
     } else {
         //解析本地路径
         let localPath = url.replace(base, path.join("games", info.type, info.local.folder) + "/").replace(/\\/g, "/").split("#")[0],
             localBase = getBase(localPath)
-        if (fs.existsSync(localPath)) return false
+        if (fs.existsSync(localPath)) {
+            realTimeSniffing({
+                url,
+                method: "cached",
+                info
+            })
+            return false
+        }
         if (!fs.existsSync(localBase)) shelljs.mkdir('-p', localBase)
         //下载此文件
         const d = new Downloader({
@@ -78,10 +92,20 @@ async function fetchResource(url: string, base: string, info: GameInfo): Promise
         })
         try {
             await d.download();
+            realTimeSniffing({
+                url,
+                method: "downloaded",
+                info
+            })
             return true
         } catch (error) {
             console.log(`Error:Can't download ${url}`)
             console.log(error);
+            realTimeSniffing({
+                url,
+                method: "error",
+                info
+            })
             return false
         }
     }
