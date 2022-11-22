@@ -88,9 +88,9 @@
             <QuestionCircleOutlined v-else/>
           </a-popover>
           <a-badge v-if="realTimeSniffing.display"
-                   :count="realTimeSniffing.data.filter(node=>node.method=='downloaded').length"
+                   :count="realTimeSniffing.data.filter(node=>node.method==='downloaded').length"
                    @click="realTimeSniffing.drawerDisplay=true">
-            <a-tooltip title="正在进行智能嗅探">
+            <a-tooltip title="查看智能嗅探工作台">
               <radar-chart-outlined class="progress-status-icon" style="color: #42b983"/>
             </a-tooltip>
           </a-badge>
@@ -150,7 +150,7 @@
         id="webview-container"
         style="width:100%; height:80%;border-width: 0"
     />
-    <a-drawer v-model:visible="realTimeSniffing.drawerDisplay" placement="bottom" title="实时嗅探列表">
+    <a-drawer v-model:visible="realTimeSniffing.drawerDisplay" placement="bottom" title="智能嗅探工作台">
       <table style="width: 100%">
         <template v-for="item of realTimeSniffing.data">
           <tr>
@@ -161,10 +161,10 @@
               <a-tag :color="RealTimeSniffingTag[item.method].color">
                 {{ RealTimeSniffingTag[item.method].text }}
                 <template #icon>
-                  <check-circle-outlined v-if="item.method=='downloaded'"/>
-                  <close-circle-outlined v-if="item.method=='error'"/>
-                  <minus-circle-outlined v-if="item.method=='ignored'"/>
-                  <clock-circle-outlined v-if="item.method=='cached'"/>
+                  <check-circle-outlined v-if="item.method==='downloaded'"/>
+                  <close-circle-outlined v-if="item.method==='error'"/>
+                  <minus-circle-outlined v-if="item.method==='ignored'"/>
+                  <clock-circle-outlined v-if="item.method==='cached'"/>
                 </template>
               </a-tag>
             </td>
@@ -690,6 +690,9 @@ onMounted(async () => {
         url: args.payload.url,
         method: args.payload.method
       })
+    } else {
+      realTimeSniffing.value.drawerDisplay = false
+      realTimeSniffing.value.data = []
     }
   })
 
