@@ -79,13 +79,21 @@
 
               <br/>
               <p>关于源站播放</p>
-              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
+              <p>点击源站播放可能会显示错误，这是因为游戏网站增加了 Referer 限制，请<a
+                  @click="router.push('/setting#4399')">前往“设置”界面</a>安装配套用户脚本
               </p>
             </template>
 
             <WarningFilled v-if="alertSwf" style="color: orange;font-size: larger"/>
             <QuestionCircleOutlined v-else/>
           </a-popover>
+          <a-badge v-if="realTimeSniffing.display"
+                   :count="realTimeSniffing.data.filter(node=>node.method=='downloaded').length"
+                   @click="realTimeSniffing.drawerDisplay=true">
+            <a-tooltip title="正在进行智能嗅探">
+              <radar-chart-outlined class="progress-status-icon" style="color: #42b983"/>
+            </a-tooltip>
+          </a-badge>
         </template>
         <template v-else-if="info.type==='h5'">
           <a-dropdown>
@@ -138,11 +146,32 @@
     </a-page-header>
 
     <a-divider>下方为小游戏原始页面，仅供浏览</a-divider>
-
     <div
         id="webview-container"
         style="width:100%; height:80%;border-width: 0"
     />
+    <a-drawer v-model:visible="realTimeSniffing.drawerDisplay" placement="bottom" title="实时嗅探列表">
+      <table style="width: 100%">
+        <template v-for="item of realTimeSniffing.data">
+          <tr>
+            <td>
+              <h4>{{ item.url }}</h4>
+            </td>
+            <td>
+              <a-tag :color="RealTimeSniffingTag[item.method].color">
+                {{ RealTimeSniffingTag[item.method].text }}
+                <template #icon>
+                  <check-circle-outlined v-if="item.method=='downloaded'"/>
+                  <close-circle-outlined v-if="item.method=='error'"/>
+                  <minus-circle-outlined v-if="item.method=='ignored'"/>
+                  <clock-circle-outlined v-if="item.method=='cached'"/>
+                </template>
+              </a-tag>
+            </td>
+          </tr>
+        </template>
+      </table>
+    </a-drawer>
   </div>
 </template>
 
@@ -152,12 +181,14 @@ import {useRoute, useRouter} from 'vue-router';
 import {Config, GameInfo, ProgressEnable} from "../../../class";
 import {
   CheckCircleOutlined,
+  ClockCircleOutlined,
   CloseCircleOutlined,
   DownOutlined,
   ExceptionOutlined,
   ExclamationCircleOutlined,
   FileDoneOutlined,
   FileProtectOutlined,
+  MinusCircleOutlined,
   QuestionCircleOutlined,
   RadarChartOutlined,
   SyncOutlined,
@@ -171,12 +202,50 @@ import {Option, Result} from "ts-results";
 import fs from "fs";
 import {bus} from "../eventbus";
 import {getConfig, setConfig} from "../config";
-import {shell} from "electron"
+import {ipcRenderer, shell} from "electron"
 import {banScript} from "../assets/banScript.json"
 
 const route = useRoute(), router = useRouter()
 
 type BackupStatus = 'none' | 'pending' | 'success' | 'error'
+type SniffingMethod = "downloaded" | "cached" | "ignored" | "error"
+
+interface RealTimeSniffingArgs {
+  display: boolean,
+  payload?: {
+    url: string,
+    method: SniffingMethod,
+    info: GameInfo
+  }
+}
+
+interface RealTimeSniffingRecord {
+  url: string
+  method: SniffingMethod
+}
+
+const RealTimeSniffingTag: Record<SniffingMethod, { color: string, text: string, icon: any }> = {
+  error: {
+    color: 'error',
+    text: '错误',
+    icon: CloseCircleOutlined
+  },
+  downloaded: {
+    color: 'success',
+    text: '成功',
+    icon: CheckCircleOutlined
+  },
+  cached: {
+    color: 'processing',
+    text: '已缓存',
+    icon: ClockCircleOutlined
+  },
+  ignored: {
+    color: 'default',
+    text: '忽略',
+    icon: MinusCircleOutlined
+  }
+}
 
 let playingList: string[] = [],
     webview: any
@@ -206,7 +275,16 @@ let status = ref<boolean>(false),
       msg: "进度备份功能无法启用"
     }),
     backupDisplayStatus = ref<BackupStatus>("none"),
-    backupDisplayTip = ref("")
+    backupDisplayTip = ref(""),
+    realTimeSniffing = ref<{
+      display: boolean,
+      data: RealTimeSniffingRecord[],
+      drawerDisplay: boolean
+    }>({
+      display: false,
+      data: [],
+      drawerDisplay: false,
+    })
 
 let browser: Config['browser'] = {
   flash: "",
@@ -214,11 +292,16 @@ let browser: Config['browser'] = {
   h5: "",
   ignoreAlert: false
 }
-getConfig().then(c => {
-  port.value = c.port
-  browser = c.browser
-  sniffingStatue.value = c.smartSniffing.enable
-})
+refreshConfig()
+
+//刷新配置
+function refreshConfig() {
+  getConfig().then(c => {
+    port.value = c.port
+    browser = c.browser
+    sniffingStatue.value = c.smartSniffing.enable
+  })
+}
 
 //启动游戏
 async function launch(method: 'normal' | 'backup' | 'origin', force?: boolean): Promise<boolean> {
@@ -593,10 +676,23 @@ onMounted(async () => {
   const qRes = await query()
   if (!qRes.some) return
   info.value = qRes.val
+
   //判断是否需要显示swf警告
   if (info.value.type == 'flash') {
     alertSwf.value = await bridge('showFlashAlert', info.value.local?.folder, info.value.local?.binFile)
   }
+
+  //监听实时嗅探事件
+  ipcRenderer.on("realTimeSniffing", (e, args: RealTimeSniffingArgs) => {
+    realTimeSniffing.value.display = args.display && args.payload?.info.title == info.value.title
+    if (args.display && args.payload != undefined) {
+      realTimeSniffing.value.data.push({
+        url: args.payload.url,
+        method: args.payload.method
+      })
+    }
+  })
+
   //动态添加webview
   let webviewQuery = document.getElementsByTagName("webview")
   if (webviewQuery.length > 0) {
@@ -630,6 +726,14 @@ onMounted(async () => {
   await getProgressModuleStatus()
 })
 
+//阻止路由离开
+router.beforeEach(() => {
+  if (realTimeSniffing.value.display) {
+    message.warn("请关闭浏览器结束智能嗅探，然后才能离开此页面！")
+    return false
+  }
+})
+
 //配置更新查询
 router.afterEach(async () => {
   if (route.query.id == null) return
@@ -645,6 +749,8 @@ router.afterEach(async () => {
   webview.setAttribute('src', info.value.online.originPage)
   //刷新同步状态
   await getProgressModuleStatus()
+  //刷新配置
+  refreshConfig()
 })
 
 </script>
@@ -654,5 +760,6 @@ router.afterEach(async () => {
   font-size: large;
   margin-left: 5px;
   transform: translateY(2px);
+  cursor: pointer;
 }
 </style>
