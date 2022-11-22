@@ -61,7 +61,7 @@ async function main() {
 
     //生成全量包
     console.log("Building...")
-    cp.execSync("electron-builder")
+    cp.execSync("yarn prebuild && electron-builder")
     afterBuild.afterBuild(9)
 
     //生成更新包
