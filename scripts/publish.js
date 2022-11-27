@@ -3,7 +3,7 @@ const readline = require('readline')
 const fs = require('fs')
 const cp = require('child_process')
 
-const afterBuild = require('./afterbuild')
+const {afterBuild} = require('./afterbuild')
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -62,7 +62,7 @@ async function main() {
     //生成全量包
     console.log("Building...")
     cp.execSync("yarn prebuild && electron-builder")
-    afterBuild.afterBuild(9)
+    afterBuild(9)
 
     //生成更新包
     console.log("Generating update packages...")

@@ -1,3 +1,3 @@
-const afterBuild = require('./afterbuild')
+const {afterBuild} = require('./afterbuild')
 
-afterBuild.afterBuild(5)
+afterBuild(5)
