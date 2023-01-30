@@ -16,8 +16,7 @@
 -   自动检测并安装必要的运行库
 -   模块化设计，可拓展小游戏站点支持
 - 一键导入导出你的游戏库，与你的同伴共享游戏
--
-进度备份/恢复/导出/导入功能，方便地在不同电脑之间同步进度（[1 help wanted](https://github.com/Cnotech/flash-collector/issues/6)）
+- 进度备份/恢复/导出/导入功能，方便地在不同电脑之间同步进度（[1 help wanted](https://github.com/Cnotech/flash-collector/issues/6)）
 
 ## 支持的站点
 
