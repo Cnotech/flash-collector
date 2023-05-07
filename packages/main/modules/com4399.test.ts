@@ -9,8 +9,8 @@ const testMap: Record<string, GameInfo> = {
         "fromSite": "4399",
         "online": {
             "originPage": "http://www.4399.com/flash/223745.htm",
-            "truePage": "http://sxiao.4399.com/4399swf/upload_swf/ftp37/cwb/20211115/01a/index.htm",
-            "binUrl": "http://sxiao.4399.com/4399swf/upload_swf/ftp37/cwb/20211115/01a/index.htm",
+            "truePage": "http://sxiao.4399.com/4399swf/upload_swf/ftp41/cwb/20221213/01/index.htm",
+            "binUrl": "http://sxiao.4399.com/4399swf/upload_swf/ftp41/cwb/20221213/01/index.htm",
             "icon": "http://imga1.5054399.com/upload_pic/2021/11/17/4399_09480196660.jpg"
         }
     },
