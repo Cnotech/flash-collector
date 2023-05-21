@@ -466,7 +466,7 @@ function browserAlert(method: 'normal' | 'backup' | 'origin') {
       let sniffingRes = await bridge('sniffing', info.value.online.truePage + '#flash-collector-0?title=' + info.value.title, JSON.parse(JSON.stringify(info.value))) as Result<string[], string>
       if (sniffingRes.err) {
         message.error({
-          content: `资源嗅探失败：${sniffingRes.val}，关闭所有浏览器窗口后重试，或查看“设置”页面的CDP启动参数是否配置正确`,
+          content: `资源嗅探失败：${sniffingRes.val}，使用任务管理器退出所有浏览器进程后重试，或查看“设置”页面的CDP启动参数是否配置正确`,
           key: "sniffing",
           duration: 3
         })

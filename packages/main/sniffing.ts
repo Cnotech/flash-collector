@@ -42,7 +42,7 @@ async function sniffing(url: string, info: GameInfo): Promise<Result<string[], s
             showNotification("正在嗅探异步加载的 Flash 资源", "嗅探过程中浏览器可能会卡顿，关闭浏览器以结束嗅探")
             await Page.disable()
         } catch (err) {
-            showNotification("资源嗅探失败", "关闭所有浏览器窗口后重试，或查看“设置”页面的CDP启动参数是否配置正确")
+            showNotification("资源嗅探失败", "使用任务管理器退出所有浏览器进程后重试，或查看“设置”页面的CDP启动参数是否配置正确")
             res(new Err(JSON.stringify(err)))
         }
     })
