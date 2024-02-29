@@ -108,6 +108,15 @@ async function fetch(url: string, referer: string): Promise<string> {
     return iconv.encode(str, 'UTF8').toString()
 }
 
+const fullUrl=(raw:string)=>{
+    if(raw.startsWith('//')){
+        return `https:${raw}`
+    }else if (raw.startsWith('/')){
+        return `https://www.4399.com${raw}`
+    }
+    return undefined
+}
+
 async function entrance(url: string): Promise<Result<GameInfo, string>> {
     return new Promise(async (resolve) => {
         //检查cookie是否为空
@@ -163,13 +172,34 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         if (m == null) {
             //加入pvz补丁
             let pvzPatchRes = await pvzPatch(originPage, {title, category, id})
-            if (pvzPatchRes.err) {
-                resolve(new Err("Error:Can't parse playing page"))
-                return
-            } else {
+            if (pvzPatchRes.ok) {
                 resolve(pvzPatchRes)
                 return
             }
+            // 加入直接拿 swf 路径的补丁
+            const m=(originPage as string).match(/[/\w_]+\.swf/)
+            if(m?.length){
+                const binUrl=fullUrl(m[0])
+                if(!binUrl){
+                    return new Err(`Error:Failed to full url for '${m[0]}'`)
+                }
+                resolve(new Ok({
+                    title,
+                    category,
+                    type: "flash",
+                    fromSite: "4399",
+                    online: {
+                        originPage: url,
+                        truePage: binUrl,
+                        binUrl,
+                        icon: await getIcon(title, id)
+                    }
+                }))
+                return
+            }
+
+            resolve(new Err("Error:Can't parse playing page"))
+            return
         }
         const playingPage = m[0]
         // console.log('playingPage:'+playingPage)
@@ -376,9 +406,18 @@ async function pvzPatch(page: string, known: { title: string, category: string, 
     const url = `http://www.4399.com/flash/${known.id}.htm`
     //查找iframe元素
     let match = page.match(/<iframe.+\.htm.+<\/iframe>/)
-    if (match == null) return new Err(null)
-    const truePageUrl = "https:" + match[0].match(/\/\/.+\.htm/)![0]
-    // console.log(truePageUrl);
+    if (!match?.length) {
+        return new Err(null)
+    }
+    const src=match[0].match(/\/.+\.htm/)?.[0]
+    if(!src){
+        return new Err(null)
+    }
+    const truePageUrl = fullUrl(src)
+    if(!truePageUrl){
+        return new Err(null)
+    }
+    // console.log('truePageUrl',truePageUrl);
 
     //获取真实页面。匹配swf文件名
     const truePage = await fetch(truePageUrl, url)
