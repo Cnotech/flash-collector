@@ -49,7 +49,20 @@ const testMap: Record<string, GameInfo> = {
             "binUrl": "https://s4.4399.com/4399swf/upload_swf/ftp/20090929/1/pvz_9_15.swf",
             "icon": "http://imga3.5054399.com/upload_pic/2016/2/18/4399_18432063237.jpg"
         }
-    }
+    },
+    "https://www.4399.com/flash/94107.htm":
+        {
+            "title": "愤怒的小鸟免费神鹰版",
+            "category": "益智",
+            "type": "flash",
+            "fromSite": "4399",
+            "online": {
+                "originPage": "http://www.4399.com/flash/94107.htm",
+                "truePage": "http://sxiao.4399.com/4399swf/upload_swf/ftp8/zhichang/20120723/001.swf",
+                "binUrl": "http://sxiao.4399.com/4399swf/upload_swf/ftp8/zhichang/20120723/001.swf",
+                "icon": "http://imga3.5054399.com/upload_pic/2012/7/23/4399_10113765770.jpg"
+            }
+        }
 }
 test("4399", async () => {
     //初始化模块

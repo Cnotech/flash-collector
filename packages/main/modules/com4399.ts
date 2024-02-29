@@ -4,7 +4,7 @@ import {GameInfo} from '../../class';
 import {BrowserWindow} from 'electron';
 import iconv from 'iconv-lite';
 import cheerio from 'cheerio';
-import {GBKEncodeUri,GBKDecodeUri} from "./GBKUri";
+import {GBKDecodeUri, GBKEncodeUri} from "./GBKUri";
 
 let cookie: string | null = null
 let updateCookie: (cookie: string) => void
@@ -176,30 +176,13 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
                 resolve(pvzPatchRes)
                 return
             }
-            // 加入直接拿 swf 路径的补丁
-            const m=(originPage as string).match(/[/\w_]+\.swf/)
-            if(m?.length){
-                const binUrl=fullUrl(m[0])
-                if(!binUrl){
-                    return new Err(`Error:Failed to full url for '${m[0]}'`)
-                }
-                resolve(new Ok({
-                    title,
-                    category,
-                    type: "flash",
-                    fromSite: "4399",
-                    online: {
-                        originPage: url,
-                        truePage: binUrl,
-                        binUrl,
-                        icon: await getIcon(title, id)
-                    }
-                }))
+            // 也有可能当前页就是真实页面
+            if (originPage.match(/_strGamePath\s*=\s*".*"/)?.length) {
+                m = [`/flash/${id}.htm`]
+            } else {
+                resolve(new Err("Error:Can't parse playing page"))
                 return
             }
-
-            resolve(new Err("Error:Can't parse playing page"))
-            return
         }
         const playingPage = m[0]
         // console.log('playingPage:'+playingPage)
