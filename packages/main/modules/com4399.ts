@@ -206,7 +206,7 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
         }
         let webServer = m[0].split('"')[1]
         if (webServer.slice(0, 2) == "//") webServer = "http:" + webServer
-        // console.log(webServer)
+        // console.log('webServer',webServer)
 
         //匹配真实页面路径
         m = page.match(/_strGamePath\s*=\s*".*"/)
@@ -214,7 +214,9 @@ async function entrance(url: string): Promise<Result<GameInfo, string>> {
             resolve(new Err("Error:Can't match true game page"))
             return
         }
-        const trueUrl = webServer + m[0].split('"')[1]
+        let strGamePath = m[0].split('"')[1]
+        if (strGamePath.startsWith('//')) strGamePath = 'http:' + strGamePath
+        const trueUrl = strGamePath.startsWith('http') ? strGamePath : webServer + strGamePath
         console.log('trueUrl:' + trueUrl)
 
         //匹配二进制文件
