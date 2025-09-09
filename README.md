@@ -30,7 +30,7 @@
 
 ## 下载
 
-访问 [Releases](https://github.com/Cnotech/flash-collector/releases) 或 [境内发布服务器](https://pineapple.edgeless.top/FC/)。
+访问 [Releases](https://github.com/Cnotech/flash-collector/releases)。
 
 ## 配套用户脚本
 
